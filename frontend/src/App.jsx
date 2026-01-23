@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import Employees from './components/Employees';
+import Navigation from './components/Navigation';
 import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState('dashboard');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -36,6 +39,12 @@ function App() {
     checkAuth();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setCurrentPage('dashboard');
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -44,7 +53,22 @@ function App() {
     return <Login onLogin={setUser} />;
   }
 
-  return <Dashboard user={user} onLogout={() => setUser(null)} />;
+  const isAdmin = user.role_name === 'Admin';
+
+  return (
+    <div className="app-container">
+      <Navigation
+        currentPage={currentPage}
+        onNavigate={setCurrentPage}
+        onLogout={handleLogout}
+        isAdmin={isAdmin}
+      />
+      <main className="main-content">
+        {currentPage === 'dashboard' && <Dashboard user={user} />}
+        {currentPage === 'employees' && <Employees user={user} />}
+      </main>
+    </div>
+  );
 }
 
 export default App;
