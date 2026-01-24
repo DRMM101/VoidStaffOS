@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import EmployeeForm from './EmployeeForm';
+import EmployeeProfile from './EmployeeProfile';
 import QuarterlyReport from './QuarterlyReport';
 import ReviewForm from './ReviewForm';
 
@@ -16,11 +17,27 @@ function Employees({ user }) {
   const [snapshotEmployee, setSnapshotEmployee] = useState(null);
   const [currentWeekFriday, setCurrentWeekFriday] = useState('');
   const [isFriday, setIsFriday] = useState(false);
+  const [profileEmployeeId, setProfileEmployeeId] = useState(null);
+  const [orphanedEmployees, setOrphanedEmployees] = useState([]);
 
   const isAdmin = user.role_name === 'Admin';
   const isManager = user.role_name === 'Manager';
   const canCreateSnapshots = isAdmin || isManager;
   const canViewReports = ['Admin', 'Manager', 'Compliance Officer'].includes(user.role_name);
+  const canViewOrphaned = isAdmin || isManager;
+
+  // Tier display helper
+  const getTierDisplay = (tier) => {
+    if (tier === null) return '-';
+    const tierNames = {
+      1: 'T1 - Executive',
+      2: 'T2 - Senior',
+      3: 'T3 - Mid',
+      4: 'T4 - Junior',
+      5: 'T5 - Entry'
+    };
+    return tierNames[tier] || `T${tier}`;
+  };
 
   const handleViewReport = (employeeId) => {
     setReportEmployeeId(employeeId);
@@ -30,9 +47,20 @@ function Employees({ user }) {
     setReportEmployeeId(null);
   };
 
+  const handleViewProfile = (employeeId) => {
+    setProfileEmployeeId(employeeId);
+  };
+
+  const handleCloseProfile = () => {
+    setProfileEmployeeId(null);
+  };
+
   useEffect(() => {
     fetchEmployeesWithStatus();
     fetchRoles();
+    if (canViewOrphaned) {
+      fetchOrphanedEmployees();
+    }
   }, []);
 
   const fetchEmployeesWithStatus = async () => {
@@ -71,6 +99,40 @@ function Employees({ user }) {
     }
   };
 
+  const fetchOrphanedEmployees = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/users/orphaned', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setOrphanedEmployees(data.orphaned_employees);
+      }
+    } catch (err) {
+      console.error('Failed to fetch orphaned employees');
+    }
+  };
+
+  const handleAdoptEmployee = async (employeeId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/users/adopt-employee/${employeeId}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        fetchEmployeesWithStatus();
+        fetchOrphanedEmployees();
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError('Failed to adopt employee');
+    }
+  };
+
   const handleAddEmployee = () => {
     setEditingEmployee(null);
     setShowForm(true);
@@ -105,6 +167,7 @@ function Employees({ user }) {
       setShowForm(false);
       setEditingEmployee(null);
       fetchEmployeesWithStatus();
+      fetchOrphanedEmployees();
     } catch (err) {
       throw err;
     }
@@ -157,7 +220,8 @@ function Employees({ user }) {
   const filteredEmployees = employees.filter(emp =>
     emp.full_name.toLowerCase().includes(search.toLowerCase()) ||
     emp.email.toLowerCase().includes(search.toLowerCase()) ||
-    emp.role_name?.toLowerCase().includes(search.toLowerCase())
+    emp.role_name?.toLowerCase().includes(search.toLowerCase()) ||
+    emp.employee_number?.toLowerCase().includes(search.toLowerCase())
   );
 
   const formatDate = (dateString) => {
@@ -169,7 +233,7 @@ function Employees({ user }) {
     if (emp.has_current_week_review) {
       return {
         text: 'Week Complete',
-        icon: '✓',
+        icon: '\u2713',
         className: 'snapshot-btn complete',
         disabled: true
       };
@@ -183,11 +247,13 @@ function Employees({ user }) {
 
     return {
       text: 'Create Snapshot',
-      icon: '📝',
+      icon: '\u{1F4DD}',
       className: statusClasses[emp.review_status] || 'snapshot-btn',
       disabled: false
     };
   };
+
+  const isOrphaned = (emp) => !emp.manager_id && emp.role_name !== 'Admin';
 
   if (loading) {
     return <div className="loading">Loading employees...</div>;
@@ -210,7 +276,7 @@ function Employees({ user }) {
         <div className="employees-actions">
           <input
             type="text"
-            placeholder="Search employees..."
+            placeholder="Search by name, email, role, or employee #..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="search-input"
@@ -223,15 +289,49 @@ function Employees({ user }) {
         </div>
       </div>
 
+      {/* Orphaned Employees Alert */}
+      {canViewOrphaned && orphanedEmployees.length > 0 && (
+        <div className="orphaned-alert">
+          <div className="orphaned-alert-header">
+            <span className="warning-icon">&#9888;</span>
+            <strong>{orphanedEmployees.length} employee(s) without a manager</strong>
+          </div>
+          <div className="orphaned-list">
+            {orphanedEmployees.slice(0, 5).map(emp => (
+              <div key={emp.id} className="orphaned-item">
+                <span className="orphaned-name">{emp.full_name}</span>
+                <span className="orphaned-tier">T{emp.tier}</span>
+                <span className="orphaned-number">{emp.employee_number}</span>
+                {(isManager || isAdmin) && (
+                  <button
+                    onClick={() => handleAdoptEmployee(emp.id)}
+                    className="adopt-btn-small"
+                  >
+                    Adopt
+                  </button>
+                )}
+              </div>
+            ))}
+            {orphanedEmployees.length > 5 && (
+              <div className="orphaned-more">
+                +{orphanedEmployees.length - 5} more
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {error && <div className="error-message">{error}</div>}
 
       <div className="table-container">
         <table className="employees-table">
           <thead>
             <tr>
+              <th>Employee #</th>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Tier</th>
               <th>Status</th>
               <th>Last Review</th>
               <th>Actions</th>
@@ -240,11 +340,32 @@ function Employees({ user }) {
           <tbody>
             {filteredEmployees.map(emp => {
               const snapshotBtn = getSnapshotButtonContent(emp);
+              const orphaned = isOrphaned(emp);
               return (
-                <tr key={emp.id}>
-                  <td>{emp.full_name}</td>
+                <tr key={emp.id} className={orphaned ? 'orphaned-row' : ''}>
+                  <td>
+                    <span className="employee-number-cell">
+                      {emp.employee_number || '-'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="name-cell">
+                      <span
+                        className="employee-name-link"
+                        onClick={() => handleViewProfile(emp.id)}
+                      >
+                        {emp.full_name}
+                      </span>
+                      {orphaned && (
+                        <span className="orphaned-indicator" title="No manager assigned">
+                          &#9888;
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td>{emp.email}</td>
                   <td><span className="role-badge">{emp.role_name}</span></td>
+                  <td><span className={`tier-badge tier-${emp.tier || 'admin'}`}>{getTierDisplay(emp.tier)}</span></td>
                   <td>
                     <span className={`status-badge ${emp.employment_status}`}>
                       {emp.employment_status}
@@ -263,6 +384,13 @@ function Employees({ user }) {
                     </div>
                   </td>
                   <td className="actions-cell">
+                    <button
+                      onClick={() => handleViewProfile(emp.id)}
+                      className="profile-btn"
+                      title="View profile"
+                    >
+                      Profile
+                    </button>
                     {canCreateSnapshots && emp.id !== user.id && (
                       <button
                         onClick={() => !snapshotBtn.disabled && handleCreateSnapshot(emp)}
@@ -279,7 +407,7 @@ function Employees({ user }) {
                         onClick={() => handleViewReport(emp.id)}
                         className="report-btn"
                       >
-                        <span className="report-btn-icon">📊</span>
+                        <span className="report-btn-icon">&#x1F4CA;</span>
                         Report
                       </button>
                     )}
@@ -297,7 +425,7 @@ function Employees({ user }) {
             })}
             {filteredEmployees.length === 0 && (
               <tr>
-                <td colSpan="6" className="no-results">
+                <td colSpan="8" className="no-results">
                   No employees found
                 </td>
               </tr>
@@ -322,6 +450,22 @@ function Employees({ user }) {
           onSubmit={handleSnapshotSubmit}
           onClose={handleSnapshotClose}
           defaultEmployeeId={snapshotEmployee.id}
+        />
+      )}
+
+      {profileEmployeeId && (
+        <EmployeeProfile
+          employeeId={profileEmployeeId}
+          user={user}
+          onClose={handleCloseProfile}
+          onAdopt={() => {
+            fetchEmployeesWithStatus();
+            fetchOrphanedEmployees();
+          }}
+          onAssignManager={() => {
+            fetchEmployeesWithStatus();
+            fetchOrphanedEmployees();
+          }}
         />
       )}
     </div>

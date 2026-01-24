@@ -1,18 +1,89 @@
+/**
+ * @fileoverview User Controller - Employee management operations
+ *
+ * Handles user CRUD, manager assignments, employee transfers, and adoptions.
+ * Implements role-based visibility where users only see employees they
+ * have permission to manage.
+ *
+ * Tier System:
+ * - Tier 1: Executive Level
+ * - Tier 2: Senior Level
+ * - Tier 3: Mid Level
+ * - Tier 4: Junior Level
+ * - Tier 5: Entry Level
+ * - null: Administrator (outside tier hierarchy)
+ *
+ * @module controllers/userController
+ */
+
 const pool = require('../config/database');
 const bcrypt = require('bcrypt');
+const {
+  notifyEmployeeTransferred,
+  notifyNewDirectReport
+} = require('./notificationController');
 
+/** @constant {number} SALT_ROUNDS - Bcrypt salt rounds for password hashing */
 const SALT_ROUNDS = 10;
 
+/**
+ * Get list of users with role-based filtering
+ *
+ * Visibility rules:
+ * - Admin/Compliance: See all users
+ * - Manager: See self + direct reports only
+ * - Employee: See self + anyone they manage
+ *
+ * @async
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - Authenticated user from JWT
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with users array
+ * @authorization Admin, Manager, Employee (filtered)
+ */
 async function getUsers(req, res) {
   try {
-    const result = await pool.query(
-      `SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
-              u.start_date, u.end_date, u.created_at,
-              r.role_name
-       FROM users u
-       LEFT JOIN roles r ON u.role_id = r.id
-       ORDER BY u.full_name`
-    );
+    const { role_name, id: userId } = req.user;
+    let query;
+    let params = [];
+
+    if (role_name === 'Admin' || role_name === 'Compliance Officer') {
+      // Admin/Compliance sees everyone
+      query = `
+        SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
+               u.start_date, u.end_date, u.created_at, u.tier,
+               r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        ORDER BY u.tier NULLS FIRST, u.full_name
+      `;
+    } else if (role_name === 'Manager') {
+      // Managers see themselves and their direct reports only
+      query = `
+        SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
+               u.start_date, u.end_date, u.created_at, u.tier,
+               r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        WHERE u.id = $1 OR u.manager_id = $1
+        ORDER BY u.tier, u.full_name
+      `;
+      params = [userId];
+    } else {
+      // Employees see only themselves and anyone they manage (if any)
+      query = `
+        SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
+               u.start_date, u.end_date, u.created_at, u.tier,
+               r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        WHERE u.id = $1 OR u.manager_id = $1
+        ORDER BY u.full_name
+      `;
+      params = [userId];
+    }
+
+    const result = await pool.query(query, params);
     res.json({ users: result.rows });
   } catch (error) {
     console.error('Get users error:', error);
@@ -23,9 +94,24 @@ async function getUsers(req, res) {
 async function getUserById(req, res) {
   try {
     const { id } = req.params;
+    const { role_name, id: userId } = req.user;
+
+    // Visibility check
+    if (role_name !== 'Admin' && role_name !== 'Compliance Officer') {
+      // Check if user can see this employee
+      const visibilityCheck = await pool.query(
+        'SELECT id FROM users WHERE id = $1 AND (id = $2 OR manager_id = $2)',
+        [id, userId]
+      );
+      if (visibilityCheck.rows.length === 0) {
+        return res.status(403).json({ error: 'You do not have permission to view this employee' });
+      }
+    }
+
     const result = await pool.query(
       `SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
-              u.start_date, u.end_date, u.created_at,
+              u.start_date, u.end_date, u.created_at, u.employee_number,
+              u.manager_id, u.manager_contact_email, u.manager_contact_phone, u.tier,
               r.role_name
        FROM users u
        LEFT JOIN roles r ON u.role_id = r.id
@@ -44,9 +130,95 @@ async function getUserById(req, res) {
   }
 }
 
+// Get full employee profile with manager details
+async function getUserProfile(req, res) {
+  try {
+    const { id } = req.params;
+    const { role_name, id: userId } = req.user;
+
+    // Check permissions - users can see their own profile, managers can see their team, admins can see all
+    if (role_name !== 'Admin' && role_name !== 'Compliance Officer') {
+      if (role_name === 'Manager') {
+        const teamCheck = await pool.query(
+          'SELECT id FROM users WHERE id = $1 AND (manager_id = $2 OR id = $2)',
+          [id, userId]
+        );
+        if (teamCheck.rows.length === 0) {
+          return res.status(403).json({ error: 'You can only view profiles of your team members' });
+        }
+      } else if (parseInt(id) !== userId) {
+        return res.status(403).json({ error: 'You can only view your own profile' });
+      }
+    }
+
+    const result = await pool.query(
+      `SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
+              u.start_date, u.end_date, u.created_at, u.employee_number,
+              u.manager_id, u.manager_contact_email, u.manager_contact_phone, u.tier,
+              r.role_name,
+              m.full_name as manager_name,
+              m.email as manager_email,
+              m.employee_number as manager_employee_number
+       FROM users u
+       LEFT JOIN roles r ON u.role_id = r.id
+       LEFT JOIN users m ON u.manager_id = m.id
+       WHERE u.id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = result.rows[0];
+
+    // Build manager info object
+    const managerInfo = user.manager_id ? {
+      id: user.manager_id,
+      name: user.manager_name,
+      email: user.manager_contact_email || user.manager_email,
+      phone: user.manager_contact_phone || null,
+      employee_number: user.manager_employee_number
+    } : null;
+
+    // Calculate tenure
+    const startDate = new Date(user.start_date);
+    const now = new Date();
+    const tenureMonths = Math.floor((now - startDate) / (1000 * 60 * 60 * 24 * 30));
+    const tenureYears = Math.floor(tenureMonths / 12);
+    const remainingMonths = tenureMonths % 12;
+
+    res.json({
+      profile: {
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name,
+        employee_number: user.employee_number,
+        role_id: user.role_id,
+        role_name: user.role_name,
+        tier: user.tier,
+        employment_status: user.employment_status,
+        start_date: user.start_date,
+        end_date: user.end_date,
+        tenure: {
+          years: tenureYears,
+          months: remainingMonths,
+          display: tenureYears > 0 ? `${tenureYears}y ${remainingMonths}m` : `${remainingMonths}m`
+        },
+        manager: managerInfo,
+        has_manager: !!user.manager_id,
+        created_at: user.created_at
+      }
+    });
+  } catch (error) {
+    console.error('Get user profile error:', error);
+    res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+}
+
 async function createUser(req, res) {
   try {
-    const { email, password, full_name, role_id, start_date } = req.body;
+    const { email, password, full_name, role_id, start_date, employee_number, manager_id, tier } = req.body;
 
     if (!email || !password || !full_name || !role_id) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -57,19 +229,39 @@ async function createUser(req, res) {
       return res.status(409).json({ error: 'Email already exists' });
     }
 
+    // Check if employee_number is unique (if provided)
+    if (employee_number) {
+      const empNumCheck = await pool.query('SELECT id FROM users WHERE employee_number = $1', [employee_number]);
+      if (empNumCheck.rows.length > 0) {
+        return res.status(409).json({ error: 'Employee number already exists' });
+      }
+    }
+
+    // Determine tier based on role if not provided
+    const roleResult = await pool.query('SELECT role_name FROM roles WHERE id = $1', [role_id]);
+    const roleName = roleResult.rows[0]?.role_name;
+
+    let userTier = tier;
+    if (userTier === undefined) {
+      // Default tiers: Admin=null, Manager=2, Employee=4, others=3
+      if (roleName === 'Admin') userTier = null;
+      else if (roleName === 'Manager') userTier = 2;
+      else if (roleName === 'Employee') userTier = 4;
+      else userTier = 3;
+    }
+
     const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
     const startDateValue = start_date || new Date().toISOString().split('T')[0];
 
     const result = await pool.query(
-      `INSERT INTO users (email, full_name, password_hash, role_id, start_date, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, email, full_name, role_id, employment_status, start_date, created_at`,
-      [email, full_name, password_hash, role_id, startDateValue, req.user.id]
+      `INSERT INTO users (email, full_name, password_hash, role_id, start_date, created_by, employee_number, manager_id, tier)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, email, full_name, role_id, employment_status, start_date, created_at, employee_number, manager_id, tier`,
+      [email, full_name, password_hash, role_id, startDateValue, req.user.id, employee_number || null, manager_id || null, userTier]
     );
 
     const user = result.rows[0];
-    const roleResult = await pool.query('SELECT role_name FROM roles WHERE id = $1', [role_id]);
-    user.role_name = roleResult.rows[0]?.role_name;
+    user.role_name = roleName;
 
     res.status(201).json({ message: 'User created successfully', user });
   } catch (error) {
@@ -78,10 +270,267 @@ async function createUser(req, res) {
   }
 }
 
+// Assign a manager to an employee (Admin or Manager can do this)
+async function assignManager(req, res) {
+  try {
+    const { id } = req.params;
+    const { manager_id, manager_contact_email, manager_contact_phone } = req.body;
+    const { role_name, id: userId } = req.user;
+
+    // Check if employee exists
+    const employeeCheck = await pool.query('SELECT id, manager_id FROM users WHERE id = $1', [id]);
+    if (employeeCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    // Check permissions
+    if (role_name !== 'Admin') {
+      if (role_name === 'Manager') {
+        // Managers can only assign employees to themselves or reassign their own team
+        const currentManager = employeeCheck.rows[0].manager_id;
+        if (currentManager && currentManager !== userId && parseInt(manager_id) !== userId) {
+          return res.status(403).json({ error: 'You can only assign employees to yourself or manage your own team' });
+        }
+      } else {
+        return res.status(403).json({ error: 'Insufficient permissions' });
+      }
+    }
+
+    // Validate manager exists and has appropriate role
+    if (manager_id) {
+      const managerCheck = await pool.query(
+        `SELECT u.id, r.role_name FROM users u
+         JOIN roles r ON u.role_id = r.id
+         WHERE u.id = $1 AND r.role_name IN ('Admin', 'Manager')`,
+        [manager_id]
+      );
+      if (managerCheck.rows.length === 0) {
+        return res.status(400).json({ error: 'Invalid manager - must be an Admin or Manager' });
+      }
+    }
+
+    // Prevent self-assignment as manager
+    if (parseInt(id) === parseInt(manager_id)) {
+      return res.status(400).json({ error: 'Cannot assign user as their own manager' });
+    }
+
+    // Update the employee's manager
+    const result = await pool.query(
+      `UPDATE users
+       SET manager_id = $1,
+           manager_contact_email = $2,
+           manager_contact_phone = $3
+       WHERE id = $4
+       RETURNING id, email, full_name, manager_id, employee_number`,
+      [manager_id || null, manager_contact_email || null, manager_contact_phone || null, id]
+    );
+
+    // Log the action
+    await pool.query(
+      `INSERT INTO audit_log (user_id, action, table_name, record_id, old_value_json, new_value_json)
+       VALUES ($1, 'UPDATE', 'users', $2, $3, $4)`,
+      [
+        userId,
+        id,
+        JSON.stringify({ manager_id: employeeCheck.rows[0].manager_id }),
+        JSON.stringify({ manager_id: manager_id || null })
+      ]
+    );
+
+    // Get the new manager's details
+    let managerInfo = null;
+    if (manager_id) {
+      const managerResult = await pool.query(
+        'SELECT id, full_name, email, employee_number FROM users WHERE id = $1',
+        [manager_id]
+      );
+      if (managerResult.rows.length > 0) {
+        managerInfo = managerResult.rows[0];
+      }
+    }
+
+    res.json({
+      message: manager_id ? 'Manager assigned successfully' : 'Manager removed successfully',
+      employee: result.rows[0],
+      manager: managerInfo
+    });
+  } catch (error) {
+    console.error('Assign manager error:', error);
+    res.status(500).json({ error: 'Failed to assign manager' });
+  }
+}
+
+// Manager can adopt/claim an unassigned employee (only lower tier)
+async function adoptEmployee(req, res) {
+  try {
+    const { employeeId } = req.params;
+    const { role_name, id: userId } = req.user;
+
+    // Only Managers and Admins can adopt
+    if (role_name !== 'Manager' && role_name !== 'Admin') {
+      return res.status(403).json({ error: 'Only managers can adopt employees' });
+    }
+
+    // Get manager's tier
+    const managerCheck = await pool.query(
+      'SELECT tier FROM users WHERE id = $1',
+      [userId]
+    );
+    const managerTier = managerCheck.rows[0]?.tier;
+
+    // Check if employee exists and has no manager
+    const employeeCheck = await pool.query(
+      'SELECT id, full_name, manager_id, tier FROM users WHERE id = $1',
+      [employeeId]
+    );
+
+    if (employeeCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    const employee = employeeCheck.rows[0];
+
+    // Check if already has a manager (only admins can override)
+    if (employee.manager_id && role_name !== 'Admin') {
+      return res.status(400).json({
+        error: 'This employee already has a manager. Only admins can reassign employees.'
+      });
+    }
+
+    // Prevent self-adoption
+    if (parseInt(employeeId) === userId) {
+      return res.status(400).json({ error: 'Cannot adopt yourself' });
+    }
+
+    // Tier check: Managers can only adopt employees with a higher tier number (lower level)
+    // Admin (tier=null) can adopt anyone
+    if (role_name !== 'Admin' && managerTier !== null) {
+      if (employee.tier === null) {
+        return res.status(403).json({ error: 'Cannot adopt an Admin' });
+      }
+      if (employee.tier <= managerTier) {
+        return res.status(403).json({
+          error: `Cannot adopt employees at your tier level or above. Your tier: ${managerTier}, Employee tier: ${employee.tier}`
+        });
+      }
+    }
+
+    // Adopt the employee
+    const result = await pool.query(
+      `UPDATE users
+       SET manager_id = $1
+       WHERE id = $2
+       RETURNING id, email, full_name, manager_id, employee_number, tier`,
+      [userId, employeeId]
+    );
+
+    // Log the action
+    await pool.query(
+      `INSERT INTO audit_log (user_id, action, table_name, record_id, old_value_json, new_value_json)
+       VALUES ($1, 'UPDATE', 'users', $2, $3, $4)`,
+      [
+        userId,
+        employeeId,
+        JSON.stringify({ manager_id: employee.manager_id }),
+        JSON.stringify({ manager_id: userId })
+      ]
+    );
+
+    // Get manager details
+    const managerResult = await pool.query(
+      'SELECT id, full_name, email, employee_number, tier FROM users WHERE id = $1',
+      [userId]
+    );
+
+    // Notify manager of new direct report
+    await notifyNewDirectReport(userId, parseInt(employeeId), employee.full_name, true);
+
+    res.json({
+      message: `Successfully adopted ${employee.full_name}`,
+      employee: result.rows[0],
+      manager: managerResult.rows[0]
+    });
+  } catch (error) {
+    console.error('Adopt employee error:', error);
+    res.status(500).json({ error: 'Failed to adopt employee' });
+  }
+}
+
+// Get list of managers for dropdown
+async function getManagers(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT u.id, u.full_name, u.email, u.employee_number, u.tier, r.role_name
+       FROM users u
+       JOIN roles r ON u.role_id = r.id
+       WHERE r.role_name IN ('Admin', 'Manager')
+       AND u.employment_status = 'active'
+       ORDER BY u.tier NULLS FIRST, u.full_name`
+    );
+    res.json({ managers: result.rows });
+  } catch (error) {
+    console.error('Get managers error:', error);
+    res.status(500).json({ error: 'Failed to fetch managers' });
+  }
+}
+
+// Get orphaned employees (no manager assigned) - filtered by tier for managers
+async function getOrphanedEmployees(req, res) {
+  try {
+    const { role_name, id: userId } = req.user;
+
+    if (role_name !== 'Admin' && role_name !== 'Manager') {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    // Get the requesting user's tier
+    const userResult = await pool.query('SELECT tier FROM users WHERE id = $1', [userId]);
+    const userTier = userResult.rows[0]?.tier;
+
+    let query;
+    let params = [];
+
+    if (role_name === 'Admin') {
+      // Admins see all orphaned employees except other admins
+      query = `
+        SELECT u.id, u.full_name, u.email, u.employee_number, u.start_date, u.tier,
+               r.role_name
+        FROM users u
+        JOIN roles r ON u.role_id = r.id
+        WHERE u.manager_id IS NULL
+        AND u.employment_status = 'active'
+        AND r.role_name NOT IN ('Admin')
+        ORDER BY u.tier NULLS FIRST, u.full_name
+      `;
+    } else {
+      // Managers only see orphaned employees below their tier
+      query = `
+        SELECT u.id, u.full_name, u.email, u.employee_number, u.start_date, u.tier,
+               r.role_name
+        FROM users u
+        JOIN roles r ON u.role_id = r.id
+        WHERE u.manager_id IS NULL
+        AND u.employment_status = 'active'
+        AND r.role_name NOT IN ('Admin')
+        AND u.tier > $1
+        ORDER BY u.tier, u.full_name
+      `;
+      params = [userTier];
+    }
+
+    const result = await pool.query(query, params);
+
+    res.json({ orphaned_employees: result.rows, user_tier: userTier });
+  } catch (error) {
+    console.error('Get orphaned employees error:', error);
+    res.status(500).json({ error: 'Failed to fetch orphaned employees' });
+  }
+}
+
 async function updateUser(req, res) {
   try {
     const { id } = req.params;
-    const { email, full_name, role_id, employment_status, start_date, end_date, password } = req.body;
+    const { email, full_name, role_id, employment_status, start_date, end_date, password, employee_number, manager_id, tier } = req.body;
 
     const existing = await pool.query('SELECT id FROM users WHERE id = $1', [id]);
     if (existing.rows.length === 0) {
@@ -92,6 +541,13 @@ async function updateUser(req, res) {
       const emailCheck = await pool.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, id]);
       if (emailCheck.rows.length > 0) {
         return res.status(409).json({ error: 'Email already in use' });
+      }
+    }
+
+    if (employee_number) {
+      const empNumCheck = await pool.query('SELECT id FROM users WHERE employee_number = $1 AND id != $2', [employee_number, id]);
+      if (empNumCheck.rows.length > 0) {
+        return res.status(409).json({ error: 'Employee number already in use' });
       }
     }
 
@@ -106,6 +562,9 @@ async function updateUser(req, res) {
     if (employment_status) { updates.push(`employment_status = $${paramCount++}`); values.push(employment_status); }
     if (start_date) { updates.push(`start_date = $${paramCount++}`); values.push(start_date); }
     if (end_date !== undefined) { updates.push(`end_date = $${paramCount++}`); values.push(end_date || null); }
+    if (employee_number !== undefined) { updates.push(`employee_number = $${paramCount++}`); values.push(employee_number || null); }
+    if (manager_id !== undefined) { updates.push(`manager_id = $${paramCount++}`); values.push(manager_id || null); }
+    if (tier !== undefined) { updates.push(`tier = $${paramCount++}`); values.push(tier); }
     if (password) {
       const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
       updates.push(`password_hash = $${paramCount++}`);
@@ -116,7 +575,7 @@ async function updateUser(req, res) {
       return res.status(400).json({ error: 'No fields to update' });
     }
 
-    query += updates.join(', ') + ` WHERE id = $${paramCount} RETURNING id, email, full_name, role_id, employment_status, start_date, end_date`;
+    query += updates.join(', ') + ` WHERE id = $${paramCount} RETURNING id, email, full_name, role_id, employment_status, start_date, end_date, employee_number, manager_id, tier`;
     values.push(id);
 
     const result = await pool.query(query, values);
@@ -215,20 +674,20 @@ async function getUsersWithReviewStatus(req, res) {
     if (role_name === 'Admin') {
       baseQuery = `
         SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
-               u.start_date, u.end_date, u.created_at, u.manager_id,
+               u.start_date, u.end_date, u.created_at, u.manager_id, u.employee_number, u.tier,
                r.role_name,
                (SELECT MAX(review_date) FROM reviews WHERE employee_id = u.id AND is_self_assessment = false) as last_review_date,
                (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $1 AND is_self_assessment = false) as current_week_review_count,
                (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as previous_week_review_count
         FROM users u
         LEFT JOIN roles r ON u.role_id = r.id
-        ORDER BY u.full_name
+        ORDER BY u.tier NULLS FIRST, u.full_name
       `;
       params = [currentWeekFriday, previousWeekFriday];
     } else if (role_name === 'Manager') {
       baseQuery = `
         SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
-               u.start_date, u.end_date, u.created_at, u.manager_id,
+               u.start_date, u.end_date, u.created_at, u.manager_id, u.employee_number, u.tier,
                r.role_name,
                (SELECT MAX(review_date) FROM reviews WHERE employee_id = u.id AND is_self_assessment = false) as last_review_date,
                (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as current_week_review_count,
@@ -236,14 +695,14 @@ async function getUsersWithReviewStatus(req, res) {
         FROM users u
         LEFT JOIN roles r ON u.role_id = r.id
         WHERE u.manager_id = $1
-        ORDER BY u.full_name
+        ORDER BY u.tier, u.full_name
       `;
       params = [userId, currentWeekFriday, previousWeekFriday];
     } else {
       // Regular employees only see themselves
       baseQuery = `
         SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
-               u.start_date, u.end_date, u.created_at, u.manager_id,
+               u.start_date, u.end_date, u.created_at, u.manager_id, u.employee_number, u.tier,
                r.role_name,
                (SELECT MAX(review_date) FROM reviews WHERE employee_id = u.id AND is_self_assessment = false) as last_review_date,
                (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as current_week_review_count,
@@ -314,12 +773,210 @@ async function getUsersWithReviewStatus(req, res) {
   }
 }
 
+// Transfer an employee to a new manager or orphan them
+async function transferEmployee(req, res) {
+  try {
+    const { id } = req.params;
+    const { new_manager_id, orphan } = req.body;
+    const { role_name, id: userId } = req.user;
+
+    // Get the employee
+    const employeeResult = await pool.query(
+      `SELECT u.id, u.full_name, u.manager_id, u.tier, r.role_name
+       FROM users u
+       JOIN roles r ON u.role_id = r.id
+       WHERE u.id = $1`,
+      [id]
+    );
+
+    if (employeeResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    const employee = employeeResult.rows[0];
+    const oldManagerId = employee.manager_id;
+
+    // Check permissions: Admin can transfer anyone, Manager can only transfer their own direct reports
+    if (role_name !== 'Admin') {
+      if (employee.manager_id !== userId) {
+        return res.status(403).json({ error: 'You can only transfer your own direct reports' });
+      }
+    }
+
+    // Cannot transfer yourself
+    if (parseInt(id) === userId) {
+      return res.status(400).json({ error: 'You cannot transfer yourself' });
+    }
+
+    let newManagerId = null;
+    let actionMessage;
+
+    if (orphan === true) {
+      // Orphan the employee (remove manager)
+      newManagerId = null;
+      actionMessage = `${employee.full_name} has been orphaned (manager removed)`;
+    } else if (new_manager_id) {
+      // Validate new manager exists and has appropriate tier
+      const newManagerResult = await pool.query(
+        `SELECT u.id, u.full_name, u.tier, r.role_name
+         FROM users u
+         JOIN roles r ON u.role_id = r.id
+         WHERE u.id = $1 AND r.role_name IN ('Admin', 'Manager')`,
+        [new_manager_id]
+      );
+
+      if (newManagerResult.rows.length === 0) {
+        return res.status(400).json({ error: 'Invalid new manager - must be an Admin or Manager' });
+      }
+
+      const newManager = newManagerResult.rows[0];
+
+      // Tier check for non-admin transfers
+      if (role_name !== 'Admin' && newManager.tier !== null && employee.tier !== null) {
+        if (employee.tier <= newManager.tier) {
+          return res.status(400).json({
+            error: `Cannot transfer to a manager at the same or lower tier. Employee tier: ${employee.tier}, New manager tier: ${newManager.tier}`
+          });
+        }
+      }
+
+      // Cannot transfer to self
+      if (parseInt(new_manager_id) === parseInt(id)) {
+        return res.status(400).json({ error: 'Cannot assign employee as their own manager' });
+      }
+
+      newManagerId = new_manager_id;
+      actionMessage = `${employee.full_name} has been transferred to ${newManager.full_name}`;
+    } else {
+      return res.status(400).json({ error: 'Must specify new_manager_id or orphan: true' });
+    }
+
+    // Perform the transfer
+    const result = await pool.query(
+      `UPDATE users
+       SET manager_id = $1
+       WHERE id = $2
+       RETURNING id, email, full_name, manager_id, employee_number, tier`,
+      [newManagerId, id]
+    );
+
+    // Log the action
+    await pool.query(
+      `INSERT INTO audit_log (user_id, action, table_name, record_id, old_value_json, new_value_json)
+       VALUES ($1, 'TRANSFER', 'users', $2, $3, $4)`,
+      [
+        userId,
+        id,
+        JSON.stringify({ manager_id: oldManagerId, action: 'transfer_out' }),
+        JSON.stringify({ manager_id: newManagerId, action: orphan ? 'orphaned' : 'transfer_in' })
+      ]
+    );
+
+    // Get new manager details if applicable
+    let newManagerInfo = null;
+    if (newManagerId) {
+      const managerResult = await pool.query(
+        'SELECT id, full_name, email, employee_number FROM users WHERE id = $1',
+        [newManagerId]
+      );
+      newManagerInfo = managerResult.rows[0];
+    }
+
+    // Send notifications to all parties involved
+    await notifyEmployeeTransferred(
+      parseInt(id),
+      oldManagerId,
+      newManagerId ? parseInt(newManagerId) : null,
+      employee.full_name
+    );
+
+    res.json({
+      message: actionMessage,
+      employee: result.rows[0],
+      new_manager: newManagerInfo,
+      previous_manager_id: oldManagerId
+    });
+  } catch (error) {
+    console.error('Transfer employee error:', error);
+    res.status(500).json({ error: 'Failed to transfer employee' });
+  }
+}
+
+// Get eligible transfer targets (managers who can receive this employee based on tier)
+async function getTransferTargets(req, res) {
+  try {
+    const { id } = req.params;
+    const { role_name, id: userId } = req.user;
+
+    // Get the employee's tier
+    const employeeResult = await pool.query(
+      'SELECT id, tier, manager_id FROM users WHERE id = $1',
+      [id]
+    );
+
+    if (employeeResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    const employee = employeeResult.rows[0];
+
+    // Check permissions
+    if (role_name !== 'Admin' && employee.manager_id !== userId) {
+      return res.status(403).json({ error: 'You can only view transfer targets for your direct reports' });
+    }
+
+    // Get eligible managers (lower tier number = higher rank, so they can manage higher tier numbers)
+    let query;
+    let params = [];
+
+    if (role_name === 'Admin' || employee.tier === null) {
+      // Admin can transfer to any manager
+      query = `
+        SELECT u.id, u.full_name, u.email, u.employee_number, u.tier, r.role_name
+        FROM users u
+        JOIN roles r ON u.role_id = r.id
+        WHERE r.role_name IN ('Admin', 'Manager')
+        AND u.employment_status = 'active'
+        AND u.id != $1
+        ORDER BY u.tier NULLS FIRST, u.full_name
+      `;
+      params = [id];
+    } else {
+      // For non-admins, only show managers with lower tier numbers
+      query = `
+        SELECT u.id, u.full_name, u.email, u.employee_number, u.tier, r.role_name
+        FROM users u
+        JOIN roles r ON u.role_id = r.id
+        WHERE r.role_name IN ('Admin', 'Manager')
+        AND u.employment_status = 'active'
+        AND u.id != $1
+        AND (u.tier IS NULL OR u.tier < $2)
+        ORDER BY u.tier NULLS FIRST, u.full_name
+      `;
+      params = [id, employee.tier];
+    }
+
+    const result = await pool.query(query, params);
+    res.json({ eligible_managers: result.rows, employee_tier: employee.tier });
+  } catch (error) {
+    console.error('Get transfer targets error:', error);
+    res.status(500).json({ error: 'Failed to fetch transfer targets' });
+  }
+}
+
 module.exports = {
   getUsers,
   getUserById,
+  getUserProfile,
   createUser,
   updateUser,
   getRoles,
   getEmployeesByManager,
-  getUsersWithReviewStatus
+  getUsersWithReviewStatus,
+  assignManager,
+  adoptEmployee,
+  transferEmployee,
+  getTransferTargets,
+  getManagers,
+  getOrphanedEmployees
 };

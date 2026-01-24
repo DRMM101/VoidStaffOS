@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
 import SelfReflectionForm from './SelfReflectionForm';
+import LeaveRequest from './LeaveRequest';
+import MyLeaveRequests from './MyLeaveRequests';
+import ManagerLeaveApprovals from './ManagerLeaveApprovals';
+import NotificationBell from './NotificationBell';
+import Notifications from './Notifications';
+import OnboardingDashboard from './OnboardingDashboard';
+import PreColleaguePortal from './PreColleaguePortal';
 
 function TrafficLight({ status }) {
   if (!status) return <span className="traffic-light neutral"></span>;
@@ -113,15 +120,62 @@ function Dashboard({ user, onNavigate }) {
   const [myReflectionStatus, setMyReflectionStatus] = useState(null);
   const [currentWeekFriday, setCurrentWeekFriday] = useState(getMostRecentFriday());
 
+  // Leave-related state
+  const [showLeaveRequest, setShowLeaveRequest] = useState(false);
+  const [showMyLeave, setShowMyLeave] = useState(false);
+  const [showLeaveApprovals, setShowLeaveApprovals] = useState(false);
+  const [pendingLeaveCount, setPendingLeaveCount] = useState(0);
+  const [myLeaveBalance, setMyLeaveBalance] = useState(null);
+
+  // Notifications state
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+
+  // Onboarding state
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showPreColleaguePortal, setShowPreColleaguePortal] = useState(false);
+
   const isManager = user.role_name === 'Manager' || user.role_name === 'Admin';
+  const isAdmin = user.role_name === 'Admin';
 
   useEffect(() => {
     fetchMyLatestSnapshot();
     fetchMyReflectionStatus();
+    fetchMyLeaveBalance();
+    fetchUnreadNotifications();
+    checkOverdueSnapshots();
     if (isManager) {
       fetchTeamStats();
+      fetchPendingLeaveCount();
     }
   }, [user.id]);
+
+  const fetchUnreadNotifications = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/notifications/unread-count', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setUnreadNotificationCount(data.unread_count);
+      }
+    } catch (err) {
+      console.error('Failed to fetch unread notifications');
+    }
+  };
+
+  const checkOverdueSnapshots = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await fetch('/api/notifications/check-overdue', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch (err) {
+      console.error('Failed to check overdue snapshots');
+    }
+  };
 
   const fetchMyLatestSnapshot = async () => {
     try {
@@ -171,6 +225,36 @@ function Dashboard({ user, onNavigate }) {
       }
     } catch (err) {
       console.error('Failed to fetch team stats');
+    }
+  };
+
+  const fetchMyLeaveBalance = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/leave/my-balance', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setMyLeaveBalance(data.balance);
+      }
+    } catch (err) {
+      console.error('Failed to fetch leave balance');
+    }
+  };
+
+  const fetchPendingLeaveCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/leave/pending-count', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setPendingLeaveCount(data.pending_count);
+      }
+    } catch (err) {
+      console.error('Failed to fetch pending leave count');
     }
   };
 
@@ -243,10 +327,63 @@ function Dashboard({ user, onNavigate }) {
   return (
     <div className="dashboard-content">
       <div className="welcome-card">
-        <h2>Welcome, {user.full_name}!</h2>
+        <div className="welcome-header">
+          <h2>Welcome, {user.full_name}!</h2>
+          <NotificationBell onViewAll={() => setShowNotifications(true)} />
+        </div>
         <div className="user-info">
           <p><strong>Email:</strong> {user.email}</p>
           <p><strong>Role:</strong> {user.role_name}</p>
+        </div>
+
+        {/* Pending Actions Summary */}
+        {(pendingLeaveCount > 0 || (!hasReflection && !selfCommitted) || unreadNotificationCount > 0) && (
+          <div className="pending-actions-summary">
+            <span className="pending-actions-label">Pending Actions:</span>
+            {!hasReflection && !selfCommitted && (
+              <span className="pending-action-item reflection">
+                Weekly reflection due
+              </span>
+            )}
+            {isManager && pendingLeaveCount > 0 && (
+              <span className="pending-action-item leave">
+                {pendingLeaveCount} leave request{pendingLeaveCount !== 1 ? 's' : ''} awaiting approval
+              </span>
+            )}
+            {unreadNotificationCount > 0 && (
+              <span className="pending-action-item notifications">
+                {unreadNotificationCount} unread notification{unreadNotificationCount !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        )}
+
+        <div className="quick-actions">
+          <button onClick={() => setShowLeaveRequest(true)} className="quick-action-btn leave-btn">
+            Request Leave
+          </button>
+          <button onClick={() => setShowMyLeave(true)} className="quick-action-btn">
+            My Leave ({myLeaveBalance?.remaining ?? '-'} days)
+          </button>
+          {isManager && (
+            <button
+              onClick={() => setShowLeaveApprovals(true)}
+              className={`quick-action-btn approvals-btn ${pendingLeaveCount > 0 ? 'has-pending' : ''}`}
+            >
+              Leave Approvals
+              {pendingLeaveCount > 0 && (
+                <span className="pending-badge">{pendingLeaveCount}</span>
+              )}
+            </button>
+          )}
+          {isAdmin && (
+            <button
+              onClick={() => setShowOnboarding(true)}
+              className="quick-action-btn onboarding-btn"
+            >
+              Onboarding Pipeline
+            </button>
+          )}
         </div>
       </div>
 
@@ -454,6 +591,63 @@ function Dashboard({ user, onNavigate }) {
           onSubmit={handleReflectionSubmit}
           onClose={() => setShowReflectionForm(false)}
           previousQuarterAverages={myReflectionStatus?.previous_quarter_averages}
+        />
+      )}
+
+      {/* Leave Request Modal */}
+      {showLeaveRequest && (
+        <LeaveRequest
+          onClose={() => setShowLeaveRequest(false)}
+          onSubmit={() => {
+            setShowLeaveRequest(false);
+            fetchMyLeaveBalance();
+          }}
+        />
+      )}
+
+      {/* My Leave Requests Modal */}
+      {showMyLeave && (
+        <MyLeaveRequests
+          onClose={() => {
+            setShowMyLeave(false);
+            fetchMyLeaveBalance();
+          }}
+        />
+      )}
+
+      {/* Manager Leave Approvals Modal */}
+      {showLeaveApprovals && (
+        <ManagerLeaveApprovals
+          user={user}
+          onClose={() => {
+            setShowLeaveApprovals(false);
+            fetchPendingLeaveCount();
+          }}
+        />
+      )}
+
+      {/* Notifications Modal */}
+      {showNotifications && (
+        <Notifications
+          onClose={() => {
+            setShowNotifications(false);
+            fetchUnreadNotifications();
+          }}
+        />
+      )}
+
+      {/* Onboarding Dashboard (Admin) */}
+      {showOnboarding && (
+        <OnboardingDashboard
+          onClose={() => setShowOnboarding(false)}
+        />
+      )}
+
+      {/* Pre-Colleague Portal */}
+      {showPreColleaguePortal && (
+        <PreColleaguePortal
+          user={user}
+          onClose={() => setShowPreColleaguePortal(false)}
         />
       )}
     </div>

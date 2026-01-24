@@ -1,3 +1,12 @@
+/**
+ * @fileoverview VoidStaffOS Express Server
+ *
+ * Main entry point for the backend API server.
+ * Configures middleware, routes, and security settings.
+ *
+ * @module server
+ */
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -8,19 +17,53 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const reviewRoutes = require('./routes/reviews');
 const reportRoutes = require('./routes/reports');
+const leaveRoutes = require('./routes/leave');
+const notificationRoutes = require('./routes/notifications');
+const onboardingRoutes = require('./routes/onboarding');
+const recruitmentRoutes = require('./routes/recruitment');
 const devRoutes = require('./routes/dev');
 
 const app = express();
 
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
+// ===========================================
+// Security Middleware
+// ===========================================
 
-const limiter = rateLimit({
+// Helmet: Sets various HTTP headers for security
+app.use(helmet());
+
+// CORS: Enable cross-origin requests
+app.use(cors());
+
+// JSON body parser with size limit
+app.use(express.json({ limit: '10kb' }));
+
+// ===========================================
+// Rate Limiting
+// ===========================================
+
+// Global rate limiter: 100 requests per minute
+const globalLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 100
+  max: 100,
+  message: { error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false
 });
-app.use(limiter);
+app.use(globalLimiter);
+
+// Stricter rate limiter for auth endpoints: 10 requests per minute
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: 'Too many login attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// ===========================================
+// Health Check Endpoints
+// ===========================================
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Void Staff OS API is running' });
@@ -40,11 +83,41 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
-app.use('/api/auth', authRoutes);
+// ===========================================
+// API Routes
+// ===========================================
+
+// Auth routes with stricter rate limiting
+app.use('/api/auth', authLimiter, authRoutes);
+
+// Protected routes
 app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/reports', reportRoutes);
-app.use('/api/dev', devRoutes);
+app.use('/api/leave', leaveRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/onboarding', onboardingRoutes);
+app.use('/api/recruitment', recruitmentRoutes);
+
+// Development routes (should be disabled in production)
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api/dev', devRoutes);
+}
+
+// ===========================================
+// Error Handling
+// ===========================================
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Endpoint not found' });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

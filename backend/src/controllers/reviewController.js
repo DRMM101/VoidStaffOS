@@ -1,6 +1,34 @@
-const pool = require('../config/database');
+/**
+ * @fileoverview Review Controller - Handles performance review operations
+ *
+ * This controller manages the blind review system where managers and employees
+ * both create independent reviews for the same week. Neither can see the other's
+ * ratings until both have committed their reviews.
+ *
+ * Key concepts:
+ * - Week ending date is always Friday
+ * - KPIs: Velocity, Friction, Cohesion (calculated from 5 core metrics)
+ * - Traffic lights: Green (>=6.5), Amber (>=5), Red (<5)
+ * - Blind review: Ratings hidden until both parties commit
+ *
+ * @module controllers/reviewController
+ */
 
-// Get traffic light status based on metric value
+const pool = require('../config/database');
+const {
+  notifyManagerSnapshotCommitted,
+  notifyKPIsRevealed
+} = require('./notificationController');
+
+/**
+ * Get traffic light status based on metric value
+ * @param {number|null} value - Metric value (1-10 scale)
+ * @returns {string|null} 'red'|'amber'|'green' or null if no value
+ * @example
+ * getMetricStatus(7.5)  // 'green'
+ * getMetricStatus(5.5)  // 'amber'
+ * getMetricStatus(4.0)  // 'red'
+ */
 function getMetricStatus(value) {
   if (value == null) return null;
   if (value < 5) return 'red';
@@ -8,7 +36,11 @@ function getMetricStatus(value) {
   return 'green';
 }
 
-// Calculate weeks since review based on review_date (week ending date)
+/**
+ * Calculate weeks since a review date
+ * @param {string|Date} reviewDate - The review's week ending date
+ * @returns {number|null} Number of weeks since review, or null if no date
+ */
 function calculateWeeksSince(reviewDate) {
   if (!reviewDate) return null;
   const now = new Date();
@@ -18,7 +50,11 @@ function calculateWeeksSince(reviewDate) {
   return Math.max(0, diffWeeks);
 }
 
-// Get staleness status based on weeks since review
+/**
+ * Get staleness status based on weeks since last review
+ * @param {number|null} weeks - Weeks since review
+ * @returns {string|null} 'green' (<=1 week), 'amber' (2-4 weeks), 'red' (>4 weeks)
+ */
 function getStalenessStatus(weeks) {
   if (weeks == null) return null;
   if (weeks <= 1) return 'green';
@@ -26,7 +62,17 @@ function getStalenessStatus(weeks) {
   return 'red';
 }
 
-// Calculate the most recent Friday (week ending date)
+/**
+ * Calculate the most recent Friday (week ending date)
+ * Reviews are always dated to the Friday of the week they cover.
+ * @param {Date} [date=new Date()] - Reference date
+ * @returns {string} ISO date string (YYYY-MM-DD) for most recent Friday
+ * @example
+ * // If today is Wednesday Jan 17
+ * getMostRecentFriday() // '2024-01-12' (previous Friday)
+ * // If today is Friday Jan 19
+ * getMostRecentFriday() // '2024-01-19' (today)
+ */
 function getMostRecentFriday(date = new Date()) {
   const d = new Date(date);
   const day = d.getDay();
@@ -36,7 +82,31 @@ function getMostRecentFriday(date = new Date()) {
   return d.toISOString().split('T')[0];
 }
 
-// Calculate velocity, friction, and cohesion metrics
+/**
+ * Calculate performance KPIs from core metrics
+ *
+ * Formulas:
+ * - Velocity = (tasks_completed + work_volume + problem_solving) / 3
+ * - Friction = (velocity + communication) / 2
+ * - Cohesion = (problem_solving + communication + leadership) / 3
+ *
+ * @param {Object} review - Review object with metric ratings
+ * @param {number} [review.tasks_completed] - Task completion rating (1-10)
+ * @param {number} [review.work_volume] - Work volume rating (1-10)
+ * @param {number} [review.problem_solving] - Problem solving rating (1-10)
+ * @param {number} [review.communication] - Communication rating (1-10)
+ * @param {number} [review.leadership] - Leadership rating (1-10)
+ * @param {string} [review.review_date] - Week ending date
+ * @returns {Object} Review with calculated KPIs and traffic light statuses
+ * @returns {number|null} returns.velocity - Output capacity metric
+ * @returns {string|null} returns.velocity_status - 'red'|'amber'|'green'
+ * @returns {number|null} returns.friction - Communication effectiveness metric
+ * @returns {string|null} returns.friction_status - 'red'|'amber'|'green'
+ * @returns {number|null} returns.cohesion - Team integration metric
+ * @returns {string|null} returns.cohesion_status - 'red'|'amber'|'green'
+ * @returns {number|null} returns.weeks_since_review - Staleness indicator
+ * @returns {string|null} returns.staleness_status - 'red'|'amber'|'green'
+ */
 function calculateMetrics(review) {
   const { tasks_completed, work_volume, problem_solving, communication, leadership, review_date } = review;
 
@@ -44,16 +114,19 @@ function calculateMetrics(review) {
   let friction = null;
   let cohesion = null;
 
+  // Velocity: measures output capacity
   if (tasks_completed != null && work_volume != null && problem_solving != null) {
     velocity = (tasks_completed + work_volume + problem_solving) / 3;
     velocity = Math.round(velocity * 100) / 100;
   }
 
+  // Friction: measures communication effectiveness relative to output
   if (velocity != null && communication != null) {
     friction = (velocity + communication) / 2;
     friction = Math.round(friction * 100) / 100;
   }
 
+  // Cohesion: measures team integration and collaboration
   if (problem_solving != null && communication != null && leadership != null) {
     cohesion = (problem_solving + communication + leadership) / 3;
     cohesion = Math.round(cohesion * 100) / 100;
@@ -72,6 +145,34 @@ function calculateMetrics(review) {
     cohesion_status: getMetricStatus(cohesion),
     weeks_since_review,
     staleness_status
+  };
+}
+
+/**
+ * Filter self-reflection details for manager view
+ *
+ * Managers can see their team's self-reflection KPIs (traffic lights) but
+ * not the text details (goals, achievements, areas for improvement).
+ * This maintains the integrity of the self-assessment process.
+ *
+ * @param {Object} review - Review object
+ * @param {number} userId - ID of user viewing the review
+ * @returns {Object} Review with text fields hidden if applicable
+ */
+function filterSelfReflectionForManager(review, userId) {
+  // If it's the manager's own self-assessment or not a self-assessment, return full review
+  if (!review.is_self_assessment || review.reviewer_id === userId) {
+    return review;
+  }
+
+  // Manager viewing team member's self-reflection: show KPIs, hide text details
+  const { goals, achievements, areas_for_improvement, ...filteredReview } = review;
+  return {
+    ...filteredReview,
+    goals: '[Self-reflection text hidden]',
+    achievements: '[Self-reflection text hidden]',
+    areas_for_improvement: '[Self-reflection text hidden]',
+    is_text_hidden: true
   };
 }
 
@@ -118,7 +219,13 @@ async function getReviews(req, res) {
     }
 
     const result = await pool.query(query, params);
-    const reviews = result.rows.map(calculateMetrics);
+    let reviews = result.rows.map(calculateMetrics);
+
+    // For managers, filter out text details from team's self-reflections (but keep KPIs)
+    if (role_name === 'Manager') {
+      reviews = reviews.map(r => filterSelfReflectionForManager(r, userId));
+    }
+
     res.json({ reviews });
   } catch (error) {
     console.error('Get reviews error:', error);
@@ -148,8 +255,10 @@ async function getReviewById(req, res) {
 
     const review = result.rows[0];
 
+    let filteredReview = review;
+
     if (role_name === 'Admin' || role_name === 'Compliance Officer') {
-      // Can view any review
+      // Can view any review in full
     } else if (role_name === 'Manager') {
       const employeeCheck = await pool.query(
         'SELECT manager_id FROM users WHERE id = $1',
@@ -161,13 +270,16 @@ async function getReviewById(req, res) {
       if (!isReviewer && !isManager) {
         return res.status(403).json({ error: 'Insufficient permissions' });
       }
+
+      // Filter out text details from team's self-reflections (but keep KPIs)
+      filteredReview = filterSelfReflectionForManager(review, userId);
     } else {
       if (review.employee_id !== userId) {
         return res.status(403).json({ error: 'Insufficient permissions' });
       }
     }
 
-    res.json({ review: calculateMetrics(review) });
+    res.json({ review: calculateMetrics(filteredReview) });
   } catch (error) {
     console.error('Get review error:', error);
     res.status(500).json({ error: 'Failed to fetch review' });
@@ -398,6 +510,35 @@ async function commitReview(req, res) {
 
     updatedReview.employee_name = namesResult.rows[0].employee_name;
     updatedReview.reviewer_name = namesResult.rows[0].reviewer_name;
+
+    // If this is a manager review (not self-assessment), notify the employee
+    if (!updatedReview.is_self_assessment) {
+      await notifyManagerSnapshotCommitted(
+        updatedReview.employee_id,
+        updatedReview.reviewer_id,
+        updatedReview.id,
+        updatedReview.review_date
+      );
+
+      // Check if employee's self-reflection is also committed - reveal KPIs
+      const selfReflectionResult = await pool.query(
+        `SELECT id FROM reviews
+         WHERE employee_id = $1
+         AND review_date = $2
+         AND is_self_assessment = true
+         AND is_committed = true`,
+        [updatedReview.employee_id, updatedReview.review_date]
+      );
+
+      if (selfReflectionResult.rows.length > 0) {
+        await notifyKPIsRevealed(
+          updatedReview.employee_id,
+          updatedReview.reviewer_id,
+          updatedReview.id,
+          updatedReview.review_date
+        );
+      }
+    }
 
     res.json({ message: 'Review committed successfully', review: calculateMetrics(updatedReview) });
   } catch (error) {
@@ -733,11 +874,22 @@ async function commitSelfReflection(req, res) {
 
     // Only return full data if both committed
     if (bothCommitted) {
+      // Get the manager's user ID from the manager review
+      const managerReview = managerReviewResult.rows[0];
+
+      // Notify both parties that KPIs are revealed
+      await notifyKPIsRevealed(
+        userId,
+        managerReview.reviewer_id,
+        managerReview.id,
+        updatedReview.review_date
+      );
+
       res.json({
         message: 'Self-reflection committed successfully. Both reviews are now visible.',
         both_committed: true,
         self_reflection: calculateMetrics(updatedReview),
-        manager_review: calculateMetrics(managerReviewResult.rows[0])
+        manager_review: calculateMetrics(managerReview)
       });
     } else {
       res.json({

@@ -13,7 +13,28 @@
       "Bash(taskkill:*)",
       "Bash(node scripts/run-migration.js:*)",
       "Bash(timeout:*)",
-      "Bash(node scripts/generate-test-data.js:*)"
+      "Bash(node scripts/generate-test-data.js:*)",
+      "Bash(node scripts/generate-test-users.js:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Niwicm9sZV9pZCI6Miwicm9sZV9uYW1lIjoiTWFuYWdlciIsImlhdCI6MTc2OTI3NDY1MSwiZXhwIjoxNzY5MzYxMDUxfQ.FxXlBzs26y243ndx1O87WshyD33eaTcFbCMRRfPPzd4\")",
+      "Bash(python -m json.tool:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Niwicm9sZV9pZCI6Miwicm9sZV9uYW1lIjoiTWFuYWdlciIsImlhdCI6MTc2OTI3NzU3MSwiZXhwIjoxNzY5MzYzOTcxfQ.W7VO3BWdnv0YjdB5YWyBEE9odgp6KwCpa7rUfWWX5yE\")",
+      "Bash(docker exec:*)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(netstat:*)",
+      "Bash(pgrep:*)",
+      "Bash(powershell -Command \"Stop-Process -Id 11416 -Force\")",
+      "Bash(cmd.exe /c \"taskkill /F /PID 11416\")",
+      "Bash(cmd.exe /c \"taskkill /F /IM node.exe\")",
+      "Bash(wmic process where \"processid=11416\" delete)",
+      "Bash(powershell:*)",
+      "Bash(PORT=3002 node:*)",
+      "Bash(psql:*)",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U postgres -d voidstaffos -f \"C:/Users/derek/Documents/VoidStaffOS/backend/migrations/011_onboarding_system.sql\")",
+      "Bash(PGPASSWORD='VoidSecure2025!' \"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -f \"C:/Users/derek/Documents/VoidStaffOS/backend/migrations/011_onboarding_system.sql\")",
+      "Bash(PGPASSWORD='VoidSecure2025!' \"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -f \"C:/Users/derek/Documents/VoidStaffOS/backend/migrations/012_recruitment_and_permissions.sql\")",
+      "Bash(PGPASSWORD='VoidSecure2025!' \"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"SELECT role_name, onboarding_full, onboarding_post_checks FROM roles ORDER BY role_name;\")",
+      "Bash(PGPASSWORD='VoidSecure2025!' \"/c/Program Files/PostgreSQL/15/bin/psql.exe\":*)"
     ]
   }
 }

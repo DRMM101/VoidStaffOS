@@ -1,30 +1,72 @@
+/**
+ * @fileoverview User Management Routes
+ * @module routes/users
+ */
+
 const express = require('express');
 const router = express.Router();
-const { getUsers, getUserById, createUser, updateUser, getRoles, getEmployeesByManager, getUsersWithReviewStatus } = require('../controllers/userController');
+const {
+  getUsers,
+  getUserById,
+  getUserProfile,
+  createUser,
+  updateUser,
+  getRoles,
+  getEmployeesByManager,
+  getUsersWithReviewStatus,
+  assignManager,
+  adoptEmployee,
+  transferEmployee,
+  getTransferTargets,
+  getManagers,
+  getOrphanedEmployees
+} = require('../controllers/userController');
 const { authenticate, authorize } = require('../middleware/auth');
+const { validateUser, validateIdParam } = require('../middleware/validation');
 
 // All routes require authentication
 router.use(authenticate);
 
-// Get all roles (for dropdowns)
+// GET /api/users/roles - Get all roles (for dropdowns)
 router.get('/roles', getRoles);
 
-// Get employees by manager (for review dropdown)
+// GET /api/users/managers - Get list of managers (for assignment dropdown)
+router.get('/managers', getManagers);
+
+// GET /api/users/orphaned - Get employees without managers
+router.get('/orphaned', authorize('Admin', 'Manager'), getOrphanedEmployees);
+
+// GET /api/users/my-team - Get current user's direct reports
 router.get('/my-team', authorize('Admin', 'Manager'), getEmployeesByManager);
 
-// Get users with their review status (for employees table with snapshot buttons)
+// GET /api/users/with-review-status - Get users with review status indicators
 router.get('/with-review-status', getUsersWithReviewStatus);
 
-// Get all users - any authenticated user can view
+// GET /api/users - Get all users (filtered by role)
 router.get('/', getUsers);
 
-// Get single user - any authenticated user can view
-router.get('/:id', getUserById);
+// GET /api/users/:id/profile - Get detailed user profile
+router.get('/:id/profile', validateIdParam, getUserProfile);
 
-// Create user - admin only
-router.post('/', authorize('Admin'), createUser);
+// PUT /api/users/:id/assign-manager - Assign manager to employee
+router.put('/:id/assign-manager', validateIdParam, authorize('Admin', 'Manager'), assignManager);
 
-// Update user - admin only
-router.put('/:id', authorize('Admin'), updateUser);
+// POST /api/users/adopt-employee/:employeeId - Manager adopts orphaned employee
+router.post('/adopt-employee/:employeeId', validateIdParam, authorize('Admin', 'Manager'), adoptEmployee);
+
+// POST /api/users/:id/transfer - Transfer employee to new manager
+router.post('/:id/transfer', validateIdParam, authorize('Admin', 'Manager'), transferEmployee);
+
+// GET /api/users/:id/transfer-targets - Get eligible managers for transfer
+router.get('/:id/transfer-targets', validateIdParam, authorize('Admin', 'Manager'), getTransferTargets);
+
+// GET /api/users/:id - Get single user
+router.get('/:id', validateIdParam, getUserById);
+
+// POST /api/users - Create new user (Admin only)
+router.post('/', authorize('Admin'), validateUser, createUser);
+
+// PUT /api/users/:id - Update user (Admin only)
+router.put('/:id', validateIdParam, authorize('Admin'), updateUser);
 
 module.exports = router;

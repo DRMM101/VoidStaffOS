@@ -1,7 +1,36 @@
+/**
+ * @fileoverview Authentication Controller
+ *
+ * Handles user authentication: login, registration, and session management.
+ * Uses JWT tokens for stateless authentication.
+ *
+ * Security considerations:
+ * - Passwords hashed with bcrypt (10 salt rounds)
+ * - Generic error messages to prevent user enumeration
+ * - Active status check prevents access by deactivated users
+ * - Password hashes never exposed in responses
+ *
+ * @module controllers/authController
+ */
+
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const { generateToken } = require('../utils/jwt');
 
+/**
+ * Register a new user
+ *
+ * @async
+ * @param {Object} req - Express request
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.email - User email
+ * @param {string} req.body.password - User password (will be hashed)
+ * @param {string} req.body.full_name - User's full name
+ * @param {number} req.body.role_id - Role ID
+ * @param {Object} res - Express response
+ * @returns {Object} Created user (without sensitive data)
+ * @authorization Public (but typically disabled in production)
+ */
 async function register(req, res) {
   try {
     const { email, password, full_name, role_id } = req.body;
@@ -32,6 +61,18 @@ async function register(req, res) {
   }
 }
 
+/**
+ * Authenticate user and issue JWT token
+ *
+ * @async
+ * @param {Object} req - Express request
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.email - User email
+ * @param {string} req.body.password - User password
+ * @param {Object} res - Express response
+ * @returns {Object} JWT token and user data
+ * @authorization Public
+ */
 async function login(req, res) {
   try {
     const { email, password } = req.body;
@@ -42,6 +83,7 @@ async function login(req, res) {
 
     const user = await User.findByEmail(email);
     if (!user) {
+      // Generic message to prevent user enumeration
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
@@ -54,12 +96,14 @@ async function login(req, res) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Generate JWT with minimal claims
     const token = generateToken({
       id: user.id,
       role_id: user.role_id,
       role_name: user.role_name
     });
 
+    // Return safe user data (no password hash, internal fields)
     res.json({
       message: 'Login successful',
       token,
@@ -67,7 +111,9 @@ async function login(req, res) {
         id: user.id,
         email: user.email,
         full_name: user.full_name,
-        role_name: user.role_name
+        role_name: user.role_name,
+        tier: user.tier,
+        employee_number: user.employee_number
       }
     });
   } catch (error) {
@@ -76,6 +122,15 @@ async function login(req, res) {
   }
 }
 
+/**
+ * Get current authenticated user's profile
+ *
+ * @async
+ * @param {Object} req - Express request (with user from auth middleware)
+ * @param {Object} res - Express response
+ * @returns {Object} Current user data
+ * @authorization Any authenticated user
+ */
 async function getMe(req, res) {
   res.json({
     user: {
@@ -84,6 +139,8 @@ async function getMe(req, res) {
       full_name: req.user.full_name,
       role_id: req.user.role_id,
       role_name: req.user.role_name,
+      tier: req.user.tier,
+      employee_number: req.user.employee_number,
       employment_status: req.user.employment_status,
       start_date: req.user.start_date
     }

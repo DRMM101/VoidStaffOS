@@ -1,39 +1,68 @@
+/**
+ * @fileoverview Review Management Routes
+ *
+ * Handles performance reviews with blind review support.
+ * Reviews are dated to week ending (Friday) dates.
+ *
+ * @module routes/reviews
+ */
+
 const express = require('express');
 const router = express.Router();
-const { getReviews, getReviewById, getMyLatestReview, getMyReflectionStatus, createReview, createSelfReflection, commitSelfReflection, updateReview, commitReview, uncommitReview } = require('../controllers/reviewController');
+const {
+  getReviews,
+  getReviewById,
+  getMyLatestReview,
+  getMyReflectionStatus,
+  createReview,
+  createSelfReflection,
+  commitSelfReflection,
+  updateReview,
+  commitReview,
+  uncommitReview
+} = require('../controllers/reviewController');
 const { authenticate, authorize } = require('../middleware/auth');
+const { validateReview, validateIdParam } = require('../middleware/validation');
 
 // All routes require authentication
 router.use(authenticate);
 
-// Get all reviews (filtered by user role)
+// === Read Operations ===
+
+// GET /api/reviews - Get all reviews (filtered by role)
 router.get('/', getReviews);
 
-// Get latest review for current user (for dashboard)
+// GET /api/reviews/my-latest - Get current user's most recent review
 router.get('/my-latest', getMyLatestReview);
 
-// Get self-reflection status for current week (for dashboard with blind review support)
+// GET /api/reviews/my-reflection-status - Get blind review state for current week
 router.get('/my-reflection-status', getMyReflectionStatus);
 
-// Get single review
-router.get('/:id', getReviewById);
+// GET /api/reviews/:id - Get single review by ID
+router.get('/:id', validateIdParam, getReviewById);
 
-// Create self-reflection - Any authenticated user can create their own
+// === Self-Reflection (Any authenticated user) ===
+
+// POST /api/reviews/self-reflection - Create self-reflection
 router.post('/self-reflection', createSelfReflection);
 
-// Commit self-reflection - Any authenticated user can commit their own
-router.post('/self-reflection/:id/commit', commitSelfReflection);
+// POST /api/reviews/self-reflection/:id/commit - Commit self-reflection
+router.post('/self-reflection/:id/commit', validateIdParam, commitSelfReflection);
 
-// Create review - Admin and Manager only
-router.post('/', authorize('Admin', 'Manager'), createReview);
+// === Manager Reviews (Admin/Manager only) ===
 
-// Update review - Admin and Manager only
-router.put('/:id', authorize('Admin', 'Manager'), updateReview);
+// POST /api/reviews - Create review for team member
+router.post('/', authorize('Admin', 'Manager'), validateReview, createReview);
 
-// Commit review - Admin and Manager (only original reviewer)
-router.post('/:id/commit', authorize('Admin', 'Manager'), commitReview);
+// PUT /api/reviews/:id - Update uncommitted review
+router.put('/:id', validateIdParam, authorize('Admin', 'Manager'), updateReview);
 
-// Uncommit review - Admin only
-router.post('/:id/uncommit', authorize('Admin'), uncommitReview);
+// POST /api/reviews/:id/commit - Commit review (locks it)
+router.post('/:id/commit', validateIdParam, authorize('Admin', 'Manager'), commitReview);
+
+// === Admin Only ===
+
+// POST /api/reviews/:id/uncommit - Unlock committed review
+router.post('/:id/uncommit', validateIdParam, authorize('Admin'), uncommitReview);
 
 module.exports = router;

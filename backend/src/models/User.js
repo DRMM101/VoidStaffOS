@@ -9,7 +9,7 @@ const User = {
       `SELECT u.*, r.role_name, r.permissions_json
        FROM users u
        LEFT JOIN roles r ON u.role_id = r.id
-       WHERE u.email = $1`,
+       WHERE LOWER(u.email) = LOWER($1)`,
       [email]
     );
     return result.rows[0] || null;
@@ -18,7 +18,8 @@ const User = {
   async findById(id) {
     const result = await pool.query(
       `SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
-              u.start_date, u.end_date, u.created_at,
+              u.start_date, u.end_date, u.created_at, u.manager_id,
+              u.tier, u.employee_number,
               r.role_name, r.permissions_json
        FROM users u
        LEFT JOIN roles r ON u.role_id = r.id
