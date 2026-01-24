@@ -142,10 +142,48 @@ async function getRoles(req, res) {
   }
 }
 
+async function getEmployeesByManager(req, res) {
+  try {
+    const { role_name, id: userId } = req.user;
+    let query;
+    let params = [];
+
+    if (role_name === 'Admin') {
+      // Admin can see all active employees
+      query = `
+        SELECT u.id, u.full_name, u.email, r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        WHERE u.employment_status = 'active'
+        ORDER BY u.full_name
+      `;
+    } else if (role_name === 'Manager') {
+      // Managers can only see their team members
+      query = `
+        SELECT u.id, u.full_name, u.email, r.role_name
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        WHERE u.manager_id = $1 AND u.employment_status = 'active'
+        ORDER BY u.full_name
+      `;
+      params = [userId];
+    } else {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    const result = await pool.query(query, params);
+    res.json({ employees: result.rows });
+  } catch (error) {
+    console.error('Get employees by manager error:', error);
+    res.status(500).json({ error: 'Failed to fetch employees' });
+  }
+}
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   updateUser,
-  getRoles
+  getRoles,
+  getEmployeesByManager
 };

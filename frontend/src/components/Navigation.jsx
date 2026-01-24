@@ -15,6 +15,12 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin }) {
         >
           Employees
         </button>
+        <button
+          className={`nav-link ${currentPage === 'reviews' ? 'active' : ''}`}
+          onClick={() => onNavigate('reviews')}
+        >
+          Reviews
+        </button>
       </nav>
       <button onClick={onLogout} className="logout-btn">
         Logout

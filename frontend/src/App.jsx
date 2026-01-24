@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Employees from './components/Employees';
+import Reviews from './components/Reviews';
 import Navigation from './components/Navigation';
 import './App.css';
 
@@ -54,6 +55,8 @@ function App() {
   }
 
   const isAdmin = user.role_name === 'Admin';
+  const isManager = user.role_name === 'Manager';
+  const canCreateReviews = isAdmin || isManager;
 
   return (
     <div className="app-container">
@@ -66,6 +69,8 @@ function App() {
       <main className="main-content">
         {currentPage === 'dashboard' && <Dashboard user={user} />}
         {currentPage === 'employees' && <Employees user={user} />}
+        {currentPage === 'reviews' && <Reviews user={user} canCreate={canCreateReviews} />}
+        {currentPage === 'review-detail' && <Reviews user={user} canCreate={canCreateReviews} viewMode="detail" />}
       </main>
     </div>
   );

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getUsers, getUserById, createUser, updateUser, getRoles } = require('../controllers/userController');
+const { getUsers, getUserById, createUser, updateUser, getRoles, getEmployeesByManager } = require('../controllers/userController');
 const { authenticate, authorize } = require('../middleware/auth');
 
 // All routes require authentication
@@ -8,6 +8,9 @@ router.use(authenticate);
 
 // Get all roles (for dropdowns)
 router.get('/roles', getRoles);
+
+// Get employees by manager (for review dropdown)
+router.get('/my-team', authorize('Admin', 'Manager'), getEmployeesByManager);
 
 // Get all users - any authenticated user can view
 router.get('/', getUsers);

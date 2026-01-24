@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
+const reviewRoutes = require('./routes/reviews');
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.get('/api/db-test', async (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(PGPASSWORD='VoidSecure2025!' psql:*)",
+      "Bash(node run-migration.js:*)",
+      "Bash(node -e:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}
