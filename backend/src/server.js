@@ -21,6 +21,8 @@ const leaveRoutes = require('./routes/leave');
 const notificationRoutes = require('./routes/notifications');
 const onboardingRoutes = require('./routes/onboarding');
 const recruitmentRoutes = require('./routes/recruitment');
+const candidatePipelineRoutes = require('./routes/candidatePipeline');
+const feedbackRoutes = require('./routes/feedback');
 const devRoutes = require('./routes/dev');
 
 const app = express();
@@ -98,6 +100,8 @@ app.use('/api/leave', leaveRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/recruitment', recruitmentRoutes);
+app.use('/api/pipeline', candidatePipelineRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // Development routes (should be disabled in production)
 if (process.env.NODE_ENV !== 'production') {

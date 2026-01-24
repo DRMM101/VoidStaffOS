@@ -7,6 +7,14 @@ import NotificationBell from './NotificationBell';
 import Notifications from './Notifications';
 import OnboardingDashboard from './OnboardingDashboard';
 import PreColleaguePortal from './PreColleaguePortal';
+import RecruitmentDashboard from './RecruitmentDashboard';
+import RecruitmentRequestForm from './RecruitmentRequestForm';
+import MyRecruitmentRequests from './MyRecruitmentRequests';
+import RecruitmentApprovals from './RecruitmentApprovals';
+import TeamPerformance from './TeamPerformance';
+import PendingFeedback from './PendingFeedback';
+import QuarterlyFeedbackDashboard from './QuarterlyFeedbackDashboard';
+import QuarterlyCompositeView from './QuarterlyCompositeView';
 
 function TrafficLight({ status }) {
   if (!status) return <span className="traffic-light neutral"></span>;
@@ -135,8 +143,22 @@ function Dashboard({ user, onNavigate }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPreColleaguePortal, setShowPreColleaguePortal] = useState(false);
 
+  // Recruitment state
+  const [showRecruitmentDashboard, setShowRecruitmentDashboard] = useState(false);
+  const [showRecruitmentRequest, setShowRecruitmentRequest] = useState(false);
+  const [showMyRecruitmentRequests, setShowMyRecruitmentRequests] = useState(false);
+  const [showRecruitmentApprovals, setShowRecruitmentApprovals] = useState(false);
+  const [pendingRecruitmentApprovals, setPendingRecruitmentApprovals] = useState(0);
+
+  // 360 Feedback state
+  const [showPendingFeedback, setShowPendingFeedback] = useState(false);
+  const [showFeedbackDashboard, setShowFeedbackDashboard] = useState(false);
+  const [showCompositeView, setShowCompositeView] = useState(false);
+  const [pendingFeedbackCount, setPendingFeedbackCount] = useState(0);
+
   const isManager = user.role_name === 'Manager' || user.role_name === 'Admin';
   const isAdmin = user.role_name === 'Admin';
+  const isHR = user.role_name === 'HR Manager' || user.role_name === 'Admin';
 
   useEffect(() => {
     fetchMyLatestSnapshot();
@@ -144,11 +166,43 @@ function Dashboard({ user, onNavigate }) {
     fetchMyLeaveBalance();
     fetchUnreadNotifications();
     checkOverdueSnapshots();
+    fetchPendingFeedbackCount();
     if (isManager) {
       fetchTeamStats();
       fetchPendingLeaveCount();
+      fetchPendingRecruitmentApprovals();
     }
   }, [user.id]);
+
+  const fetchPendingFeedbackCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/feedback/pending', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setPendingFeedbackCount(data.pending_feedback?.length || 0);
+      }
+    } catch (err) {
+      console.error('Failed to fetch pending feedback count');
+    }
+  };
+
+  const fetchPendingRecruitmentApprovals = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/recruitment/my-approvals', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setPendingRecruitmentApprovals(data.pending_approvals?.length || 0);
+      }
+    } catch (err) {
+      console.error('Failed to fetch pending recruitment approvals');
+    }
+  };
 
   const fetchUnreadNotifications = async () => {
     try {
@@ -376,12 +430,62 @@ function Dashboard({ user, onNavigate }) {
               )}
             </button>
           )}
-          {isAdmin && (
+          {isHR && (
             <button
               onClick={() => setShowOnboarding(true)}
               className="quick-action-btn onboarding-btn"
             >
-              Onboarding Pipeline
+              Onboarding
+            </button>
+          )}
+          {isHR && (
+            <button
+              onClick={() => setShowRecruitmentDashboard(true)}
+              className="quick-action-btn recruitment-btn"
+            >
+              Recruitment Pipeline
+            </button>
+          )}
+          {isManager && (
+            <button
+              onClick={() => setShowRecruitmentRequest(true)}
+              className="quick-action-btn"
+            >
+              Request Hire
+            </button>
+          )}
+          {isManager && (
+            <button
+              onClick={() => setShowMyRecruitmentRequests(true)}
+              className="quick-action-btn"
+            >
+              My Requests
+            </button>
+          )}
+          {isManager && pendingRecruitmentApprovals > 0 && (
+            <button
+              onClick={() => setShowRecruitmentApprovals(true)}
+              className="quick-action-btn approvals-btn has-pending"
+            >
+              Hire Approvals
+              <span className="pending-badge">{pendingRecruitmentApprovals}</span>
+            </button>
+          )}
+          {pendingFeedbackCount > 0 && (
+            <button
+              onClick={() => setShowPendingFeedback(true)}
+              className="quick-action-btn feedback-btn has-pending"
+            >
+              360 Feedback
+              <span className="pending-badge">{pendingFeedbackCount}</span>
+            </button>
+          )}
+          {isAdmin && (
+            <button
+              onClick={() => setShowFeedbackDashboard(true)}
+              className="quick-action-btn"
+            >
+              Feedback Cycles
             </button>
           )}
         </div>
@@ -585,6 +689,25 @@ function Dashboard({ user, onNavigate }) {
         </div>
       )}
 
+      {/* Team Performance Section */}
+      {isManager && (
+        <TeamPerformance
+          user={user}
+          onCreateSnapshot={(member) => {
+            // Navigate to employee page to create snapshot
+            if (onNavigate) {
+              onNavigate('employees', { selectedEmployee: member.id });
+            }
+          }}
+          onViewMember={(member) => {
+            // Navigate to employee page to view member
+            if (onNavigate) {
+              onNavigate('employees', { selectedEmployee: member.id });
+            }
+          }}
+        />
+      )}
+
       {/* Self-Reflection Form Modal */}
       {showReflectionForm && (
         <SelfReflectionForm
@@ -648,6 +771,72 @@ function Dashboard({ user, onNavigate }) {
         <PreColleaguePortal
           user={user}
           onClose={() => setShowPreColleaguePortal(false)}
+        />
+      )}
+
+      {/* Recruitment Dashboard (HR/Admin) */}
+      {showRecruitmentDashboard && (
+        <div className="modal-overlay" onClick={() => setShowRecruitmentDashboard(false)}>
+          <div className="modal-fullscreen" onClick={e => e.stopPropagation()}>
+            <div className="modal-close-bar">
+              <button onClick={() => setShowRecruitmentDashboard(false)}>Close</button>
+            </div>
+            <RecruitmentDashboard />
+          </div>
+        </div>
+      )}
+
+      {/* Recruitment Request Form */}
+      {showRecruitmentRequest && (
+        <RecruitmentRequestForm
+          onClose={() => setShowRecruitmentRequest(false)}
+          onSubmit={() => {
+            setShowRecruitmentRequest(false);
+          }}
+        />
+      )}
+
+      {/* My Recruitment Requests */}
+      {showMyRecruitmentRequests && (
+        <MyRecruitmentRequests
+          onClose={() => setShowMyRecruitmentRequests(false)}
+        />
+      )}
+
+      {/* Recruitment Approvals */}
+      {showRecruitmentApprovals && (
+        <RecruitmentApprovals
+          onClose={() => {
+            setShowRecruitmentApprovals(false);
+            fetchPendingRecruitmentApprovals();
+          }}
+        />
+      )}
+
+      {/* Pending 360 Feedback */}
+      {showPendingFeedback && (
+        <PendingFeedback
+          onClose={() => {
+            setShowPendingFeedback(false);
+            fetchPendingFeedbackCount();
+          }}
+        />
+      )}
+
+      {/* Quarterly Feedback Dashboard (Admin) */}
+      {showFeedbackDashboard && (
+        <QuarterlyFeedbackDashboard
+          onClose={() => setShowFeedbackDashboard(false)}
+        />
+      )}
+
+      {/* Quarterly Composite View */}
+      {showCompositeView && (
+        <QuarterlyCompositeView
+          employeeId={user.id}
+          quarter={showCompositeView}
+          employeeName={user.full_name}
+          onClose={() => setShowCompositeView(false)}
         />
       )}
     </div>

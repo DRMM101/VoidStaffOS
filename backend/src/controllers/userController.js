@@ -964,6 +964,240 @@ async function getTransferTargets(req, res) {
   }
 }
 
+/**
+ * Get team performance summary for manager dashboard
+ * Includes team members with latest KPIs, averages, and staleness
+ */
+async function getTeamSummary(req, res) {
+  try {
+    const { role_name, id: userId } = req.user;
+
+    if (role_name !== 'Admin' && role_name !== 'Manager') {
+      return res.status(403).json({ error: 'Only managers can view team summary' });
+    }
+
+    // Get current Friday for staleness calculations
+    const currentFriday = getMostRecentFriday();
+    const today = new Date();
+
+    // Get team members with their latest committed manager review
+    let query;
+    let params;
+
+    if (role_name === 'Admin') {
+      // Admin sees all employees with managers
+      query = `
+        SELECT
+          u.id, u.full_name, u.email, u.tier, u.employee_number,
+          r.role_name,
+          u.manager_id,
+          (SELECT full_name FROM users WHERE id = u.manager_id) as manager_name,
+          latest_review.review_date as last_review_date,
+          latest_review.tasks_completed,
+          latest_review.work_volume,
+          latest_review.problem_solving,
+          latest_review.communication,
+          latest_review.leadership
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        LEFT JOIN LATERAL (
+          SELECT rev.review_date, rev.tasks_completed, rev.work_volume,
+                 rev.problem_solving, rev.communication, rev.leadership
+          FROM reviews rev
+          WHERE rev.employee_id = u.id
+            AND rev.is_self_assessment = false
+            AND rev.manager_committed = true
+          ORDER BY rev.review_date DESC
+          LIMIT 1
+        ) latest_review ON true
+        WHERE u.employment_status = 'active'
+          AND r.role_name NOT IN ('Admin')
+        ORDER BY u.tier NULLS FIRST, u.full_name
+      `;
+      params = [];
+    } else {
+      // Manager sees only their direct reports
+      query = `
+        SELECT
+          u.id, u.full_name, u.email, u.tier, u.employee_number,
+          r.role_name,
+          u.manager_id,
+          latest_review.review_date as last_review_date,
+          latest_review.tasks_completed,
+          latest_review.work_volume,
+          latest_review.problem_solving,
+          latest_review.communication,
+          latest_review.leadership
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        LEFT JOIN LATERAL (
+          SELECT rev.review_date, rev.tasks_completed, rev.work_volume,
+                 rev.problem_solving, rev.communication, rev.leadership
+          FROM reviews rev
+          WHERE rev.employee_id = u.id
+            AND rev.is_self_assessment = false
+            AND rev.manager_committed = true
+          ORDER BY rev.review_date DESC
+          LIMIT 1
+        ) latest_review ON true
+        WHERE u.manager_id = $1
+          AND u.employment_status = 'active'
+        ORDER BY u.tier NULLS FIRST, u.full_name
+      `;
+      params = [userId];
+    }
+
+    const result = await pool.query(query, params);
+
+    // Calculate KPIs and staleness for each team member
+    const teamMembers = result.rows.map(member => {
+      // Calculate composite KPIs
+      let velocity = null;
+      let friction = null;
+      let cohesion = null;
+
+      if (member.tasks_completed !== null && member.work_volume !== null && member.problem_solving !== null) {
+        velocity = Math.round((member.tasks_completed + member.work_volume + member.problem_solving) / 3 * 100) / 100;
+      }
+      if (velocity !== null && member.communication !== null) {
+        friction = Math.round((velocity + member.communication) / 2 * 100) / 100;
+      }
+      if (member.problem_solving !== null && member.communication !== null && member.leadership !== null) {
+        cohesion = Math.round((member.problem_solving + member.communication + member.leadership) / 3 * 100) / 100;
+      }
+
+      // Calculate staleness
+      let daysSinceReview = null;
+      let isOverdue = false;
+      let stalenessStatus = 'none'; // none, current, stale, overdue
+
+      if (member.last_review_date) {
+        const lastReview = new Date(member.last_review_date);
+        daysSinceReview = Math.floor((today - lastReview) / (1000 * 60 * 60 * 24));
+
+        if (daysSinceReview <= 7) {
+          stalenessStatus = 'current';
+        } else if (daysSinceReview <= 14) {
+          stalenessStatus = 'stale';
+        } else {
+          stalenessStatus = 'overdue';
+          isOverdue = true;
+        }
+      } else {
+        stalenessStatus = 'overdue';
+        isOverdue = true;
+      }
+
+      // Get status colors
+      const getStatus = (value) => {
+        if (value === null) return null;
+        if (value < 5) return 'red';
+        if (value < 6.5) return 'amber';
+        return 'green';
+      };
+
+      return {
+        id: member.id,
+        full_name: member.full_name,
+        email: member.email,
+        tier: member.tier,
+        role_name: member.role_name,
+        employee_number: member.employee_number,
+        manager_id: member.manager_id,
+        manager_name: member.manager_name,
+        last_review_date: member.last_review_date,
+        days_since_review: daysSinceReview,
+        staleness_status: stalenessStatus,
+        is_overdue: isOverdue,
+        kpis: {
+          velocity: {
+            value: velocity,
+            status: getStatus(velocity)
+          },
+          friction: {
+            value: friction,
+            status: getStatus(friction)
+          },
+          cohesion: {
+            value: cohesion,
+            status: getStatus(cohesion)
+          }
+        },
+        raw_metrics: {
+          tasks_completed: member.tasks_completed,
+          work_volume: member.work_volume,
+          problem_solving: member.problem_solving,
+          communication: member.communication,
+          leadership: member.leadership
+        }
+      };
+    });
+
+    // Calculate team averages (only from members with KPI data)
+    const membersWithKpis = teamMembers.filter(m => m.kpis.velocity.value !== null);
+
+    let teamAverages = {
+      velocity: { value: null, status: null },
+      friction: { value: null, status: null },
+      cohesion: { value: null, status: null }
+    };
+
+    if (membersWithKpis.length > 0) {
+      const avgVelocity = Math.round(
+        membersWithKpis.reduce((sum, m) => sum + m.kpis.velocity.value, 0) / membersWithKpis.length * 100
+      ) / 100;
+
+      const avgFriction = Math.round(
+        membersWithKpis.filter(m => m.kpis.friction.value !== null)
+          .reduce((sum, m) => sum + m.kpis.friction.value, 0) /
+        membersWithKpis.filter(m => m.kpis.friction.value !== null).length * 100
+      ) / 100;
+
+      const avgCohesion = Math.round(
+        membersWithKpis.filter(m => m.kpis.cohesion.value !== null)
+          .reduce((sum, m) => sum + m.kpis.cohesion.value, 0) /
+        membersWithKpis.filter(m => m.kpis.cohesion.value !== null).length * 100
+      ) / 100;
+
+      const getStatus = (value) => {
+        if (value === null || isNaN(value)) return null;
+        if (value < 5) return 'red';
+        if (value < 6.5) return 'amber';
+        return 'green';
+      };
+
+      teamAverages = {
+        velocity: { value: avgVelocity, status: getStatus(avgVelocity) },
+        friction: { value: avgFriction || null, status: getStatus(avgFriction) },
+        cohesion: { value: avgCohesion || null, status: getStatus(avgCohesion) }
+      };
+    }
+
+    // Count alerts
+    const overdueCount = teamMembers.filter(m => m.is_overdue).length;
+    const redKpiCount = teamMembers.filter(m =>
+      m.kpis.velocity.status === 'red' ||
+      m.kpis.friction.status === 'red' ||
+      m.kpis.cohesion.status === 'red'
+    ).length;
+
+    res.json({
+      team_members: teamMembers,
+      team_averages: teamAverages,
+      summary: {
+        total_members: teamMembers.length,
+        members_with_kpis: membersWithKpis.length,
+        overdue_reviews: overdueCount,
+        needs_attention: redKpiCount
+      },
+      current_week_friday: currentFriday
+    });
+  } catch (error) {
+    console.error('Get team summary error:', error);
+    res.status(500).json({ error: 'Failed to fetch team summary' });
+  }
+}
+
 module.exports = {
   getUsers,
   getUserById,
@@ -978,5 +1212,6 @@ module.exports = {
   transferEmployee,
   getTransferTargets,
   getManagers,
-  getOrphanedEmployees
+  getOrphanedEmployees,
+  getTeamSummary
 };

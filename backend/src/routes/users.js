@@ -19,7 +19,8 @@ const {
   transferEmployee,
   getTransferTargets,
   getManagers,
-  getOrphanedEmployees
+  getOrphanedEmployees,
+  getTeamSummary
 } = require('../controllers/userController');
 const { authenticate, authorize } = require('../middleware/auth');
 const { validateUser, validateIdParam } = require('../middleware/validation');
@@ -38,6 +39,9 @@ router.get('/orphaned', authorize('Admin', 'Manager'), getOrphanedEmployees);
 
 // GET /api/users/my-team - Get current user's direct reports
 router.get('/my-team', authorize('Admin', 'Manager'), getEmployeesByManager);
+
+// GET /api/users/team-summary - Get team performance summary with KPIs
+router.get('/team-summary', authorize('Admin', 'Manager'), getTeamSummary);
 
 // GET /api/users/with-review-status - Get users with review status indicators
 router.get('/with-review-status', getUsersWithReviewStatus);
