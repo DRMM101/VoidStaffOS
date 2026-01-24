@@ -1,4 +1,4 @@
-function Navigation({ currentPage, onNavigate, onLogout, isAdmin }) {
+function Navigation({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
   return (
     <header className="nav-header">
       <h1 className="nav-logo">VoidStaffOS</h1>
@@ -19,7 +19,13 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin }) {
           className={`nav-link ${currentPage === 'reviews' ? 'active' : ''}`}
           onClick={() => onNavigate('reviews')}
         >
-          Reviews
+          Snapshots
+        </button>
+        <button
+          className={`nav-link ${currentPage === 'my-reports' ? 'active' : ''}`}
+          onClick={() => onNavigate('my-reports')}
+        >
+          My Reports
         </button>
       </nav>
       <button onClick={onLogout} className="logout-btn">

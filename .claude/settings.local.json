@@ -4,7 +4,16 @@
       "Bash(PGPASSWORD='VoidSecure2025!' psql:*)",
       "Bash(node run-migration.js:*)",
       "Bash(node -e:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm start)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout /t 3)",
+      "Bash(node src/index.js:*)",
+      "Bash(node src/server.js:*)",
+      "Bash(taskkill:*)",
+      "Bash(node scripts/run-migration.js:*)",
+      "Bash(timeout:*)",
+      "Bash(node scripts/generate-test-data.js:*)"
     ]
   }
 }

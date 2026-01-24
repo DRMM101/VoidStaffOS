@@ -2,6 +2,21 @@ import { useState, useEffect } from 'react';
 import ReviewForm from './ReviewForm';
 import ReviewDetail from './ReviewDetail';
 
+function TrafficLight({ status }) {
+  if (!status) return <span className="traffic-light neutral"></span>;
+  return <span className={`traffic-light ${status}`}></span>;
+}
+
+function TrafficLights({ velocity, friction, cohesion }) {
+  return (
+    <div className="traffic-lights">
+      <TrafficLight status={velocity} />
+      <TrafficLight status={friction} />
+      <TrafficLight status={cohesion} />
+    </div>
+  );
+}
+
 function Reviews({ user, canCreate }) {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,28 +119,34 @@ function Reviews({ user, canCreate }) {
     setSelectedReview(null);
   };
 
+  const handleDetailRefresh = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/reviews/${selectedReview.id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSelectedReview(data.review);
+      }
+      fetchReviews();
+    } catch (err) {
+      console.error('Failed to refresh review');
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString();
   };
 
-  const getRatingDisplay = (rating) => {
-    if (!rating) return '-';
-    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-    return <span className="rating-stars">{stars}</span>;
-  };
-
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case 'draft': return 'status-badge draft';
-      case 'submitted': return 'status-badge submitted';
-      case 'acknowledged': return 'status-badge acknowledged';
-      default: return 'status-badge';
-    }
+  const getStalenessClass = (status) => {
+    if (!status) return 'staleness-badge';
+    return `staleness-badge ${status}`;
   };
 
   if (loading) {
-    return <div className="loading">Loading reviews...</div>;
+    return <div className="loading">Loading snapshots...</div>;
   }
 
   if (selectedReview) {
@@ -134,7 +155,9 @@ function Reviews({ user, canCreate }) {
         review={selectedReview}
         onClose={handleDetailClose}
         onEdit={canCreate ? handleEditReview : null}
-        canEdit={canCreate && selectedReview.reviewer_id === user.id}
+        canEdit={canCreate && selectedReview.reviewer_id === user.id && !selectedReview.is_committed}
+        user={user}
+        onRefresh={handleDetailRefresh}
       />
     );
   }
@@ -142,10 +165,10 @@ function Reviews({ user, canCreate }) {
   return (
     <div className="reviews-container">
       <div className="reviews-header">
-        <h2>Performance Reviews</h2>
+        <h2>Performance Snapshots</h2>
         {canCreate && (
           <button onClick={handleNewReview} className="add-btn">
-            New Review
+            New Snapshot
           </button>
         )}
       </div>
@@ -156,11 +179,11 @@ function Reviews({ user, canCreate }) {
         <table className="reviews-table">
           <thead>
             <tr>
-              <th>Date</th>
+              <th>Week Ending</th>
               <th>Employee</th>
-              <th>Reviewer</th>
-              <th>Rating</th>
-              <th>Status</th>
+              <th>KPIs</th>
+              <th>Freshness</th>
+              <th>Committed</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -168,13 +191,30 @@ function Reviews({ user, canCreate }) {
             {reviews.map(review => (
               <tr key={review.id}>
                 <td>{formatDate(review.review_date)}</td>
-                <td>{review.employee_name}</td>
-                <td>{review.reviewer_name}</td>
-                <td>{getRatingDisplay(review.overall_rating)}</td>
                 <td>
-                  <span className={getStatusBadgeClass(review.status)}>
-                    {review.status}
+                  {review.employee_name}
+                  {review.is_self_assessment && (
+                    <span className="self-badge" title="Self Assessment">S</span>
+                  )}
+                </td>
+                <td>
+                  <TrafficLights
+                    velocity={review.velocity_status}
+                    friction={review.friction_status}
+                    cohesion={review.cohesion_status}
+                  />
+                </td>
+                <td>
+                  <span className={getStalenessClass(review.staleness_status)}>
+                    {review.weeks_since_review != null ? `${review.weeks_since_review}w` : '-'}
                   </span>
+                </td>
+                <td>
+                  {review.is_committed ? (
+                    <span className="committed-badge" title="Committed">✓</span>
+                  ) : (
+                    <span className="not-committed">-</span>
+                  )}
                 </td>
                 <td>
                   <button
@@ -183,7 +223,7 @@ function Reviews({ user, canCreate }) {
                   >
                     View
                   </button>
-                  {canCreate && review.reviewer_id === user.id && (
+                  {canCreate && review.reviewer_id === user.id && !review.is_committed && (
                     <button
                       onClick={() => handleEditReview(review)}
                       className="edit-btn"
@@ -197,7 +237,7 @@ function Reviews({ user, canCreate }) {
             {reviews.length === 0 && (
               <tr>
                 <td colSpan="6" className="no-results">
-                  No reviews found
+                  No snapshots found
                 </td>
               </tr>
             )}

@@ -7,6 +7,8 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const reviewRoutes = require('./routes/reviews');
+const reportRoutes = require('./routes/reports');
+const devRoutes = require('./routes/dev');
 
 const app = express();
 
@@ -41,6 +43,8 @@ app.get('/api/db-test', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/dev', devRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

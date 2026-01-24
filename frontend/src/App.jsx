@@ -3,6 +3,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Employees from './components/Employees';
 import Reviews from './components/Reviews';
+import EmployeeQuarterlyReport from './components/EmployeeQuarterlyReport';
 import Navigation from './components/Navigation';
 import './App.css';
 
@@ -65,12 +66,14 @@ function App() {
         onNavigate={setCurrentPage}
         onLogout={handleLogout}
         isAdmin={isAdmin}
+        isManager={isManager}
       />
       <main className="main-content">
-        {currentPage === 'dashboard' && <Dashboard user={user} />}
+        {currentPage === 'dashboard' && <Dashboard user={user} onNavigate={setCurrentPage} />}
         {currentPage === 'employees' && <Employees user={user} />}
         {currentPage === 'reviews' && <Reviews user={user} canCreate={canCreateReviews} />}
         {currentPage === 'review-detail' && <Reviews user={user} canCreate={canCreateReviews} viewMode="detail" />}
+        {currentPage === 'my-reports' && <EmployeeQuarterlyReport user={user} />}
       </main>
     </div>
   );

@@ -179,11 +179,147 @@ async function getEmployeesByManager(req, res) {
   }
 }
 
+// Helper to get the most recent Friday
+function getMostRecentFriday(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 5 ? 0 : (day < 5 ? day + 2 : day - 5);
+  d.setDate(d.getDate() - diff);
+  return d.toISOString().split('T')[0];
+}
+
+// Helper to get previous Friday
+function getPreviousFriday(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 5 ? 7 : (day < 5 ? day + 2 : day - 5) + 7;
+  d.setDate(d.getDate() - diff);
+  return d.toISOString().split('T')[0];
+}
+
+// Get users with their review status for the employees table
+async function getUsersWithReviewStatus(req, res) {
+  try {
+    const { role_name, id: userId } = req.user;
+
+    // Get current and previous week's Fridays
+    const currentWeekFriday = getMostRecentFriday();
+    const previousWeekFriday = getPreviousFriday();
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+    const isFriday = dayOfWeek === 5;
+
+    let baseQuery;
+    let params = [];
+
+    if (role_name === 'Admin') {
+      baseQuery = `
+        SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
+               u.start_date, u.end_date, u.created_at, u.manager_id,
+               r.role_name,
+               (SELECT MAX(review_date) FROM reviews WHERE employee_id = u.id AND is_self_assessment = false) as last_review_date,
+               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $1 AND is_self_assessment = false) as current_week_review_count,
+               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as previous_week_review_count
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        ORDER BY u.full_name
+      `;
+      params = [currentWeekFriday, previousWeekFriday];
+    } else if (role_name === 'Manager') {
+      baseQuery = `
+        SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
+               u.start_date, u.end_date, u.created_at, u.manager_id,
+               r.role_name,
+               (SELECT MAX(review_date) FROM reviews WHERE employee_id = u.id AND is_self_assessment = false) as last_review_date,
+               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as current_week_review_count,
+               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $3 AND is_self_assessment = false) as previous_week_review_count
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        WHERE u.manager_id = $1
+        ORDER BY u.full_name
+      `;
+      params = [userId, currentWeekFriday, previousWeekFriday];
+    } else {
+      // Regular employees only see themselves
+      baseQuery = `
+        SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
+               u.start_date, u.end_date, u.created_at, u.manager_id,
+               r.role_name,
+               (SELECT MAX(review_date) FROM reviews WHERE employee_id = u.id AND is_self_assessment = false) as last_review_date,
+               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as current_week_review_count,
+               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $3 AND is_self_assessment = false) as previous_week_review_count
+        FROM users u
+        LEFT JOIN roles r ON u.role_id = r.id
+        WHERE u.id = $1
+        ORDER BY u.full_name
+      `;
+      params = [userId, currentWeekFriday, previousWeekFriday];
+    }
+
+    const result = await pool.query(baseQuery, params);
+
+    // Calculate review status for each user
+    const users = result.rows.map(user => {
+      const hasCurrentWeekReview = parseInt(user.current_week_review_count) > 0;
+      const hasPreviousWeekReview = parseInt(user.previous_week_review_count) > 0;
+
+      let reviewStatus;
+      let reviewStatusColor;
+
+      if (hasCurrentWeekReview) {
+        reviewStatus = 'complete';
+        reviewStatusColor = 'green';
+      } else if (isFriday) {
+        reviewStatus = 'due_today';
+        reviewStatusColor = 'green';
+      } else if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+        // Monday-Thursday
+        reviewStatus = 'upcoming';
+        reviewStatusColor = 'amber';
+      } else {
+        // Saturday or Sunday after Friday, no review
+        if (!hasPreviousWeekReview && !hasCurrentWeekReview) {
+          reviewStatus = 'overdue';
+          reviewStatusColor = 'red';
+        } else {
+          reviewStatus = 'upcoming';
+          reviewStatusColor = 'amber';
+        }
+      }
+
+      // Check for missed weeks - if last review is more than 2 weeks ago
+      let missedWeeks = 0;
+      if (user.last_review_date) {
+        const lastReview = new Date(user.last_review_date);
+        const diffTime = today - lastReview;
+        const diffWeeks = Math.floor(diffTime / (7 * 24 * 60 * 60 * 1000));
+        missedWeeks = Math.max(0, diffWeeks - 1); // -1 because current week might not be done yet
+      }
+
+      return {
+        ...user,
+        current_week_friday: currentWeekFriday,
+        has_current_week_review: hasCurrentWeekReview,
+        has_previous_week_review: hasPreviousWeekReview,
+        review_status: reviewStatus,
+        review_status_color: reviewStatusColor,
+        missed_weeks: missedWeeks
+      };
+    });
+
+    res.json({ users, current_week_friday: currentWeekFriday, is_friday: isFriday });
+  } catch (error) {
+    console.error('Get users with review status error:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+}
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   getRoles,
-  getEmployeesByManager
+  getEmployeesByManager,
+  getUsersWithReviewStatus
 };
