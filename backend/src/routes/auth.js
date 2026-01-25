@@ -17,7 +17,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { register, login, logout, getMe } = require('../controllers/authController');
+const { register, login, logout, getMe, verifyPassword, checkAuditAccess } = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
 const { validateLogin, validateUser } = require('../middleware/validation');
 
@@ -32,5 +32,12 @@ router.get('/me', authenticate, getMe);
 
 // POST /api/auth/logout - Logout and destroy session
 router.post('/logout', logout);
+
+// POST /api/auth/verify-password - Re-authenticate for sensitive operations (Admin only)
+// Used before accessing audit trail - sets 15-minute verification window
+router.post('/verify-password', authenticate, verifyPassword);
+
+// GET /api/auth/audit-access - Check if audit trail access is verified
+router.get('/audit-access', authenticate, checkAuditAccess);
 
 module.exports = router;

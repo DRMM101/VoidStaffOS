@@ -1,6 +1,14 @@
+<!--
+  VoidStaffOS - Component Map Documentation
+  Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+  Created: 24/01/2026
+  Updated: 25/01/2026
+  PROPRIETARY AND CONFIDENTIAL
+-->
+
 # VoidStaffOS Component Map
 
-Last Updated: 2024-01-24
+Last Updated: 2026-01-25
 
 ## Architecture Overview
 
@@ -13,16 +21,18 @@ Last Updated: 2024-01-24
 │       │             │             │                │            │
 │       └─────────────┴─────────────┴────────────────┘            │
 │                              │                                   │
-│                         HTTP/REST                                │
+│                    credentials: 'include'                        │
+│                      + X-CSRF-Token header                       │
 └──────────────────────────────┼───────────────────────────────────┘
                                │
 ┌──────────────────────────────┼───────────────────────────────────┐
 │                         BACKEND (Node.js/Express)                │
 │  ┌──────────────────────────────────────────────────────────┐   │
-│  │                      Middleware                           │   │
-│  │  ┌─────────┐  ┌────────┐  ┌──────────┐  ┌────────────┐  │   │
-│  │  │ Helmet  │  │  CORS  │  │Rate Limit│  │    Auth    │  │   │
-│  │  └─────────┘  └────────┘  └──────────┘  └────────────┘  │   │
+│  │                  Security Middleware Stack                │   │
+│  │  ┌─────────┐ ┌──────┐ ┌──────────┐ ┌──────┐ ┌─────────┐ │   │
+│  │  │Security │ │ CORS │ │ Session  │ │ CSRF │ │  Rate   │ │   │
+│  │  │Headers  │ │      │ │  Auth    │ │      │ │ Limit   │ │   │
+│  │  └─────────┘ └──────┘ └──────────┘ └──────┘ └─────────┘ │   │
 │  └──────────────────────────────────────────────────────────┘   │
 │  ┌──────────────────────────────────────────────────────────┐   │
 │  │                      Controllers                          │   │
@@ -30,14 +40,67 @@ Last Updated: 2024-01-24
 │  │  │ Auth │ │ User │ │ Review │ │ Leave │ │Notification│  │   │
 │  │  └──────┘ └──────┘ └────────┘ └───────┘ └────────────┘  │   │
 │  └──────────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                     Repositories                          │   │
+│  │  ┌───────────────┐                                       │   │
+│  │  │BaseRepository │ → Enforces tenant_id isolation        │   │
+│  │  └───────────────┘                                       │   │
+│  └──────────────────────────────────────────────────────────┘   │
 └──────────────────────────────┼───────────────────────────────────┘
                                │
 ┌──────────────────────────────┼───────────────────────────────────┐
 │                         DATABASE (PostgreSQL)                    │
-│  ┌───────┐ ┌───────┐ ┌─────────┐ ┌────────────────┐ ┌─────────┐│
-│  │ users │ │reviews│ │leave_req│ │ notifications  │ │audit_log││
-│  └───────┘ └───────┘ └─────────┘ └────────────────┘ └─────────┘│
+│  ┌─────────┐ ┌───────┐ ┌───────┐ ┌─────────┐ ┌──────────────┐  │
+│  │ tenants │ │ users │ │reviews│ │leave_req│ │user_sessions │  │
+│  └─────────┘ └───────┘ └───────┘ └─────────┘ └──────────────┘  │
+│  ┌───────────────┐ ┌──────────────────┐                         │
+│  │ notifications │ │    audit_logs    │ (Enhanced security)     │
+│  └───────────────┘ └──────────────────┘                         │
 └──────────────────────────────────────────────────────────────────┘
+```
+
+## Security Architecture
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│                      Authentication Flow                            │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  1. User submits credentials                                        │
+│     POST /api/auth/login { email, password }                        │
+│                           │                                         │
+│                           ▼                                         │
+│  2. Server validates and creates session                            │
+│     ┌────────────────────────────────────────┐                     │
+│     │ • Verify password with bcrypt          │                     │
+│     │ • Create session in user_sessions      │                     │
+│     │ • Store: userId, tenantId, roles       │                     │
+│     │ • Generate CSRF token                  │                     │
+│     └────────────────────────────────────────┘                     │
+│                           │                                         │
+│                           ▼                                         │
+│  3. Response sets HttpOnly cookies                                  │
+│     ┌────────────────────────────────────────┐                     │
+│     │ Set-Cookie: staffos_sid=xxx; HttpOnly  │ ← Session (secure)  │
+│     │ Set-Cookie: staffos_csrf=xxx           │ ← CSRF (readable)   │
+│     └────────────────────────────────────────┘                     │
+│                           │                                         │
+│                           ▼                                         │
+│  4. Subsequent requests                                             │
+│     ┌────────────────────────────────────────┐                     │
+│     │ Cookie: staffos_sid=xxx (automatic)    │                     │
+│     │ X-CSRF-Token: xxx (from staffos_csrf)  │ ← State-changing    │
+│     │ credentials: 'include' (required)      │                     │
+│     └────────────────────────────────────────┘                     │
+│                           │                                         │
+│                           ▼                                         │
+│  5. Middleware validates                                            │
+│     sessionAuth.requireAuth() → Check session exists               │
+│     csrfProtection() → Validate X-CSRF-Token                       │
+│     auth.authenticate() → Load user, check active                  │
+│     auth.authorize() → Role-based access control                   │
+│                                                                     │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Data Flow: Blind Review Process
@@ -89,8 +152,8 @@ Last Updated: 2024-01-24
 ### Core Layout
 | Component | File | Description |
 |-----------|------|-------------|
-| App | `App.jsx` | Root component, handles auth state and routing |
-| Login | `Login.jsx` | Authentication form |
+| App | `App.jsx` | Root component, session auth state, routing |
+| Login | `Login.jsx` | Authentication form with credentials: 'include' |
 | Dashboard | `Dashboard.jsx` | Main landing page with KPI summary, reflection status, quick actions |
 
 ### Employee Management
@@ -131,32 +194,58 @@ Last Updated: 2024-01-24
 
 ## Backend Structure
 
+### Middleware Stack (Applied in Order)
+| Middleware | File | Purpose |
+|------------|------|---------|
+| securityHeaders | `securityHeaders.js` | Helmet security headers, CSP, HSTS |
+| cors | `server.js` | Cross-origin requests with credentials |
+| sessionMiddleware | `sessionAuth.js` | PostgreSQL-backed session management |
+| csrfProtection | `csrf.js` | CSRF token validation (state-changing requests) |
+| deriveTenantContext | `sessionAuth.js` | Extract tenant context from session |
+| rateLimiter | `server.js` | Request rate limiting |
+
+### Authentication Middleware
+| Middleware | File | Purpose |
+|------------|------|---------|
+| authenticate | `auth.js` | Validate session, load user |
+| authorize | `auth.js` | Role-based access control |
+| requireAuth | `sessionAuth.js` | Require valid session |
+| requireRole | `sessionAuth.js` | Require specific role(s) |
+| requirePermission | `sessionAuth.js` | Require specific permission(s) |
+
 ### Controllers
 | Controller | File | Responsibility |
 |------------|------|----------------|
-| authController | `authController.js` | Login, JWT generation |
+| authController | `authController.js` | Login, logout, session management |
 | userController | `userController.js` | CRUD users, manager assignment, transfers, orphan management |
 | reviewController | `reviewController.js` | CRUD reviews, KPI calculations, blind review logic |
 | leaveController | `leaveController.js` | Leave requests, approvals, balance calculations |
 | notificationController | `notificationController.js` | CRUD notifications, trigger functions |
+| feedbackController | `feedbackController.js` | 360 feedback, quarterly KPIs |
 | reportController | `reportController.js` | Team performance reports |
 
 ### Routes
 | Route File | Base Path | Description |
 |------------|-----------|-------------|
-| auth.js | `/api/auth` | Login endpoint |
+| auth.js | `/api/auth` | Login, logout, session check |
 | users.js | `/api/users` | User management |
 | reviews.js | `/api/reviews` | Performance reviews |
 | leave.js | `/api/leave` | Leave management |
 | notifications.js | `/api/notifications` | Notification system |
+| feedback.js | `/api/feedback` | 360 feedback endpoints |
 | reports.js | `/api/reports` | Reporting endpoints |
 | dev.js | `/api/dev` | Development utilities |
 
-### Middleware
-| Middleware | File | Purpose |
+### Repositories
+| Repository | File | Purpose |
 |------------|------|---------|
-| authenticate | `auth.js` | Verify JWT token |
-| authorize | `auth.js` | Role-based access control |
+| BaseRepository | `baseRepository.js` | Tenant-isolated database operations |
+
+### Utilities
+| Utility | File | Purpose |
+|---------|------|---------|
+| auditLog | `auditLog.js` | Security audit logging |
+| database | `database.js` | PostgreSQL connection pool |
 
 ---
 
@@ -189,42 +278,29 @@ notifyNewDirectReport()            // Manager adoption
 checkAndNotifyOverdueSnapshots()   // Overdue check
 ```
 
+### Audit Logging (auditLog.js)
+```javascript
+loginSuccess(tenantId, userId, req)  // Log successful login
+loginFailure(tenantId, email, req)   // Log failed login attempt
+logout(tenantId, userId, req)        // Log logout
+recordCreate(tenantId, userId, type, id, req)  // Log record creation
+recordUpdate(tenantId, userId, type, id, req)  // Log record update
+```
+
 ---
 
 ## Database Tables
 
 | Table | Primary Purpose | Key Relationships |
 |-------|-----------------|-------------------|
+| tenants | Organisation isolation | → all tables via tenant_id |
 | roles | Role definitions | → users.role_id |
-| users | Employee data, hierarchy | → self (manager_id), → roles |
-| reviews | Performance snapshots | → users (employee, reviewer) |
-| leave_requests | Time-off management | → users (employee, manager) |
-| notifications | System alerts | → users |
-| audit_log | Change tracking | → users |
-
----
-
-## Authentication Flow
-
-```
-1. User submits credentials
-   POST /api/auth/login { email, password }
-
-2. Server validates
-   - Check email exists
-   - Compare password hash
-   - Generate JWT with user data
-
-3. Client stores token
-   localStorage.setItem('token', jwt)
-
-4. Subsequent requests
-   Authorization: Bearer <jwt>
-
-5. Middleware validates
-   authenticate() → decode JWT → attach req.user
-   authorize('Admin', 'Manager') → check role
-```
+| users | Employee data, hierarchy | → self (manager_id), → roles, → tenants |
+| user_sessions | Session storage | Session data with expiry |
+| reviews | Performance snapshots | → users (employee, reviewer), → tenants |
+| leave_requests | Time-off management | → users (employee, manager), → tenants |
+| notifications | System alerts | → users, → tenants |
+| audit_logs | Security audit trail | → users, → tenants |
 
 ---
 
@@ -251,25 +327,47 @@ checkAndNotifyOverdueSnapshots()   // Overdue check
 ```
 VoidStaffOS/
 ├── backend/
-│   ├── migrations/          # SQL migration files
+│   ├── migrations/              # SQL migration files
+│   │   ├── 016_multi_tenant_foundation.sql
+│   │   └── 017_audit_log_enhanced.sql
 │   ├── src/
 │   │   ├── config/
-│   │   │   └── database.js  # PostgreSQL connection
-│   │   ├── controllers/     # Business logic
-│   │   ├── middleware/      # Auth, validation
-│   │   ├── routes/          # API endpoints
-│   │   └── server.js        # Express app entry
-│   ├── .env                 # Environment variables
+│   │   │   └── database.js      # PostgreSQL connection pool
+│   │   ├── controllers/         # Business logic
+│   │   │   ├── authController.js
+│   │   │   ├── userController.js
+│   │   │   ├── reviewController.js
+│   │   │   ├── leaveController.js
+│   │   │   ├── notificationController.js
+│   │   │   └── feedbackController.js
+│   │   ├── middleware/          # Security middleware
+│   │   │   ├── auth.js          # Session auth + RBAC
+│   │   │   ├── sessionAuth.js   # Session configuration
+│   │   │   ├── csrf.js          # CSRF protection
+│   │   │   └── securityHeaders.js # Helmet headers
+│   │   ├── repositories/        # Data access layer
+│   │   │   └── baseRepository.js # Tenant isolation
+│   │   ├── routes/              # API endpoints
+│   │   ├── utils/               # Utilities
+│   │   │   └── auditLog.js      # Audit logging
+│   │   └── server.js            # Express app entry
+│   ├── .env                     # Environment variables
 │   └── package.json
 ├── frontend/
 │   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── App.jsx          # Root component
-│   │   ├── App.css          # Global styles
-│   │   └── main.jsx         # Entry point
+│   │   ├── components/          # React components
+│   │   ├── utils/
+│   │   │   └── api.js           # Fetch wrapper with credentials
+│   │   ├── App.jsx              # Root component
+│   │   ├── App.css              # Global styles
+│   │   └── main.jsx             # Entry point
 │   └── package.json
-└── docs/
-    ├── API_REFERENCE.md
-    ├── COMPONENT_MAP.md
-    └── DATABASE_SCHEMA.md
+├── docs/
+│   ├── API_REFERENCE.md         # API documentation
+│   ├── COMPONENT_MAP.md         # This file
+│   ├── DATABASE_SCHEMA.md       # Database documentation
+│   └── SECURITY.md              # Security architecture
+├── LICENSE.md                   # Proprietary licence
+├── NOTICE.md                    # Copyright notice
+└── README.md                    # Project overview
 ```

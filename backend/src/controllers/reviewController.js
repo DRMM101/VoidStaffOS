@@ -22,6 +22,7 @@ const {
   notifyManagerSnapshotCommitted,
   notifyKPIsRevealed
 } = require('./notificationController');
+const auditTrail = require('../utils/auditTrail');
 
 /**
  * Get traffic light status based on metric value
@@ -369,6 +370,16 @@ async function createReview(req, res) {
     review.employee_name = namesResult.rows[0].employee_name;
     review.reviewer_name = namesResult.rows[0].reviewer_name;
 
+    // Audit trail: log review creation
+    await auditTrail.logCreate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'review',
+      review.id,
+      `${isSelfAssessment ? 'Self-reflection' : 'Manager review'} for ${review.employee_name}`,
+      { employee_id, review_date: weekEndingDate, is_self_assessment: isSelfAssessment }
+    );
+
     res.status(201).json({ message: 'Review created successfully', review: calculateMetrics(review) });
   } catch (error) {
     console.error('Create review error:', error);
@@ -461,6 +472,17 @@ async function updateReview(req, res) {
 
     updatedReview.employee_name = namesResult.rows[0].employee_name;
     updatedReview.reviewer_name = namesResult.rows[0].reviewer_name;
+
+    // Audit trail: log review update
+    await auditTrail.logUpdate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'review',
+      updatedReview.id,
+      `Review for ${updatedReview.employee_name}`,
+      review,
+      updatedReview
+    );
 
     res.json({ message: 'Review updated successfully', review: calculateMetrics(updatedReview) });
   } catch (error) {
@@ -936,18 +958,6 @@ async function uncommitReview(req, res) {
       return res.status(400).json({ error: 'Review is not committed' });
     }
 
-    // Log the uncommit action to audit_log
-    await pool.query(
-      `INSERT INTO audit_log (user_id, action, table_name, record_id, old_value_json, new_value_json)
-       VALUES ($1, 'UPDATE', 'reviews', $2, $3, $4)`,
-      [
-        userId,
-        id,
-        JSON.stringify({ is_committed: true, committed_at: review.committed_at }),
-        JSON.stringify({ is_committed: false, committed_at: null })
-      ]
-    );
-
     const result = await pool.query(
       `UPDATE reviews
        SET is_committed = false, committed_at = NULL, updated_at = CURRENT_TIMESTAMP
@@ -967,6 +977,18 @@ async function uncommitReview(req, res) {
 
     updatedReview.employee_name = namesResult.rows[0].employee_name;
     updatedReview.reviewer_name = namesResult.rows[0].reviewer_name;
+
+    // Audit trail: log review uncommit (admin action)
+    await auditTrail.logUpdate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'review',
+      updatedReview.id,
+      `Review for ${updatedReview.employee_name}`,
+      { is_committed: true, committed_at: review.committed_at },
+      { is_committed: false, committed_at: null },
+      { reason: 'Admin uncommitted review' }
+    );
 
     res.json({ message: 'Review uncommitted successfully', review: calculateMetrics(updatedReview) });
   } catch (error) {

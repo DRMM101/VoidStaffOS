@@ -1,3 +1,11 @@
+<!--
+  VoidStaffOS - Frontend Documentation
+  Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+  Created: 24/01/2026
+  Updated: 25/01/2026
+  PROPRIETARY AND CONFIDENTIAL
+-->
+
 # VoidStaffOS Frontend
 
 React application for the VoidStaffOS employee management system.
@@ -21,9 +29,49 @@ src/
 │   ├── ManagerLeaveApprovals.jsx # Approval queue
 │   ├── NotificationBell.jsx    # Header notification icon
 │   └── Notifications.jsx       # Full notification list
-├── App.jsx                     # Root component, routing
+├── utils/
+│   └── api.js                  # Fetch wrapper with credentials
+├── App.jsx                     # Root component, routing, auth state
 ├── App.css                     # Global styles
 └── main.jsx                    # Entry point
+```
+
+## Security
+
+### Session-Based Authentication
+- **No localStorage tokens** - sessions are HttpOnly cookies
+- Browser automatically sends `staffos_sid` cookie with requests
+- All fetch calls must include `credentials: 'include'`
+
+### CSRF Protection
+- State-changing requests (POST, PUT, PATCH, DELETE) require CSRF token
+- Read token from `staffos_csrf` cookie
+- Include in `X-CSRF-Token` header
+
+### API Communication Pattern
+
+```javascript
+// Helper to get CSRF token from cookie
+const getCsrfToken = () => {
+  const match = document.cookie.match(/staffos_csrf=([^;]+)/);
+  return match ? match[1] : '';
+};
+
+// GET request (no CSRF needed)
+const response = await fetch('/api/endpoint', {
+  credentials: 'include'  // Required for session cookies
+});
+
+// POST/PUT/DELETE request (CSRF required)
+const response = await fetch('/api/endpoint', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-CSRF-Token': getCsrfToken()
+  },
+  credentials: 'include',
+  body: JSON.stringify(data)
+});
 ```
 
 ## Key Features
@@ -86,18 +134,29 @@ src/
 
 - Local state with useState/useEffect
 - No external state library
-- Token stored in localStorage
+- Auth state managed in App.jsx via session cookie
 - User object passed as prop from App
 
-## API Communication
-
-All API calls use fetch with JWT header:
+### Auth State Check
 
 ```javascript
-const token = localStorage.getItem('token');
-const response = await fetch('/api/endpoint', {
-  headers: { 'Authorization': `Bearer ${token}` }
+// App.jsx checks session on load
+useEffect(() => {
+  fetch('/api/auth/me', { credentials: 'include' })
+    .then(res => res.ok ? res.json() : null)
+    .then(data => setUser(data?.user || null));
+}, []);
+```
+
+### Logout
+
+```javascript
+// Destroys server session and clears cookies
+await fetch('/api/auth/logout', {
+  method: 'POST',
+  credentials: 'include'
 });
+setUser(null);
 ```
 
 ## Running
@@ -125,3 +184,9 @@ server: {
   }
 }
 ```
+
+## Browser Requirements
+
+- Modern browser with cookie support
+- Third-party cookies must be enabled for cross-origin development
+- SameSite=Lax cookie policy requires same-site navigation

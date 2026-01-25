@@ -91,7 +91,54 @@ function authorize(...roles) {
   };
 }
 
+/**
+ * Require audit trail access verification
+ *
+ * Checks that Admin user has verified their password within the last 15 minutes.
+ * This adds an extra layer of security for accessing sensitive audit data.
+ *
+ * MUST be used AFTER authenticate and authorize('Admin') middleware.
+ *
+ * @async
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware
+ * @returns {void}
+ *
+ * @example
+ * router.get('/audit-trail', authenticate, authorize('Admin'), requireAuditAccess, getAuditTrail);
+ */
+function requireAuditAccess(req, res, next) {
+  const verifiedAt = req.session?.auditTrailVerifiedAt;
+  const EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+
+  if (!verifiedAt) {
+    return res.status(403).json({
+      error: 'Re-authentication required',
+      code: 'AUDIT_REAUTH_REQUIRED',
+      message: 'Please verify your password to access the audit trail.'
+    });
+  }
+
+  const now = Date.now();
+  const expiresAt = verifiedAt + EXPIRY_MS;
+
+  if (now > expiresAt) {
+    // Clear expired verification
+    req.session.auditTrailVerifiedAt = null;
+    return res.status(403).json({
+      error: 'Verification expired',
+      code: 'AUDIT_REAUTH_EXPIRED',
+      message: 'Your audit trail access has expired. Please verify your password again.'
+    });
+  }
+
+  // Access granted
+  next();
+}
+
 module.exports = {
   authenticate,
-  authorize
+  authorize,
+  requireAuditAccess
 };

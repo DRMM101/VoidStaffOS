@@ -21,6 +21,7 @@ const {
   notifyLeaveRequestApproved,
   notifyLeaveRequestRejected
 } = require('./notificationController');
+const auditTrail = require('../utils/auditTrail');
 
 /**
  * Calculate working days between two dates (excluding weekends)
@@ -207,6 +208,16 @@ async function createLeaveRequest(req, res) {
     );
 
     const leaveRequest = result.rows[0];
+
+    // Audit trail: log leave request creation
+    await auditTrail.logCreate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'leave_request',
+      leaveRequest.id,
+      `Leave request ${leave_start_date} to ${leave_end_date}`,
+      { leave_start_date, leave_end_date, leave_type: leave_type || 'full_day', total_days: totalDays, status: 'pending' }
+    );
 
     // Notify manager of pending leave request
     if (managerId) {
@@ -423,16 +434,16 @@ async function approveLeaveRequest(req, res) {
       await markReviewsAsSkipped(leaveRequest.employee_id, leaveRequest.leave_start_date, leaveRequest.leave_end_date);
     }
 
-    // Log the action
-    await pool.query(
-      `INSERT INTO audit_log (user_id, action, table_name, record_id, old_value_json, new_value_json)
-       VALUES ($1, 'UPDATE', 'leave_requests', $2, $3, $4)`,
-      [
-        userId,
-        id,
-        JSON.stringify({ status: 'pending' }),
-        JSON.stringify({ status: 'approved', approved_by: userId })
-      ]
+    // Audit trail: log leave request approval
+    await auditTrail.logUpdate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'leave_request',
+      parseInt(id),
+      `Leave request ${leaveRequest.leave_start_date} to ${leaveRequest.leave_end_date}`,
+      { status: 'pending' },
+      { status: 'approved', approved_by: userId },
+      { reason: 'Leave request approved' }
     );
 
     // Notify employee of approval
@@ -487,16 +498,16 @@ async function rejectLeaveRequest(req, res) {
       [rejection_reason || null, userId, id]
     );
 
-    // Log the action
-    await pool.query(
-      `INSERT INTO audit_log (user_id, action, table_name, record_id, old_value_json, new_value_json)
-       VALUES ($1, 'UPDATE', 'leave_requests', $2, $3, $4)`,
-      [
-        userId,
-        id,
-        JSON.stringify({ status: 'pending' }),
-        JSON.stringify({ status: 'rejected', rejection_reason })
-      ]
+    // Audit trail: log leave request rejection
+    await auditTrail.logUpdate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'leave_request',
+      parseInt(id),
+      `Leave request ${leaveRequest.leave_start_date} to ${leaveRequest.leave_end_date}`,
+      { status: 'pending' },
+      { status: 'rejected', rejection_reason },
+      { reason: 'Leave request rejected' }
     );
 
     // Notify employee of rejection
@@ -549,6 +560,18 @@ async function cancelLeaveRequest(req, res) {
        WHERE id = $1
        RETURNING *`,
       [id]
+    );
+
+    // Audit trail: log leave request cancellation
+    await auditTrail.logUpdate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'leave_request',
+      parseInt(id),
+      `Leave request ${leaveRequest.leave_start_date} to ${leaveRequest.leave_end_date}`,
+      { status: 'pending' },
+      { status: 'cancelled' },
+      { reason: 'Leave request cancelled by employee' }
     );
 
     res.json({ message: 'Leave request cancelled', leave_request: result.rows[0] });

@@ -1,24 +1,47 @@
+<!--
+  VoidStaffOS - API Reference Documentation
+  Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+  Created: 24/01/2026
+  Updated: 25/01/2026
+  PROPRIETARY AND CONFIDENTIAL
+-->
+
 # VoidStaffOS API Reference
 
-Last Updated: 2024-01-24
+Last Updated: 2026-01-25
 
 Base URL: `http://localhost:3001/api`
 
 ## Authentication
 
-All protected endpoints require a JWT token in the Authorization header:
-```
-Authorization: Bearer <token>
-```
+VoidStaffOS uses **secure HttpOnly session cookies** for authentication. No tokens are stored in localStorage or exposed to JavaScript.
 
-Tokens expire after 24 hours.
+### Session Cookie
+After successful login, the server sets an HttpOnly cookie named `staffos_sid`. This cookie is automatically sent with all requests when using `credentials: 'include'`.
+
+### CSRF Protection
+A readable `staffos_csrf` cookie is set for CSRF protection. Include this token in the `X-CSRF-Token` header for all state-changing requests (POST, PUT, PATCH, DELETE).
+
+### Frontend Implementation
+```javascript
+// All fetch requests must include credentials
+const response = await fetch('/api/endpoint', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-CSRF-Token': getCsrfToken() // Read from staffos_csrf cookie
+  },
+  credentials: 'include', // Required for session cookies
+  body: JSON.stringify(data)
+});
+```
 
 ---
 
 ## Auth Endpoints
 
 ### POST /auth/login
-Authenticate user and receive JWT token.
+Authenticate user and establish session.
 
 **Auth Required:** No
 
@@ -34,7 +57,6 @@ Authenticate user and receive JWT token.
 ```json
 {
   "message": "Login successful",
-  "token": "eyJhbGciOiJIUzI1NiIs...",
   "user": {
     "id": 1,
     "email": "user@example.com",
@@ -46,9 +68,93 @@ Authenticate user and receive JWT token.
 }
 ```
 
+**Side Effects:**
+- Sets `staffos_sid` HttpOnly session cookie
+- Sets `staffos_csrf` readable CSRF token cookie
+- Creates session record in `user_sessions` table
+- Logs `LOGIN_SUCCESS` to audit_logs
+
 **Errors:**
 - 400: Missing email or password
-- 401: Invalid credentials
+- 401: Invalid credentials or inactive account
+
+---
+
+### GET /auth/me
+Get current authenticated user's profile.
+
+**Auth Required:** Yes (session cookie)
+
+**Response (200):**
+```json
+{
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "full_name": "John Doe",
+    "role_id": 2,
+    "role_name": "Manager",
+    "tier": 2,
+    "employee_number": "EMP001",
+    "employment_status": "active",
+    "start_date": "2023-01-15"
+  }
+}
+```
+
+**Errors:**
+- 401: No valid session
+
+---
+
+### POST /auth/logout
+End user session and clear cookies.
+
+**Auth Required:** No (works with or without session)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Logged out successfully"
+}
+```
+
+**Side Effects:**
+- Destroys session in `user_sessions` table
+- Clears `staffos_sid` cookie
+- Clears `staffos_csrf` cookie
+- Logs `LOGOUT` to audit_logs
+
+---
+
+### POST /auth/register
+Create new user account.
+
+**Auth Required:** No (typically disabled in production)
+
+**Request Body:**
+```json
+{
+  "email": "new@example.com",
+  "password": "password123",
+  "full_name": "New User",
+  "role_id": 3
+}
+```
+
+**Response (201):**
+```json
+{
+  "message": "User registered successfully",
+  "user": {
+    "id": 2,
+    "email": "new@example.com",
+    "full_name": "New User",
+    "role_id": 3
+  }
+}
+```
 
 ---
 
@@ -59,9 +165,6 @@ Get list of users (filtered by role permissions).
 
 **Auth Required:** Yes
 **Roles:** Admin sees all, Manager sees self + direct reports, Employee sees self only
-
-**Query Parameters:**
-- None currently (pagination to be added)
 
 **Response (200):**
 ```json
@@ -90,22 +193,6 @@ Get single user by ID.
 **Auth Required:** Yes
 **Roles:** Admin/Compliance see any, Manager sees self + team, Employee sees self only
 
-**Response (200):**
-```json
-{
-  "user": {
-    "id": 1,
-    "email": "john@example.com",
-    "full_name": "John Doe",
-    "role_id": 2,
-    "role_name": "Manager",
-    "tier": 2,
-    "manager_id": null,
-    "employee_number": "EMP001"
-  }
-}
-```
-
 **Errors:**
 - 403: Insufficient permissions
 - 404: User not found
@@ -116,7 +203,6 @@ Get single user by ID.
 Get detailed user profile with manager info and tenure.
 
 **Auth Required:** Yes
-**Roles:** Same visibility rules as GET /users/:id
 
 **Response (200):**
 ```json
@@ -168,14 +254,6 @@ Create new user.
 }
 ```
 
-**Response (201):**
-```json
-{
-  "message": "User created successfully",
-  "user": { ... }
-}
-```
-
 **Errors:**
 - 400: Missing required fields
 - 409: Email or employee number already exists
@@ -188,14 +266,65 @@ Update user.
 **Auth Required:** Yes
 **Roles:** Admin only
 
-**Request Body:** (all fields optional)
+---
+
+### GET /users/my-team
+Get current user's direct reports.
+
+**Auth Required:** Yes
+**Roles:** Manager, Admin
+
+**Response (200):**
 ```json
 {
-  "full_name": "Updated Name",
-  "role_id": 3,
-  "tier": 3,
-  "employment_status": "inactive",
-  "password": "newpassword"
+  "employees": [
+    {
+      "id": 3,
+      "full_name": "Team Member",
+      "email": "member@example.com",
+      "role_name": "Employee"
+    }
+  ]
+}
+```
+
+---
+
+### GET /users/team-summary
+Get team performance summary with KPIs.
+
+**Auth Required:** Yes
+**Roles:** Manager, Admin
+
+**Response (200):**
+```json
+{
+  "team_members": [
+    {
+      "id": 3,
+      "full_name": "Team Member",
+      "tier": 4,
+      "role_name": "Employee",
+      "last_review_date": "2026-01-23",
+      "days_since_review": 2,
+      "staleness_status": "current",
+      "kpis": {
+        "velocity": {"value": 7.5, "status": "green"},
+        "friction": {"value": 7.2, "status": "green"},
+        "cohesion": {"value": 6.8, "status": "green"}
+      }
+    }
+  ],
+  "team_averages": {
+    "velocity": {"value": 7.5, "status": "green"},
+    "friction": {"value": 7.2, "status": "green"},
+    "cohesion": {"value": 6.8, "status": "green"}
+  },
+  "summary": {
+    "total_members": 1,
+    "members_with_kpis": 1,
+    "overdue_reviews": 0
+  }
 }
 ```
 
@@ -207,15 +336,6 @@ Assign or change a user's manager.
 **Auth Required:** Yes
 **Roles:** Admin, or Manager (limited)
 
-**Request Body:**
-```json
-{
-  "manager_id": 5,
-  "manager_contact_email": "override@example.com",
-  "manager_contact_phone": "555-1234"
-}
-```
-
 ---
 
 ### POST /users/adopt-employee/:employeeId
@@ -224,68 +344,18 @@ Manager adopts an orphaned employee.
 **Auth Required:** Yes
 **Roles:** Manager, Admin
 
-**Constraints:**
-- Employee must not have a manager (unless Admin)
-- Employee must be lower tier than adopting manager
-
-**Response (200):**
-```json
-{
-  "message": "Successfully adopted John Doe",
-  "employee": { ... },
-  "manager": { ... }
-}
-```
-
 ---
 
 ### POST /users/:id/transfer
-Transfer employee to new manager or orphan them.
-
-**Auth Required:** Yes
-**Roles:** Admin, or current Manager of employee
-
-**Request Body (transfer):**
-```json
-{
-  "new_manager_id": 5
-}
-```
-
-**Request Body (orphan):**
-```json
-{
-  "orphan": true
-}
-```
-
----
-
-### GET /users/:id/transfer-targets
-Get eligible managers for transferring an employee.
+Transfer employee to new manager.
 
 **Auth Required:** Yes
 **Roles:** Admin, or current Manager
 
-**Response (200):**
-```json
-{
-  "eligible_managers": [
-    {
-      "id": 5,
-      "full_name": "Jane Smith",
-      "tier": 2,
-      "role_name": "Manager"
-    }
-  ],
-  "employee_tier": 4
-}
-```
-
 ---
 
 ### GET /users/managers
-Get list of all managers (for dropdowns).
+Get list of all managers.
 
 **Auth Required:** Yes
 
@@ -295,22 +365,7 @@ Get list of all managers (for dropdowns).
 Get employees without managers.
 
 **Auth Required:** Yes
-**Roles:** Admin sees all orphans, Manager sees only orphans they can adopt (lower tier)
-
----
-
-### GET /users/my-team
-Get current user's direct reports.
-
-**Auth Required:** Yes
-**Roles:** Manager, Admin
-
----
-
-### GET /users/with-review-status
-Get users with their current week review status.
-
-**Auth Required:** Yes
+**Roles:** Admin, Manager
 
 ---
 
@@ -320,7 +375,6 @@ Get users with their current week review status.
 Get reviews (filtered by permissions).
 
 **Auth Required:** Yes
-**Roles:** Admin/Compliance sees all, Manager sees own + team's, Employee sees own only
 
 ---
 
@@ -328,8 +382,6 @@ Get reviews (filtered by permissions).
 Get single review.
 
 **Auth Required:** Yes
-
-**Note:** For managers viewing team's self-reflections, text fields are hidden (show KPIs only).
 
 ---
 
@@ -341,28 +393,9 @@ Get current user's most recent review.
 ---
 
 ### GET /reviews/my-reflection-status
-Get current user's weekly reflection status (blind review state).
+Get current user's weekly reflection status.
 
 **Auth Required:** Yes
-
-**Response (200):**
-```json
-{
-  "current_week_friday": "2024-01-19",
-  "has_current_week_reflection": true,
-  "self_committed": true,
-  "manager_committed": false,
-  "both_committed": false,
-  "self_reflection": { ... },
-  "manager_review": null,
-  "previous_quarter_averages": {
-    "quarter": "Q4 2023",
-    "velocity": 7.5,
-    "friction": 7.2,
-    "cohesion": 7.8
-  }
-}
-```
 
 ---
 
@@ -370,23 +403,7 @@ Get current user's weekly reflection status (blind review state).
 Create a review (manager reviewing employee).
 
 **Auth Required:** Yes
-**Roles:** Admin, Manager (for their team only)
-
-**Request Body:**
-```json
-{
-  "employee_id": 3,
-  "review_date": "2024-01-19",
-  "tasks_completed": 8,
-  "work_volume": 7,
-  "problem_solving": 8,
-  "communication": 7,
-  "leadership": 6,
-  "goals": "Complete project X",
-  "achievements": "Delivered feature Y",
-  "areas_for_improvement": "Communication in meetings"
-}
-```
+**Roles:** Admin, Manager
 
 ---
 
@@ -394,7 +411,6 @@ Create a review (manager reviewing employee).
 Create a self-reflection.
 
 **Auth Required:** Yes
-**Roles:** Any authenticated user
 
 ---
 
@@ -402,17 +418,14 @@ Create a self-reflection.
 Update a review.
 
 **Auth Required:** Yes
-**Roles:** Original reviewer only (unless Admin)
-
-**Constraint:** Cannot update committed reviews (unless Admin)
+**Constraint:** Cannot update committed reviews
 
 ---
 
 ### POST /reviews/:id/commit
-Commit (finalize) a manager review.
+Commit a manager review.
 
 **Auth Required:** Yes
-**Roles:** Original reviewer, Admin
 
 ---
 
@@ -420,15 +433,6 @@ Commit (finalize) a manager review.
 Commit a self-reflection.
 
 **Auth Required:** Yes
-**Roles:** Owner only
-
----
-
-### POST /reviews/:id/uncommit
-Uncommit a review (Admin only).
-
-**Auth Required:** Yes
-**Roles:** Admin only
 
 ---
 
@@ -439,29 +443,10 @@ Submit a leave request.
 
 **Auth Required:** Yes
 
-**Request Body:**
-```json
-{
-  "leave_start_date": "2024-02-01",
-  "leave_end_date": "2024-02-05",
-  "leave_type": "full_day",
-  "notes": "Family vacation"
-}
-```
-
-**Response (201):**
-```json
-{
-  "message": "Leave request submitted successfully",
-  "leave_request": { ... },
-  "notice_warning": "Notice period is 5 days, but policy requires 10 days"
-}
-```
-
 ---
 
 ### GET /leave/my-requests
-Get current user's leave requests with balance.
+Get current user's leave requests.
 
 **Auth Required:** Yes
 
@@ -472,49 +457,10 @@ Get current user's leave balance.
 
 **Auth Required:** Yes
 
-**Response (200):**
-```json
-{
-  "balance": {
-    "employee_id": 1,
-    "employee_name": "John Doe",
-    "entitlement": 28,
-    "used": 5,
-    "pending": 3,
-    "remaining": 23,
-    "available": 20
-  }
-}
-```
-
----
-
-### GET /leave/balance/:id
-Get leave balance for specific employee.
-
-**Auth Required:** Yes
-**Roles:** Admin, or Manager of employee
-
 ---
 
 ### GET /leave/pending
 Get pending leave requests for approval.
-
-**Auth Required:** Yes
-**Roles:** Manager (sees team), Admin (sees all)
-
----
-
-### GET /leave/pending-count
-Get count of pending leave requests.
-
-**Auth Required:** Yes
-**Roles:** Manager, Admin
-
----
-
-### GET /leave/team
-Get all leave requests for team.
 
 **Auth Required:** Yes
 **Roles:** Manager, Admin
@@ -525,7 +471,7 @@ Get all leave requests for team.
 Approve a leave request.
 
 **Auth Required:** Yes
-**Roles:** Admin, or Manager of requesting employee
+**Roles:** Admin, or Manager of employee
 
 ---
 
@@ -533,22 +479,7 @@ Approve a leave request.
 Reject a leave request.
 
 **Auth Required:** Yes
-**Roles:** Admin, or Manager of requesting employee
-
-**Request Body:**
-```json
-{
-  "rejection_reason": "Team is understaffed that week"
-}
-```
-
----
-
-### PUT /leave/:id/cancel
-Cancel own pending leave request.
-
-**Auth Required:** Yes
-**Roles:** Request owner only
+**Roles:** Admin, or Manager of employee
 
 ---
 
@@ -558,29 +489,6 @@ Cancel own pending leave request.
 Get user's notifications.
 
 **Auth Required:** Yes
-
-**Query Parameters:**
-- `limit` (default: 50)
-- `offset` (default: 0)
-- `unread_only` (true/false)
-
-**Response (200):**
-```json
-{
-  "notifications": [
-    {
-      "id": 1,
-      "type": "leave_request_approved",
-      "title": "Leave Request Approved",
-      "message": "Your leave request for Feb 1-5 has been approved.",
-      "is_read": false,
-      "created_at": "2024-01-20T10:30:00Z"
-    }
-  ],
-  "unread_count": 3,
-  "total": 10
-}
-```
 
 ---
 
@@ -605,35 +513,26 @@ Mark all notifications as read.
 
 ---
 
-### DELETE /notifications/:id
-Delete/dismiss a notification.
+## Feedback Endpoints (360 Feedback)
+
+### GET /feedback/pending
+Get pending feedback requests.
 
 **Auth Required:** Yes
 
 ---
 
-### POST /notifications/check-overdue
-Check for and create overdue snapshot notifications.
+### POST /feedback/quarterly
+Submit quarterly feedback.
 
 **Auth Required:** Yes
 
 ---
 
-## Report Endpoints
-
-### GET /reports/team-performance
-Get team performance summary.
+### GET /feedback/composite/:employeeId/:quarter
+Get composite KPIs for employee.
 
 **Auth Required:** Yes
-**Roles:** Manager, Admin
-
----
-
-### GET /reports/employee/:id/history
-Get review history for an employee.
-
-**Auth Required:** Yes
-**Roles:** Admin, Manager of employee, Employee (self only)
 
 ---
 
@@ -649,39 +548,27 @@ All errors return JSON with an `error` field:
 
 **Common Status Codes:**
 - 400: Bad Request (validation error)
-- 401: Unauthorized (missing/invalid token)
-- 403: Forbidden (insufficient permissions)
+- 401: Unauthorized (no session or expired)
+- 403: Forbidden (insufficient permissions or CSRF validation failed)
 - 404: Not Found
 - 409: Conflict (duplicate entry)
+- 429: Too Many Requests (rate limited)
 - 500: Internal Server Error
 
 ---
 
 ## Rate Limiting
 
-- Global: 100 requests per minute per IP
-- Login: More restrictive (recommended: 5 attempts per minute)
+- **Global:** 100 requests per minute per IP
+- **Auth endpoints:** 10 requests per minute per IP
 
 ---
 
-## Pagination (To Be Implemented)
+## Security Headers
 
-Future endpoints will support:
-```
-GET /users?page=1&limit=20
-GET /reviews?page=1&limit=50
-GET /notifications?page=1&limit=20
-```
-
-Response will include:
-```json
-{
-  "data": [...],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 150,
-    "totalPages": 8
-  }
-}
-```
+All responses include security headers:
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `X-XSS-Protection: 1; mode=block`
+- `Strict-Transport-Security` (production)
+- `Content-Security-Policy`

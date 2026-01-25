@@ -34,7 +34,31 @@
       "Bash(PGPASSWORD='VoidSecure2025!' \"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -f \"C:/Users/derek/Documents/VoidStaffOS/backend/migrations/011_onboarding_system.sql\")",
       "Bash(PGPASSWORD='VoidSecure2025!' \"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -f \"C:/Users/derek/Documents/VoidStaffOS/backend/migrations/012_recruitment_and_permissions.sql\")",
       "Bash(PGPASSWORD='VoidSecure2025!' \"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"SELECT role_name, onboarding_full, onboarding_post_checks FROM roles ORDER BY role_name;\")",
-      "Bash(PGPASSWORD='VoidSecure2025!' \"/c/Program Files/PostgreSQL/15/bin/psql.exe\":*)"
+      "Bash(PGPASSWORD='VoidSecure2025!' \"/c/Program Files/PostgreSQL/15/bin/psql.exe\":*)",
+      "Bash(PORT=3003 node:*)",
+      "Bash(cmd //c \"taskkill /PID 38620 /F\")",
+      "Bash(npm run:*)",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -f migrations/014_quarterly_feedback.sql)",
+      "Bash(cmd //c \"taskkill /PID 13048 /F\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"SELECT id, full_name, email, role_id FROM users WHERE is_active = true ORDER BY id;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"SELECT id, full_name, email, role_id FROM users ORDER BY id;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"SELECT * FROM roles;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d recruitment_requests\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d candidates\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d candidate_interviews; \\\\d candidate_notes; \\\\d background_checks; \\\\d candidate_references;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d onboarding_tasks; \\\\d policies; \\\\d policy_acknowledgments; \\\\d day_one_items;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"SELECT id, name FROM policies ORDER BY id;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d policies\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"SELECT id, policy_name FROM policies ORDER BY id;\")",
+      "Bash(node scripts/generate-recruitment-test-data.js:*)",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d candidate_notes\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d background_checks\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d candidate_references\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d policy_acknowledgments\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\\\\d day_one_items\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\n-- First clear all related tables\nTRUNCATE day_one_items CASCADE;\nTRUNCATE onboarding_tasks CASCADE;\nTRUNCATE policy_acknowledgments CASCADE;\nTRUNCATE candidate_references CASCADE;\nTRUNCATE background_checks CASCADE;\nTRUNCATE candidate_notes CASCADE;\nTRUNCATE candidate_interviews CASCADE;\nTRUNCATE candidate_stage_history CASCADE;\nTRUNCATE candidates CASCADE;\nTRUNCATE recruitment_requests CASCADE;\n\nSELECT ''Tables cleared'' AS result;\n\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\nSELECT ''Recruitment Requests'' AS table_name, COUNT\\(*\\) AS count FROM recruitment_requests\nUNION ALL\nSELECT ''Candidates'', COUNT\\(*\\) FROM candidates\nUNION ALL\nSELECT ''Interviews'', COUNT\\(*\\) FROM candidate_interviews\nUNION ALL\nSELECT ''Notes'', COUNT\\(*\\) FROM candidate_notes\nUNION ALL\nSELECT ''Background Checks'', COUNT\\(*\\) FROM background_checks\nUNION ALL\nSELECT ''References'', COUNT\\(*\\) FROM candidate_references\nUNION ALL\nSELECT ''Onboarding Tasks'', COUNT\\(*\\) FROM onboarding_tasks\nUNION ALL\nSELECT ''Day One Items'', COUNT\\(*\\) FROM day_one_items;\n\")",
+      "Bash(cmd //c \"taskkill /PID 42040 /F && taskkill /PID 40320 /F\")"
     ]
   }
 }

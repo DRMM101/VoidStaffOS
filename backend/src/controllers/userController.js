@@ -21,6 +21,7 @@ const {
   notifyEmployeeTransferred,
   notifyNewDirectReport
 } = require('./notificationController');
+const auditTrail = require('../utils/auditTrail');
 
 /** @constant {number} SALT_ROUNDS - Bcrypt salt rounds for password hashing */
 const SALT_ROUNDS = 10;
@@ -262,6 +263,16 @@ async function createUser(req, res) {
     const user = result.rows[0];
     user.role_name = roleName;
 
+    // Audit trail: log user creation
+    await auditTrail.logCreate(
+      { tenantId: req.session?.tenantId, userId: req.user.id },
+      req,
+      'user',
+      user.id,
+      user.full_name,
+      { email, full_name, role_id, start_date: startDateValue, employee_number, manager_id, tier: userTier }
+    );
+
     res.status(201).json({ message: 'User created successfully', user });
   } catch (error) {
     console.error('Create user error:', error);
@@ -313,6 +324,17 @@ async function assignManager(req, res) {
       return res.status(400).json({ error: 'Cannot assign user as their own manager' });
     }
 
+    // Get current values for audit trail
+    const currentEmployee = await pool.query(
+      'SELECT manager_id, manager_contact_email, manager_contact_phone, full_name FROM users WHERE id = $1',
+      [id]
+    );
+    const previousManagerValues = {
+      manager_id: currentEmployee.rows[0].manager_id,
+      manager_contact_email: currentEmployee.rows[0].manager_contact_email,
+      manager_contact_phone: currentEmployee.rows[0].manager_contact_phone
+    };
+
     // Update the employee's manager
     const result = await pool.query(
       `UPDATE users
@@ -324,16 +346,16 @@ async function assignManager(req, res) {
       [manager_id || null, manager_contact_email || null, manager_contact_phone || null, id]
     );
 
-    // Log the action
-    await pool.query(
-      `INSERT INTO audit_log (user_id, action, table_name, record_id, old_value_json, new_value_json)
-       VALUES ($1, 'UPDATE', 'users', $2, $3, $4)`,
-      [
-        userId,
-        id,
-        JSON.stringify({ manager_id: employeeCheck.rows[0].manager_id }),
-        JSON.stringify({ manager_id: manager_id || null })
-      ]
+    // Audit trail: log manager assignment
+    await auditTrail.logUpdate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'user',
+      parseInt(id),
+      currentEmployee.rows[0].full_name,
+      previousManagerValues,
+      { manager_id: manager_id || null, manager_contact_email: manager_contact_email || null, manager_contact_phone: manager_contact_phone || null },
+      { reason: manager_id ? 'Manager assigned' : 'Manager removed' }
     );
 
     // Get the new manager's details
@@ -423,16 +445,16 @@ async function adoptEmployee(req, res) {
       [userId, employeeId]
     );
 
-    // Log the action
-    await pool.query(
-      `INSERT INTO audit_log (user_id, action, table_name, record_id, old_value_json, new_value_json)
-       VALUES ($1, 'UPDATE', 'users', $2, $3, $4)`,
-      [
-        userId,
-        employeeId,
-        JSON.stringify({ manager_id: employee.manager_id }),
-        JSON.stringify({ manager_id: userId })
-      ]
+    // Audit trail: log employee adoption
+    await auditTrail.logUpdate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'user',
+      parseInt(employeeId),
+      employee.full_name,
+      { manager_id: employee.manager_id },
+      { manager_id: userId },
+      { reason: 'Employee adopted by manager' }
     );
 
     // Get manager details
@@ -531,10 +553,15 @@ async function updateUser(req, res) {
     const { id } = req.params;
     const { email, full_name, role_id, employment_status, start_date, end_date, password, employee_number, manager_id, tier } = req.body;
 
-    const existing = await pool.query('SELECT id FROM users WHERE id = $1', [id]);
+    // Get existing user for audit trail
+    const existing = await pool.query(
+      'SELECT id, email, full_name, role_id, employment_status, start_date, end_date, employee_number, manager_id, tier FROM users WHERE id = $1',
+      [id]
+    );
     if (existing.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
+    const previousValues = existing.rows[0];
 
     if (email) {
       const emailCheck = await pool.query('SELECT id FROM users WHERE email = $1 AND id != $2', [email, id]);
@@ -582,6 +609,17 @@ async function updateUser(req, res) {
 
     const roleResult = await pool.query('SELECT role_name FROM roles WHERE id = $1', [user.role_id]);
     user.role_name = roleResult.rows[0]?.role_name;
+
+    // Audit trail: log user update
+    await auditTrail.logUpdate(
+      { tenantId: req.session?.tenantId, userId: req.user.id },
+      req,
+      'user',
+      user.id,
+      user.full_name,
+      previousValues,
+      { email: user.email, full_name: user.full_name, role_id: user.role_id, employment_status: user.employment_status, start_date: user.start_date, end_date: user.end_date, employee_number: user.employee_number, manager_id: user.manager_id, tier: user.tier }
+    );
 
     res.json({ message: 'User updated successfully', user });
   } catch (error) {
@@ -859,16 +897,16 @@ async function transferEmployee(req, res) {
       [newManagerId, id]
     );
 
-    // Log the action
-    await pool.query(
-      `INSERT INTO audit_log (user_id, action, table_name, record_id, old_value_json, new_value_json)
-       VALUES ($1, 'TRANSFER', 'users', $2, $3, $4)`,
-      [
-        userId,
-        id,
-        JSON.stringify({ manager_id: oldManagerId, action: 'transfer_out' }),
-        JSON.stringify({ manager_id: newManagerId, action: orphan ? 'orphaned' : 'transfer_in' })
-      ]
+    // Audit trail: log employee transfer
+    await auditTrail.logUpdate(
+      { tenantId: req.session?.tenantId, userId },
+      req,
+      'user',
+      parseInt(id),
+      employee.full_name,
+      { manager_id: oldManagerId },
+      { manager_id: newManagerId },
+      { reason: orphan ? 'Employee orphaned' : 'Employee transferred to new manager' }
     );
 
     // Get new manager details if applicable
