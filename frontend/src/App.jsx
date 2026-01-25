@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Main Application Component
+ * Root React component with routing and authentication.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
@@ -14,25 +31,18 @@ function App() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
       try {
         const response = await fetch('/api/auth/me', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          credentials: 'include' // Include session cookie
         });
 
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
-        } else {
-          localStorage.removeItem('token');
         }
       } catch (err) {
-        localStorage.removeItem('token');
+        // Session invalid or expired
+        console.error('Auth check failed:', err);
       } finally {
         setLoading(false);
       }
@@ -41,8 +51,15 @@ function App() {
     checkAuth();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
     setUser(null);
     setCurrentPage('dashboard');
   };

@@ -1,17 +1,30 @@
 /**
- * @fileoverview VoidStaffOS Express Server
- *
+ * VoidStaffOS - Express Server
  * Main entry point for the backend API server.
  * Configures middleware, routes, and security settings.
  *
- * @module server
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
+
+// Security middleware
+const securityHeaders = require('./middleware/securityHeaders');
+const { sessionMiddleware, deriveTenantContext } = require('./middleware/sessionAuth');
+const { csrfProtection } = require('./middleware/csrf');
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -31,14 +44,38 @@ const app = express();
 // Security Middleware
 // ===========================================
 
-// Helmet: Sets various HTTP headers for security
-app.use(helmet());
+// Security headers (replaces basic helmet)
+app.use(securityHeaders);
 
 // CORS: Enable cross-origin requests
-app.use(cors());
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    // Allow localhost on any port for development
+    if (origin.match(/^http:\/\/localhost:\d+$/)) {
+      return callback(null, true);
+    }
+    // Allow configured frontend URL
+    if (origin === process.env.FRONTEND_URL) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true // Allow cookies
+}));
 
 // JSON body parser with size limit
 app.use(express.json({ limit: '10kb' }));
+
+// Session middleware
+app.use(sessionMiddleware);
+
+// Derive tenant context from session
+app.use(deriveTenantContext);
+
+// CSRF protection
+app.use(csrfProtection);
 
 // ===========================================
 // Rate Limiting

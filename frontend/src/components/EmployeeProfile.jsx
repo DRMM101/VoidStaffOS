@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Employee Profile Component
+ * Displays detailed employee information.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 
 function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, onTransfer }) {
@@ -41,9 +58,8 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
   const fetchProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/users/${employeeId}/profile`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -60,9 +76,8 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
   const fetchLeaveBalance = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/leave/balance/${employeeId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -75,9 +90,8 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
   const fetchManagers = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/managers', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -90,9 +104,8 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
   const fetchTransferTargets = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/users/${employeeId}/transfer-targets`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -111,17 +124,14 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
     setTransferring(true);
     try {
-      const token = localStorage.getItem('token');
       const body = transferOrphan
         ? { orphan: true }
         : { new_manager_id: parseInt(selectedTransferTarget) };
 
       const response = await fetch(`/api/users/${employeeId}/transfer`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(body)
       });
 
@@ -149,10 +159,9 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
   const handleAdopt = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/users/adopt-employee/${employeeId}`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -174,13 +183,10 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
     setAssigning(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/users/${employeeId}/assign-manager`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ manager_id: selectedManager || null })
       });
       const data = await response.json();

@@ -1,6 +1,20 @@
 /**
- * @fileoverview 360 Feedback Controller
- * Handles quarterly feedback collection, weighting, and composite calculations
+ * VoidStaffOS - 360 Feedback Controller
+ * Handles quarterly feedback collection, weighting, and composite calculations.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * TRADE SECRET: Contains proprietary algorithms.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const pool = require('../config/database');
@@ -349,7 +363,7 @@ async function getPendingFeedback(req, res) {
       `SELECT
          fr.id, fr.employee_id, fr.reviewer_type, fr.quarter, fr.deadline, fr.created_at,
          u.full_name as employee_name, u.email as employee_email,
-         r.name as employee_role,
+         r.role_name as employee_role,
          fc.status as cycle_status
        FROM feedback_requests fr
        JOIN users u ON fr.employee_id = u.id

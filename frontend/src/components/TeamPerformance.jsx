@@ -1,3 +1,22 @@
+/**
+ * VoidStaffOS - Team Performance Component
+ * Displays team performance metrics for managers.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * TRADE SECRET: Contains proprietary algorithms.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import './TeamPerformance.css';
 
@@ -38,9 +57,8 @@ export default function TeamPerformance({ user, onCreateSnapshot, onViewMember }
 
   async function fetchTeamSummary() {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/team-summary', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (!response.ok) {

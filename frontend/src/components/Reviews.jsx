@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Reviews Component
+ * Performance review list and management.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import ReviewForm from './ReviewForm';
 import ReviewDetail from './ReviewDetail';
@@ -35,9 +52,8 @@ function Reviews({ user, canCreate }) {
 
   const fetchReviews = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/reviews', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -54,9 +70,8 @@ function Reviews({ user, canCreate }) {
 
   const fetchTeamEmployees = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/my-team', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -82,7 +97,6 @@ function Reviews({ user, canCreate }) {
   };
 
   const handleFormSubmit = async (formData) => {
-    const token = localStorage.getItem('token');
     const isEdit = !!editingReview;
     const url = isEdit ? `/api/reviews/${editingReview.id}` : '/api/reviews';
     const method = isEdit ? 'PUT' : 'POST';
@@ -90,10 +104,8 @@ function Reviews({ user, canCreate }) {
     try {
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -121,9 +133,8 @@ function Reviews({ user, canCreate }) {
 
   const handleDetailRefresh = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/reviews/${selectedReview.id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {

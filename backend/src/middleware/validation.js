@@ -1,10 +1,18 @@
 /**
- * @fileoverview Input Validation Middleware
+ * VoidStaffOS - Input Validation Middleware
+ * Provides validation and sanitization functions for user input.
  *
- * Provides validation functions for sanitizing and validating
- * user input to prevent injection attacks and ensure data integrity.
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * @module middleware/validation
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 /**

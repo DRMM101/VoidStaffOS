@@ -1,13 +1,18 @@
 /**
- * @fileoverview Onboarding Routes
+ * VoidStaffOS - Onboarding Routes
+ * API routes for candidate onboarding pipeline.
  *
- * Routes for managing the candidate onboarding pipeline:
- * - Candidate management (Admin)
- * - References and background checks (Admin)
- * - Promotion with stage gates (Admin)
- * - Self-service tasks and policies (Pre-colleagues)
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * @module routes/onboarding
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const express = require('express');

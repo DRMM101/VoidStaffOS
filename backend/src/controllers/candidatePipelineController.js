@@ -1,13 +1,18 @@
 /**
- * @fileoverview Candidate Pipeline Controller
+ * VoidStaffOS - Candidate Pipeline Controller
+ * Manages the recruitment pipeline workflow.
  *
- * Manages the recruitment pipeline workflow:
- * - Stage transitions with validation
- * - Interview scheduling and scoring
- * - Notes management
- * - Offer workflow
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * @module controllers/candidatePipelineController
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const pool = require('../config/database');

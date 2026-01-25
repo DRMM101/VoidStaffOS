@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - User Model
+ * User data access and authentication methods.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 const pool = require('../config/database');
 const bcrypt = require('bcrypt');
 
@@ -19,7 +36,7 @@ const User = {
     const result = await pool.query(
       `SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
               u.start_date, u.end_date, u.created_at, u.manager_id,
-              u.tier, u.employee_number,
+              u.tier, u.employee_number, u.tenant_id,
               r.role_name, r.permissions_json
        FROM users u
        LEFT JOIN roles r ON u.role_id = r.id

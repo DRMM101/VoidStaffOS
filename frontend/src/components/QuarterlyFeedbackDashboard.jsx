@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Quarterly Feedback Dashboard Component
+ * Admin dashboard for managing feedback cycles.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import './QuarterlyFeedbackDashboard.css';
 
@@ -38,9 +55,8 @@ export default function QuarterlyFeedbackDashboard({ onClose }) {
 
   const fetchActiveCycles = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/feedback/cycles', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -64,9 +80,8 @@ export default function QuarterlyFeedbackDashboard({ onClose }) {
 
   const fetchCycleStatus = async (quarter) => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/feedback/cycle-status/${quarter}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -81,13 +96,10 @@ export default function QuarterlyFeedbackDashboard({ onClose }) {
     setStarting(true);
     setError('');
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/feedback/request-cycle/${newQuarter}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ deadline: deadline || null })
       });
       const data = await response.json();
@@ -108,10 +120,9 @@ export default function QuarterlyFeedbackDashboard({ onClose }) {
     if (!confirm(`Are you sure you want to close the ${quarter} feedback cycle?`)) return;
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/feedback/close-cycle/${quarter}`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       if (response.ok) {
         fetchActiveCycles();

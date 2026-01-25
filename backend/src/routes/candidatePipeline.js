@@ -1,9 +1,18 @@
 /**
- * @fileoverview Candidate Pipeline Routes
+ * VoidStaffOS - Candidate Pipeline Routes
+ * API routes for recruitment pipeline management.
  *
- * Routes for recruitment pipeline management.
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * @module routes/candidatePipeline
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const express = require('express');

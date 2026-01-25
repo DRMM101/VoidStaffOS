@@ -1,6 +1,18 @@
 /**
- * Script to generate test users with manager assignments
- * Run with: node scripts/generate-test-users.js
+ * VoidStaffOS - Test User Generator
+ * Generates test users with manager assignments.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 require('dotenv').config();

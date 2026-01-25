@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Notifications Component
+ * Full notifications list view.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 
 function Notifications({ onClose }) {
@@ -12,9 +29,8 @@ function Notifications({ onClose }) {
 
   const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/notifications?limit=100', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -31,10 +47,9 @@ function Notifications({ onClose }) {
 
   const markAsRead = async (notificationId) => {
     try {
-      const token = localStorage.getItem('token');
       await fetch(`/api/notifications/${notificationId}/read`, {
         method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
@@ -46,10 +61,9 @@ function Notifications({ onClose }) {
 
   const markAllAsRead = async () => {
     try {
-      const token = localStorage.getItem('token');
       await fetch('/api/notifications/read-all', {
         method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     } catch (err) {
@@ -59,10 +73,9 @@ function Notifications({ onClose }) {
 
   const deleteNotification = async (notificationId) => {
     try {
-      const token = localStorage.getItem('token');
       await fetch(`/api/notifications/${notificationId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
     } catch (err) {

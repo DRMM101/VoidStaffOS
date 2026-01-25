@@ -1,19 +1,18 @@
 /**
- * @fileoverview Leave Controller - Employee leave/time-off management
- *
+ * VoidStaffOS - Leave Controller
  * Handles leave requests, approvals, and balance tracking.
- * Implements company leave policy for notice requirements.
  *
- * Notice Policy:
- * - 1-4 working days: 2x notice required (e.g., 3 days leave = 6 days notice)
- * - 5+ working days: 30 days notice required
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * Leave Types:
- * - full_day: Full working day
- * - half_day_am: Morning half day (0.5 days)
- * - half_day_pm: Afternoon half day (0.5 days)
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
  *
- * @module controllers/leaveController
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const pool = require('../config/database');

@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Notification Bell Component
+ * Notification icon with unread count badge.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect, useRef } from 'react';
 
 function NotificationBell({ onViewAll }) {
@@ -27,9 +44,8 @@ function NotificationBell({ onViewAll }) {
 
   const fetchUnreadCount = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/notifications/unread-count', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -43,9 +59,8 @@ function NotificationBell({ onViewAll }) {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/notifications?limit=10', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -68,10 +83,9 @@ function NotificationBell({ onViewAll }) {
 
   const markAsRead = async (notificationId) => {
     try {
-      const token = localStorage.getItem('token');
       await fetch(`/api/notifications/${notificationId}/read`, {
         method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
@@ -84,10 +98,9 @@ function NotificationBell({ onViewAll }) {
 
   const markAllAsRead = async () => {
     try {
-      const token = localStorage.getItem('token');
       await fetch('/api/notifications/read-all', {
         method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);

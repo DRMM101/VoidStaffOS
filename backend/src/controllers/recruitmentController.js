@@ -1,14 +1,18 @@
 /**
- * @fileoverview Recruitment Controller
+ * VoidStaffOS - Recruitment Controller
+ * Manages the recruitment request workflow.
  *
- * Manages the recruitment request workflow:
- * 1. Hiring Manager creates request (draft)
- * 2. Submit for approval → notification to their manager
- * 3. Manager approves/rejects
- * 4. HR/Hiring Manager can create candidates against approved requests
- * 5. When candidate becomes Active → request status = 'filled'
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * @module controllers/recruitmentController
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const pool = require('../config/database');

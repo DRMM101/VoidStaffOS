@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Recruitment Dashboard Component
+ * Main recruitment pipeline management interface.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import CandidatePipelineCard from './CandidatePipelineCard';
 import CandidateDetailModal from './CandidateDetailModal';
@@ -44,14 +61,13 @@ export default function RecruitmentDashboard() {
 
   async function fetchPipeline() {
     try {
-      const token = localStorage.getItem('token');
       let url = '/api/pipeline';
       if (selectedRequest) {
         url += `?recruitment_request_id=${selectedRequest}`;
       }
 
       const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (!response.ok) throw new Error('Failed to fetch pipeline');
@@ -68,9 +84,8 @@ export default function RecruitmentDashboard() {
 
   async function fetchRecruitmentRequests() {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/recruitment/requests?status=approved', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -84,13 +99,10 @@ export default function RecruitmentDashboard() {
 
   async function handleStageChange(candidateId, newStage, reason = '') {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/pipeline/candidates/${candidateId}/stage`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ new_stage: newStage, reason })
       });
 

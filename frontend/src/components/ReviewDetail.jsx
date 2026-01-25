@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Review Detail Component
+ * Displays detailed review information and KPIs.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState } from 'react';
 
 function MetricBar({ label, value }) {
@@ -47,10 +64,9 @@ function ReviewDetail({ review, onClose, onEdit, canEdit, user, onRefresh }) {
   const handleCommit = async () => {
     setCommitting(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/reviews/${review.id}/commit`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (!response.ok) {
@@ -67,10 +83,9 @@ function ReviewDetail({ review, onClose, onEdit, canEdit, user, onRefresh }) {
   const handleUncommit = async () => {
     setUncommitting(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/reviews/${review.id}/uncommit`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (!response.ok) {

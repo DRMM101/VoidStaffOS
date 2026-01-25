@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Dashboard Component
+ * Main user dashboard with navigation tiles.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import SelfReflectionForm from './SelfReflectionForm';
 import LeaveRequest from './LeaveRequest';
@@ -176,9 +193,8 @@ function Dashboard({ user, onNavigate }) {
 
   const fetchPendingFeedbackCount = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/feedback/pending', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -191,9 +207,8 @@ function Dashboard({ user, onNavigate }) {
 
   const fetchPendingRecruitmentApprovals = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/recruitment/my-approvals', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -206,9 +221,8 @@ function Dashboard({ user, onNavigate }) {
 
   const fetchUnreadNotifications = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/notifications/unread-count', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -221,10 +235,9 @@ function Dashboard({ user, onNavigate }) {
 
   const checkOverdueSnapshots = async () => {
     try {
-      const token = localStorage.getItem('token');
       await fetch('/api/notifications/check-overdue', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
     } catch (err) {
       console.error('Failed to check overdue snapshots');
@@ -233,9 +246,8 @@ function Dashboard({ user, onNavigate }) {
 
   const fetchMyLatestSnapshot = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/reviews/my-latest', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok && data.review) {
@@ -250,9 +262,8 @@ function Dashboard({ user, onNavigate }) {
 
   const fetchMyReflectionStatus = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/reviews/my-reflection-status', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -266,9 +277,8 @@ function Dashboard({ user, onNavigate }) {
 
   const fetchTeamStats = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/my-team', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -284,9 +294,8 @@ function Dashboard({ user, onNavigate }) {
 
   const fetchMyLeaveBalance = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/leave/my-balance', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -299,9 +308,8 @@ function Dashboard({ user, onNavigate }) {
 
   const fetchPendingLeaveCount = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/leave/pending-count', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -313,15 +321,12 @@ function Dashboard({ user, onNavigate }) {
   };
 
   const handleReflectionSubmit = async (formData) => {
-    const token = localStorage.getItem('token');
     try {
       // Create the self-reflection
       const createResponse = await fetch('/api/reviews/self-reflection', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -333,9 +338,7 @@ function Dashboard({ user, onNavigate }) {
       // Commit the self-reflection immediately
       const commitResponse = await fetch(`/api/reviews/self-reflection/${createData.review.id}/commit`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        credentials: 'include'
       });
 
       const commitData = await commitResponse.json();

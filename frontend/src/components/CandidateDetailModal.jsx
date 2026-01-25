@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Candidate Detail Modal Component
+ * Detailed candidate view with pipeline actions.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import CandidatePipelineProgress from './CandidatePipelineProgress';
 import InterviewScheduler from './InterviewScheduler';
@@ -26,18 +43,17 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
 
   async function fetchCandidateDetails() {
     try {
-      const token = localStorage.getItem('token');
 
       // Fetch candidate, interviews, and history in parallel
       const [candidateRes, interviewsRes, historyRes] = await Promise.all([
         fetch(`/api/onboarding/candidates/${candidateId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          credentials: 'include'
         }),
         fetch(`/api/pipeline/candidates/${candidateId}/interviews`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          credentials: 'include'
         }),
         fetch(`/api/pipeline/candidates/${candidateId}/history`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          credentials: 'include'
         })
       ]);
 
@@ -63,7 +79,6 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
   }
 
   async function handleStageAction(action) {
-    const token = localStorage.getItem('token');
     let endpoint = '';
     let method = 'POST';
     let body = {};
@@ -109,10 +124,8 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
     try {
       const response = await fetch(endpoint, {
         method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(body)
       });
 

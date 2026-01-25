@@ -1,21 +1,18 @@
 /**
- * @fileoverview Notification Controller - System notification management
+ * VoidStaffOS - Notification Controller
+ * Handles notification CRUD and automated system notifications.
  *
- * Handles notification CRUD and provides trigger functions for
- * automated notifications on system events.
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * Notification Types:
- * - manager_snapshot_committed: Manager submitted weekly review
- * - snapshot_overdue: Team member's snapshot is overdue
- * - self_reflection_overdue: Employee's self-reflection is overdue
- * - leave_request_pending: New leave request for manager
- * - leave_request_approved: Leave request approved
- * - leave_request_rejected: Leave request rejected
- * - employee_transferred: Employee moved to new manager
- * - new_direct_report: New direct report assigned
- * - kpi_revealed: Both reviews committed, KPIs visible
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
  *
- * @module controllers/notificationController
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const pool = require('../config/database');

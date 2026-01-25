@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Employees Component
+ * Employee list and management interface.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import EmployeeForm from './EmployeeForm';
 import EmployeeProfile from './EmployeeProfile';
@@ -65,9 +82,8 @@ function Employees({ user }) {
 
   const fetchEmployeesWithStatus = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/with-review-status', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -86,9 +102,8 @@ function Employees({ user }) {
 
   const fetchRoles = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/roles', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -101,9 +116,8 @@ function Employees({ user }) {
 
   const fetchOrphanedEmployees = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/orphaned', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -116,10 +130,9 @@ function Employees({ user }) {
 
   const handleAdoptEmployee = async (employeeId) => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/users/adopt-employee/${employeeId}`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -144,7 +157,6 @@ function Employees({ user }) {
   };
 
   const handleFormSubmit = async (formData) => {
-    const token = localStorage.getItem('token');
     const isEdit = !!editingEmployee;
     const url = isEdit ? `/api/users/${editingEmployee.id}` : '/api/users';
     const method = isEdit ? 'PUT' : 'POST';
@@ -152,10 +164,8 @@ function Employees({ user }) {
     try {
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -185,14 +195,11 @@ function Employees({ user }) {
   };
 
   const handleSnapshotSubmit = async (formData) => {
-    const token = localStorage.getItem('token');
     try {
       const response = await fetch('/api/reviews', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           ...formData,
           employee_id: snapshotEmployee.id

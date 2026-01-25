@@ -1,19 +1,18 @@
 /**
- * @fileoverview User Controller - Employee management operations
- *
+ * VoidStaffOS - User Controller
  * Handles user CRUD, manager assignments, employee transfers, and adoptions.
- * Implements role-based visibility where users only see employees they
- * have permission to manage.
  *
- * Tier System:
- * - Tier 1: Executive Level
- * - Tier 2: Senior Level
- * - Tier 3: Mid Level
- * - Tier 4: Junior Level
- * - Tier 5: Entry Level
- * - null: Administrator (outside tier hierarchy)
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * @module controllers/userController
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const pool = require('../config/database');
@@ -1006,7 +1005,7 @@ async function getTeamSummary(req, res) {
           FROM reviews rev
           WHERE rev.employee_id = u.id
             AND rev.is_self_assessment = false
-            AND rev.manager_committed = true
+            AND rev.is_committed = true
           ORDER BY rev.review_date DESC
           LIMIT 1
         ) latest_review ON true
@@ -1036,7 +1035,7 @@ async function getTeamSummary(req, res) {
           FROM reviews rev
           WHERE rev.employee_id = u.id
             AND rev.is_self_assessment = false
-            AND rev.manager_committed = true
+            AND rev.is_committed = true
           ORDER BY rev.review_date DESC
           LIMIT 1
         ) latest_review ON true

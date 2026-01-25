@@ -1,3 +1,22 @@
+/**
+ * VoidStaffOS - Employee Quarterly Report Component
+ * Displays employee's personal quarterly performance report.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * TRADE SECRET: Contains proprietary algorithms.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect, useRef } from 'react';
 
 // Simple SVG Line Chart Component
@@ -227,9 +246,8 @@ function EmployeeQuarterlyReport({ user }) {
 
   const fetchAvailableQuarters = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/reports/quarters/${user.id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
 
@@ -258,9 +276,8 @@ function EmployeeQuarterlyReport({ user }) {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/reports/quarterly/${user.id}/${selectedQuarter}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
 

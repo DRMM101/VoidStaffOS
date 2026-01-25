@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Candidate Profile Component
+ * Displays detailed candidate information.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import CandidateForm from './CandidateForm';
 
@@ -23,9 +40,8 @@ function CandidateProfile({ candidateId, onClose }) {
 
   const fetchCandidate = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/onboarding/candidates/${candidateId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -47,9 +63,8 @@ function CandidateProfile({ candidateId, onClose }) {
 
   const fetchPromotionStatus = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/onboarding/candidates/${candidateId}/promotion-status`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -65,10 +80,9 @@ function CandidateProfile({ candidateId, onClose }) {
 
     setPromoting(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/onboarding/candidates/${candidateId}/promote`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -87,13 +101,10 @@ function CandidateProfile({ candidateId, onClose }) {
 
   const updateReferenceStatus = async (refId, status) => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/onboarding/references/${refId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           status,
           received_date: status === 'received' || status === 'verified' ? new Date().toISOString().split('T')[0] : null
@@ -110,13 +121,10 @@ function CandidateProfile({ candidateId, onClose }) {
 
   const updateCheckStatus = async (checkId, status) => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/onboarding/checks/${checkId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           status,
           completed_date: status === 'cleared' || status === 'failed' ? new Date().toISOString().split('T')[0] : null
@@ -508,13 +516,10 @@ function AddReferenceModal({ candidateId, onClose, onSave }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/onboarding/candidates/${candidateId}/references`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
       if (response.ok) {
@@ -603,13 +608,10 @@ function AddCheckModal({ candidateId, onClose, onSave }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/onboarding/candidates/${candidateId}/checks`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
       if (response.ok) {

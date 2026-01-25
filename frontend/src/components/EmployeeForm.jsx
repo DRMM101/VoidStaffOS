@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Employee Form Component
+ * Create and edit employee details.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 
 function EmployeeForm({ employee, roles, onSubmit, onClose }) {
@@ -25,9 +42,8 @@ function EmployeeForm({ employee, roles, onSubmit, onClose }) {
 
   const fetchManagers = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/managers', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {

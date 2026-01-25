@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Candidate Notes Component
+ * Notes management for candidates.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import './CandidateNotes.css';
 
@@ -28,9 +45,8 @@ export default function CandidateNotes({ candidateId, onNoteAdded }) {
 
   async function fetchNotes() {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/pipeline/candidates/${candidateId}/notes`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -52,13 +68,10 @@ export default function CandidateNotes({ candidateId, onNoteAdded }) {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/pipeline/candidates/${candidateId}/notes`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 

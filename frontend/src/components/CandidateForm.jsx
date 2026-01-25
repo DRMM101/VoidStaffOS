@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Candidate Form Component
+ * Form for creating and editing candidates.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 
 function CandidateForm({ candidate, onClose, onSave }) {
@@ -51,9 +68,8 @@ function CandidateForm({ candidate, onClose, onSave }) {
 
   const fetchRoles = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/roles', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -78,7 +94,6 @@ function CandidateForm({ candidate, onClose, onSave }) {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
       const url = candidate
         ? `/api/onboarding/candidates/${candidate.id}`
         : '/api/onboarding/candidates';
@@ -86,10 +101,8 @@ function CandidateForm({ candidate, onClose, onSave }) {
 
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           ...formData,
           proposed_role_id: formData.proposed_role_id || null,

@@ -1,16 +1,18 @@
 /**
- * @fileoverview Onboarding Controller
+ * VoidStaffOS - Onboarding Controller
+ * Manages the three-stage onboarding process.
  *
- * Manages the three-stage onboarding process:
- * - Candidate: Initial application, references, background checks
- * - Pre-Colleague: Offer accepted, completing onboarding tasks
- * - Active: Started work, full employee access
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * Stage Gates:
- * - Candidate → Pre-Colleague: 2+ verified refs, all required checks cleared, contract signed
- * - Pre-Colleague → Active: All required tasks done, policies acknowledged, start date reached
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
  *
- * @module controllers/onboardingController
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const pool = require('../config/database');

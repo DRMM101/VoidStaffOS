@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Recruitment Request Form Component
+ * Form for creating recruitment requests.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import './RecruitmentRequestForm.css';
 
@@ -23,9 +40,8 @@ export default function RecruitmentRequestForm({ onClose, onSubmit }) {
 
   async function fetchRoles() {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/users/roles', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       if (response.ok) {
         const data = await response.json();
@@ -42,15 +58,12 @@ export default function RecruitmentRequestForm({ onClose, onSubmit }) {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
 
       // Create the request
       const createResponse = await fetch('/api/recruitment/requests', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -64,7 +77,7 @@ export default function RecruitmentRequestForm({ onClose, onSubmit }) {
       // Submit for approval
       const submitResponse = await fetch(`/api/recruitment/requests/${createData.request.id}/submit`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (!submitResponse.ok) {

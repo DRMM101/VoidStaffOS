@@ -1,9 +1,18 @@
 /**
- * Generate Recruitment & Onboarding Test Data
+ * VoidStaffOS - Recruitment Test Data Generator
+ * Generates test data for recruitment and onboarding.
  *
- * Run with: node scripts/generate-recruitment-test-data.js
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * This script is idempotent - can be run multiple times without duplicates
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 require('dotenv').config();

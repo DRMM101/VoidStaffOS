@@ -1,21 +1,23 @@
 /**
- * @fileoverview Authentication Controller
- *
+ * VoidStaffOS - Authentication Controller
  * Handles user authentication: login, registration, and session management.
- * Uses JWT tokens for stateless authentication.
  *
- * Security considerations:
- * - Passwords hashed with bcrypt (10 salt rounds)
- * - Generic error messages to prevent user enumeration
- * - Active status check prevents access by deactivated users
- * - Password hashes never exposed in responses
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * @module controllers/authController
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
-const { generateToken } = require('../utils/jwt');
+const { auditLog } = require('../utils/auditLog');
 
 /**
  * Register a new user
@@ -93,28 +95,41 @@ async function login(req, res) {
 
     const validPassword = await bcrypt.compare(password, user.password_hash);
     if (!validPassword) {
+      // Log failed login attempt
+      auditLog.loginFailure(email, req);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Generate JWT with minimal claims
-    const token = generateToken({
-      id: user.id,
-      role_id: user.role_id,
-      role_name: user.role_name
-    });
+    // Create session (secure cookie-based auth)
+    req.session.userId = user.id;
+    req.session.tenantId = user.tenant_id || 1; // Default tenant for migration
+    req.session.roles = [user.role_name];
+    req.session.permissions = user.permissions_json || [];
+    req.session.email = user.email;
+    req.session.fullName = user.full_name;
 
-    // Return safe user data (no password hash, internal fields)
-    res.json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        role_name: user.role_name,
-        tier: user.tier,
-        employee_number: user.employee_number
+    // Save session explicitly to ensure cookie is set before response
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Login failed' });
       }
+
+      // Log successful login
+      auditLog.loginSuccess(user.tenant_id || 1, user.id, req);
+
+      // Return safe user data (no password hash, internal fields)
+      res.json({
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          email: user.email,
+          full_name: user.full_name,
+          role_name: user.role_name,
+          tier: user.tier,
+          employee_number: user.employee_number
+        }
+      });
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -147,8 +162,40 @@ async function getMe(req, res) {
   });
 }
 
+/**
+ * Logout user and destroy session
+ *
+ * @async
+ * @param {Object} req - Express request
+ * @param {Object} res - Express response
+ * @returns {Object} Success message
+ * @authorization Any authenticated user
+ */
+async function logout(req, res) {
+  const { tenantId, userId } = req.session || {};
+
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+
+    // Log logout
+    if (tenantId && userId) {
+      auditLog.logout(tenantId, userId, req);
+    }
+
+    // Clear cookies
+    res.clearCookie('staffos_sid');
+    res.clearCookie('staffos_csrf');
+
+    res.json({ success: true, message: 'Logged out successfully' });
+  });
+}
+
 module.exports = {
   register,
   login,
+  logout,
   getMe
 };

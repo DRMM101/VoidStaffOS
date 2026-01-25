@@ -1,17 +1,20 @@
 /**
- * @fileoverview Review Controller - Handles performance review operations
+ * VoidStaffOS - Review Controller
+ * Handles performance review operations with blind review system.
  *
- * This controller manages the blind review system where managers and employees
- * both create independent reviews for the same week. Neither can see the other's
- * ratings until both have committed their reviews.
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
  *
- * Key concepts:
- * - Week ending date is always Friday
- * - KPIs: Velocity, Friction, Cohesion (calculated from 5 core metrics)
- * - Traffic lights: Green (>=6.5), Amber (>=5), Red (<5)
- * - Blind review: Ratings hidden until both parties commit
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
  *
- * @module controllers/reviewController
+ * TRADE SECRET: Contains proprietary algorithms.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 const pool = require('../config/database');

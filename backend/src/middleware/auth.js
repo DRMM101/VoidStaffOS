@@ -1,19 +1,27 @@
 /**
- * @fileoverview Authentication and Authorization Middleware
- *
+ * VoidStaffOS - Authentication Middleware
  * Provides JWT token verification and role-based access control.
  *
- * @module middleware/auth
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
-const { verifyToken } = require('../utils/jwt');
 const User = require('../models/User');
 
 /**
- * Authenticate request using JWT token
+ * Authenticate request using session
  *
- * Extracts token from Authorization header, verifies it,
- * and attaches user object to request.
+ * Checks for valid session and attaches user object to request.
+ * Falls back to JWT for backwards compatibility during migration.
  *
  * @async
  * @param {Object} req - Express request object
@@ -22,44 +30,35 @@ const User = require('../models/User');
  * @returns {void}
  *
  * @example
- * // Header format
- * Authorization: Bearer <jwt_token>
- *
  * // After middleware, access user via
  * req.user.id
  * req.user.role_name
  * req.user.tier
  */
 async function authenticate(req, res, next) {
-  const authHeader = req.headers.authorization;
+  // Check for session-based auth first
+  if (req.session?.userId) {
+    try {
+      const user = await User.findById(req.session.userId);
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      if (user.employment_status !== 'active') {
+        return res.status(401).json({ error: 'Account is inactive' });
+      }
+
+      req.user = user;
+      return next();
+    } catch (error) {
+      console.error('Session auth error:', error);
+      return res.status(401).json({ error: 'Authentication failed' });
+    }
   }
 
-  const token = authHeader.substring(7);
-
-  try {
-    const decoded = verifyToken(token);
-    const user = await User.findById(decoded.id);
-
-    if (!user) {
-      return res.status(401).json({ error: 'User not found' });
-    }
-
-    // Verify user is still active (prevents use of old tokens after deactivation)
-    if (user.employment_status !== 'active') {
-      return res.status(401).json({ error: 'Account is inactive' });
-    }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired' });
-    }
-    return res.status(401).json({ error: 'Invalid token' });
-  }
+  // No valid session
+  return res.status(401).json({ error: 'Authentication required' });
 }
 
 /**

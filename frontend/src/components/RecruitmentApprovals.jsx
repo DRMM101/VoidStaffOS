@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Recruitment Approvals Component
+ * Interface for approving recruitment requests.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import './RecruitmentApprovals.css';
 
@@ -13,9 +30,8 @@ export default function RecruitmentApprovals({ onClose }) {
 
   async function fetchApprovals() {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/recruitment/my-approvals', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -34,10 +50,9 @@ export default function RecruitmentApprovals({ onClose }) {
   async function handleApprove(requestId) {
     setProcessing(requestId);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/recruitment/requests/${requestId}/approve`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       if (!response.ok) {
@@ -59,13 +74,10 @@ export default function RecruitmentApprovals({ onClose }) {
 
     setProcessing(requestId);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/recruitment/requests/${requestId}/reject`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ rejection_reason: reason })
       });
 

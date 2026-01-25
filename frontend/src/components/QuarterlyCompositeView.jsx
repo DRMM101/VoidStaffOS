@@ -1,3 +1,22 @@
+/**
+ * VoidStaffOS - Quarterly Composite View Component
+ * Displays employee's quarterly composite KPIs.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * TRADE SECRET: Contains proprietary algorithms.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import './QuarterlyCompositeView.css';
 
@@ -93,9 +112,8 @@ export default function QuarterlyCompositeView({ employeeId, quarter, employeeNa
 
   const fetchComposite = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/feedback/composite/${employeeId}/${quarter}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -113,10 +131,9 @@ export default function QuarterlyCompositeView({ employeeId, quarter, employeeNa
   const handleSign = async () => {
     setSigning(true);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/feedback/composite/${employeeId}/${quarter}/sign`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {

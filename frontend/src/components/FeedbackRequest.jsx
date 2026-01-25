@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Feedback Request Component
+ * Form for submitting 360 feedback.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import './FeedbackRequest.css';
 
@@ -66,13 +83,10 @@ export default function FeedbackRequest({ request, onSubmit, onClose }) {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/feedback/quarterly', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           employee_id: request.employee_id,
           quarter: request.quarter,

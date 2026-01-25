@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - My Leave Requests Component
+ * Displays user's own leave requests.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 import LeaveRequest from './LeaveRequest';
 
@@ -15,9 +32,8 @@ function MyLeaveRequests({ onClose }) {
 
   const fetchRequests = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/leave/my-requests', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await response.json();
       if (response.ok) {
@@ -36,10 +52,9 @@ function MyLeaveRequests({ onClose }) {
   const handleCancel = async (requestId) => {
     setCancellingId(requestId);
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/leave/${requestId}/cancel`, {
         method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
 
       const data = await response.json();

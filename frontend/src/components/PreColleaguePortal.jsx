@@ -1,3 +1,20 @@
+/**
+ * VoidStaffOS - Pre-Colleague Portal Component
+ * Self-service portal for pre-colleagues completing onboarding.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
+ */
+
 import { useState, useEffect } from 'react';
 
 function PreColleaguePortal({ user, onClose }) {
@@ -12,9 +29,8 @@ function PreColleaguePortal({ user, onClose }) {
 
   const fetchOnboardingData = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/onboarding/my-tasks', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const result = await response.json();
       if (response.ok) {
@@ -31,10 +47,9 @@ function PreColleaguePortal({ user, onClose }) {
 
   const completeTask = async (taskId) => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/onboarding/tasks/${taskId}/complete`, {
         method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       if (response.ok) {
         fetchOnboardingData();
@@ -46,10 +61,9 @@ function PreColleaguePortal({ user, onClose }) {
 
   const acknowledgePolicy = async (policyId) => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/onboarding/policies/${policyId}/acknowledge`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       if (response.ok) {
         fetchOnboardingData();

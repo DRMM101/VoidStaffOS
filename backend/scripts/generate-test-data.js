@@ -1,6 +1,18 @@
 /**
- * Script to generate test data for quarterly reports
- * Run with: node scripts/generate-test-data.js
+ * VoidStaffOS - Test Data Generator
+ * Generates test data for quarterly reports.
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ * Created: 24/01/2026
+ *
+ * PROPRIETARY AND CONFIDENTIAL
+ * This software is proprietary and confidential.
+ * Used and distributed under licence only.
+ * Unauthorized copying, modification, distribution, or use
+ * is strictly prohibited without prior written consent.
+ *
+ * Author: D.R.M. Manthorpe
+ * Module: Core
  */
 
 require('dotenv').config();
