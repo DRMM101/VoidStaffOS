@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import CandidatePipelineCard from './CandidatePipelineCard';
 import CandidateDetailModal from './CandidateDetailModal';
 import './RecruitmentDashboard.css';
@@ -99,10 +100,8 @@ export default function RecruitmentDashboard() {
 
   async function handleStageChange(candidateId, newStage, reason = '') {
     try {
-      const response = await fetch(`/api/pipeline/candidates/${candidateId}/stage`, {
+      const response = await apiFetch(`/api/pipeline/candidates/${candidateId}/stage`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ new_stage: newStage, reason })
       });
 

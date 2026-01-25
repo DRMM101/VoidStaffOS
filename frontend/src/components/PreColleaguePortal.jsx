@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 function PreColleaguePortal({ user, onClose }) {
   const [data, setData] = useState(null);
@@ -47,9 +48,8 @@ function PreColleaguePortal({ user, onClose }) {
 
   const completeTask = async (taskId) => {
     try {
-      const response = await fetch(`/api/onboarding/tasks/${taskId}/complete`, {
-        method: 'PUT',
-        credentials: 'include'
+      const response = await apiFetch(`/api/onboarding/tasks/${taskId}/complete`, {
+        method: 'PUT'
       });
       if (response.ok) {
         fetchOnboardingData();
@@ -61,9 +61,8 @@ function PreColleaguePortal({ user, onClose }) {
 
   const acknowledgePolicy = async (policyId) => {
     try {
-      const response = await fetch(`/api/onboarding/policies/${policyId}/acknowledge`, {
-        method: 'POST',
-        credentials: 'include'
+      const response = await apiFetch(`/api/onboarding/policies/${policyId}/acknowledge`, {
+        method: 'POST'
       });
       if (response.ok) {
         fetchOnboardingData();

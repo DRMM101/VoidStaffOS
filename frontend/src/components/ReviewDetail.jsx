@@ -16,6 +16,7 @@
  */
 
 import { useState } from 'react';
+import { apiFetch } from '../utils/api';
 
 function MetricBar({ label, value }) {
   return (
@@ -64,9 +65,8 @@ function ReviewDetail({ review, onClose, onEdit, canEdit, user, onRefresh }) {
   const handleCommit = async () => {
     setCommitting(true);
     try {
-      const response = await fetch(`/api/reviews/${review.id}/commit`, {
-        method: 'POST',
-        credentials: 'include'
+      const response = await apiFetch(`/api/reviews/${review.id}/commit`, {
+        method: 'POST'
       });
       const data = await response.json();
       if (!response.ok) {
@@ -83,9 +83,8 @@ function ReviewDetail({ review, onClose, onEdit, canEdit, user, onRefresh }) {
   const handleUncommit = async () => {
     setUncommitting(true);
     try {
-      const response = await fetch(`/api/reviews/${review.id}/uncommit`, {
-        method: 'POST',
-        credentials: 'include'
+      const response = await apiFetch(`/api/reviews/${review.id}/uncommit`, {
+        method: 'POST'
       });
       const data = await response.json();
       if (!response.ok) {

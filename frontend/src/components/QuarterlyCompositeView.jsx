@@ -18,6 +18,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import './QuarterlyCompositeView.css';
 
 function getStatusClass(value) {
@@ -131,9 +132,8 @@ export default function QuarterlyCompositeView({ employeeId, quarter, employeeNa
   const handleSign = async () => {
     setSigning(true);
     try {
-      const response = await fetch(`/api/feedback/composite/${employeeId}/${quarter}/sign`, {
-        method: 'POST',
-        credentials: 'include'
+      const response = await apiFetch(`/api/feedback/composite/${employeeId}/${quarter}/sign`, {
+        method: 'POST'
       });
       const data = await response.json();
       if (response.ok) {

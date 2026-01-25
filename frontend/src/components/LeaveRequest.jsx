@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 function LeaveRequest({ onClose, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -133,10 +134,8 @@ function LeaveRequest({ onClose, onSubmit }) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/leave/request', {
+      const response = await apiFetch('/api/leave/request', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
 

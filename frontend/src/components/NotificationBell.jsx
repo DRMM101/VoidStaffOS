@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { apiFetch } from '../utils/api';
 
 function NotificationBell({ onViewAll }) {
   const [notifications, setNotifications] = useState([]);
@@ -83,9 +84,8 @@ function NotificationBell({ onViewAll }) {
 
   const markAsRead = async (notificationId) => {
     try {
-      await fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'PUT',
-        credentials: 'include'
+      await apiFetch(`/api/notifications/${notificationId}/read`, {
+        method: 'PUT'
       });
       setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
@@ -98,9 +98,8 @@ function NotificationBell({ onViewAll }) {
 
   const markAllAsRead = async () => {
     try {
-      await fetch('/api/notifications/read-all', {
-        method: 'PUT',
-        credentials: 'include'
+      await apiFetch('/api/notifications/read-all', {
+        method: 'PUT'
       });
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);

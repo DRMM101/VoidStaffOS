@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 function ManagerLeaveApprovals({ user, onClose }) {
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -62,9 +63,8 @@ function ManagerLeaveApprovals({ user, onClose }) {
   const handleApprove = async (requestId) => {
     setProcessingId(requestId);
     try {
-      const response = await fetch(`/api/leave/${requestId}/approve`, {
-        method: 'PUT',
-        credentials: 'include'
+      const response = await apiFetch(`/api/leave/${requestId}/approve`, {
+        method: 'PUT'
       });
 
       const data = await response.json();
@@ -85,10 +85,8 @@ function ManagerLeaveApprovals({ user, onClose }) {
 
     setProcessingId(rejectModal);
     try {
-      const response = await fetch(`/api/leave/${rejectModal}/reject`, {
+      const response = await apiFetch(`/api/leave/${rejectModal}/reject`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ rejection_reason: rejectReason })
       });
 

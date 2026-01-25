@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import './InterviewScheduler.css';
 
 const INTERVIEW_TYPES = [
@@ -64,10 +65,8 @@ export default function InterviewScheduler({ candidateId, onClose, onScheduled }
     setError('');
 
     try {
-      const response = await fetch(`/api/pipeline/candidates/${candidateId}/interviews`, {
+      const response = await apiFetch(`/api/pipeline/candidates/${candidateId}/interviews`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
 

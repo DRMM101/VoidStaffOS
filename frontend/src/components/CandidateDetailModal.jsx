@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import CandidatePipelineProgress from './CandidatePipelineProgress';
 import InterviewScheduler from './InterviewScheduler';
 import InterviewScorecard from './InterviewScorecard';
@@ -108,6 +109,11 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
         method = 'PUT';
         body = { new_stage: 'final_shortlist' };
         break;
+      case 'further_assessment':
+        endpoint = `/api/pipeline/candidates/${candidateId}/stage`;
+        method = 'PUT';
+        body = { new_stage: 'further_assessment' };
+        break;
       case 'accept_offer':
         endpoint = `/api/pipeline/candidates/${candidateId}/accept-offer`;
         break;
@@ -117,15 +123,20 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
         endpoint = `/api/pipeline/candidates/${candidateId}/decline-offer`;
         body = { reason: declineReason };
         break;
+      case 'unreject':
+      case 'unwithdraw':
+      case 'reinstate':
+        endpoint = `/api/pipeline/candidates/${candidateId}/stage`;
+        method = 'PUT';
+        body = { new_stage: 'shortlisted', reason: 'Candidate reinstated' };
+        break;
       default:
         return;
     }
 
     try {
-      const response = await fetch(endpoint, {
+      const response = await apiFetch(endpoint, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(body)
       });
 
@@ -155,12 +166,19 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
         actions.push({ id: 'schedule_interview', label: 'Schedule Interview', type: 'primary' });
         actions.push({ id: 'reject', label: 'Reject', type: 'danger' });
         break;
+      case 'interview_requested':
+        actions.push({ id: 'schedule_interview', label: 'Schedule Interview', type: 'primary' });
+        actions.push({ id: 'reject', label: 'Reject', type: 'danger' });
+        break;
       case 'interview_scheduled':
         actions.push({ id: 'score_interview', label: 'Score Interview', type: 'primary' });
-        actions.push({ id: 'withdraw', label: 'Withdrawn', type: 'secondary' });
+        actions.push({ id: 'final_shortlist', label: 'Add to Final Shortlist', type: 'secondary' });
+        actions.push({ id: 'further_assessment', label: 'Needs Further Assessment', type: 'secondary' });
+        actions.push({ id: 'reject', label: 'Reject', type: 'danger' });
         break;
       case 'interview_complete':
         actions.push({ id: 'final_shortlist', label: 'Add to Final Shortlist', type: 'primary' });
+        actions.push({ id: 'further_assessment', label: 'Requires Further Assessment', type: 'secondary' });
         actions.push({ id: 'schedule_interview', label: 'Schedule Another Interview', type: 'secondary' });
         actions.push({ id: 'reject', label: 'Reject', type: 'danger' });
         break;
@@ -176,9 +194,21 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
         actions.push({ id: 'accept_offer', label: 'Mark Accepted', type: 'success' });
         actions.push({ id: 'decline_offer', label: 'Mark Declined', type: 'danger' });
         break;
+      case 'rejected':
+        actions.push({ id: 'unreject', label: 'Reinstate Candidate', type: 'primary' });
+        break;
+      case 'withdrawn':
+        actions.push({ id: 'unwithdraw', label: 'Reinstate Candidate', type: 'primary' });
+        break;
+      case 'offer_declined':
+        actions.push({ id: 'reinstate', label: 'Reinstate Candidate', type: 'primary' });
+        break;
     }
 
-    actions.push({ id: 'withdraw', label: 'Withdraw', type: 'secondary' });
+    // Only show withdraw for active stages
+    if (!['rejected', 'withdrawn', 'offer_declined', 'offer_accepted'].includes(stage)) {
+      actions.push({ id: 'withdraw', label: 'Withdraw', type: 'secondary' });
+    }
 
     return actions;
   }
@@ -213,8 +243,11 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
           <div className="header-info">
             <h2>{candidate.full_name}</h2>
             <span className="candidate-email">{candidate.email}</span>
+            <span className={`header-stage ${candidate.recruitment_stage}`}>
+              {candidate.recruitment_stage?.replace(/_/g, ' ')}
+            </span>
           </div>
-          <button className="close-btn" onClick={onClose}>X</button>
+          <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
 
         <CandidatePipelineProgress
@@ -266,8 +299,8 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
                   <h4>Role Details</h4>
                   <p><strong>Role:</strong> {candidate.proposed_role_name || 'Not assigned'}</p>
                   <p><strong>Tier:</strong> {candidate.proposed_tier || 'Not set'}</p>
-                  <p><strong>Salary:</strong> {candidate.proposed_salary ? `£${candidate.proposed_salary.toLocaleString()}` : 'Not set'}</p>
-                  <p><strong>Start Date:</strong> {candidate.proposed_start_date || 'Not set'}</p>
+                  <p><strong>Salary:</strong> {candidate.proposed_salary ? `£${Number(candidate.proposed_salary).toLocaleString()}` : 'Not set'}</p>
+                  <p><strong>Start Date:</strong> {candidate.proposed_start_date ? new Date(candidate.proposed_start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not set'}</p>
                 </div>
               </div>
 
@@ -281,18 +314,22 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
               <div className="info-section full-width">
                 <h4>Stage History</h4>
                 <div className="history-list">
-                  {stageHistory.map((h, i) => (
-                    <div key={i} className="history-item">
-                      <span className="history-stages">
-                        {h.from_stage || 'New'} → {h.to_stage}
-                      </span>
-                      <span className="history-by">{h.changed_by_name}</span>
-                      <span className="history-date">
-                        {new Date(h.created_at).toLocaleDateString()}
-                      </span>
-                      {h.reason && <span className="history-reason">{h.reason}</span>}
-                    </div>
-                  ))}
+                  {stageHistory.length === 0 ? (
+                    <p style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>No history yet</p>
+                  ) : (
+                    stageHistory.map((h, i) => (
+                      <div key={i} className="history-item">
+                        <span className="history-stages">
+                          {(h.from_stage || 'New').replace(/_/g, ' ')} → {h.to_stage?.replace(/_/g, ' ')}
+                        </span>
+                        <span className="history-by">{h.changed_by_name || 'System'}</span>
+                        <span className="history-date">
+                          {new Date(h.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                        {h.reason && <span className="history-reason">{h.reason}</span>}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -304,12 +341,12 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
                 {interviews.map(interview => (
                   <div key={interview.id} className={`interview-card ${interview.status}`}>
                     <div className="interview-header">
-                      <span className="interview-type">{interview.interview_type.replace('_', ' ')}</span>
-                      <span className={`interview-status ${interview.status}`}>{interview.status}</span>
+                      <span className="interview-type">{interview.interview_type?.replace(/_/g, ' ')}</span>
+                      <span className={`interview-status ${interview.status}`}>{interview.status?.replace(/_/g, ' ')}</span>
                     </div>
                     <div className="interview-details">
                       <p>
-                        <strong>Date:</strong> {new Date(interview.scheduled_date).toLocaleDateString()} at {interview.scheduled_time}
+                        <strong>Date:</strong> {new Date(interview.scheduled_date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} at {interview.scheduled_time?.slice(0, 5)}
                       </p>
                       <p><strong>Duration:</strong> {interview.duration_minutes} mins</p>
                       {interview.location && <p><strong>Location:</strong> {interview.location}</p>}
@@ -361,10 +398,10 @@ export default function CandidateDetailModal({ candidateId, onClose, onUpdate })
           {activeTab === 'offer' && (
             <div className="offer-tab">
               <div className="offer-details">
-                <p><strong>Offer Date:</strong> {candidate.offer_date || 'Not set'}</p>
-                <p><strong>Salary:</strong> £{candidate.offer_salary?.toLocaleString() || 'Not set'}</p>
-                <p><strong>Start Date:</strong> {candidate.offer_start_date || 'Not set'}</p>
-                <p><strong>Expiry:</strong> {candidate.offer_expiry_date || 'Not set'}</p>
+                <p><strong>Offer Date:</strong> {candidate.offer_date ? new Date(candidate.offer_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Not set'}</p>
+                <p><strong>Salary:</strong> {candidate.offer_salary ? `£${Number(candidate.offer_salary).toLocaleString()}` : 'Not set'}</p>
+                <p><strong>Start Date:</strong> {candidate.offer_start_date ? new Date(candidate.offer_start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Not set'}</p>
+                <p><strong>Expiry:</strong> {candidate.offer_expiry_date ? new Date(candidate.offer_expiry_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Not set'}</p>
               </div>
             </div>
           )}

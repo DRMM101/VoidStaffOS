@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import './FeedbackRequest.css';
 
 const RATING_LABELS = {
@@ -83,10 +84,8 @@ export default function FeedbackRequest({ request, onSubmit, onClose }) {
     setError('');
 
     try {
-      const response = await fetch('/api/feedback/quarterly', {
+      const response = await apiFetch('/api/feedback/quarterly', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           employee_id: request.employee_id,
           quarter: request.quarter,

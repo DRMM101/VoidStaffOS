@@ -16,6 +16,7 @@
  */
 
 import { useState } from 'react';
+import { apiFetch } from '../utils/api';
 import './OfferForm.css';
 
 export default function OfferForm({ candidateId, candidate, onClose, onSubmit }) {
@@ -33,10 +34,8 @@ export default function OfferForm({ candidateId, candidate, onClose, onSubmit })
     setError('');
 
     try {
-      const response = await fetch(`/api/pipeline/candidates/${candidateId}/offer`, {
+      const response = await apiFetch(`/api/pipeline/candidates/${candidateId}/offer`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
 

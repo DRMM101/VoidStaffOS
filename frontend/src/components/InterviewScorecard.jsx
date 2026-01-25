@@ -16,6 +16,7 @@
  */
 
 import { useState } from 'react';
+import { apiFetch } from '../utils/api';
 import './InterviewScorecard.css';
 
 export default function InterviewScorecard({ interview, onClose, onSubmit }) {
@@ -34,10 +35,8 @@ export default function InterviewScorecard({ interview, onClose, onSubmit }) {
     setError('');
 
     try {
-      const response = await fetch(`/api/pipeline/interviews/${interview.id}`, {
+      const response = await apiFetch(`/api/pipeline/interviews/${interview.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
 

@@ -95,15 +95,17 @@ async function createCandidate(req, res) {
       }
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
       `INSERT INTO candidates (
-        full_name, email, phone, address_line1, address_line2, city, postcode,
+        tenant_id, full_name, email, phone, address_line1, address_line2, city, postcode,
         dob, proposed_start_date, proposed_role_id, proposed_tier,
         proposed_salary, proposed_hours, skills_experience, notes, created_by, recruitment_request_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
       RETURNING *`,
       [
-        full_name, email.toLowerCase(), phone, address_line1, address_line2, city, postcode,
+        tenantId, full_name, email.toLowerCase(), phone, address_line1, address_line2, city, postcode,
         dob || null, proposed_start_date || null, proposed_role_id || null, proposed_tier || null,
         proposed_salary || null, proposed_hours || 40.0, skills_experience || null, notes || null, userId,
         recruitment_request_id || null
@@ -118,8 +120,8 @@ async function createCandidate(req, res) {
 
     for (const check of defaultChecks) {
       await pool.query(
-        `INSERT INTO background_checks (candidate_id, check_type, required) VALUES ($1, $2, $3)`,
-        [result.rows[0].id, check.type, check.required]
+        `INSERT INTO background_checks (tenant_id, candidate_id, check_type, required) VALUES ($1, $2, $3, $4)`,
+        [tenantId, result.rows[0].id, check.type, check.required]
       );
     }
 
@@ -417,12 +419,14 @@ async function addReference(req, res) {
       return res.status(400).json({ error: 'Reference name is required' });
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
       `INSERT INTO candidate_references
-        (candidate_id, reference_name, reference_company, reference_email, reference_phone, relationship)
-       VALUES ($1, $2, $3, $4, $5, $6)
+        (tenant_id, candidate_id, reference_name, reference_company, reference_email, reference_phone, relationship)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [id, reference_name, reference_company, reference_email, reference_phone, relationship]
+      [tenantId, id, reference_name, reference_company, reference_email, reference_phone, relationship]
     );
 
     res.status(201).json({
@@ -430,7 +434,10 @@ async function addReference(req, res) {
       reference: result.rows[0]
     });
   } catch (error) {
-    console.error('Add reference error:', error);
+    console.error('=== ADD REFERENCE ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Detail:', error.detail);
+    console.error('Full:', error);
     res.status(500).json({ error: 'Failed to add reference' });
   }
 }
@@ -496,12 +503,14 @@ async function addBackgroundCheck(req, res) {
       return res.status(400).json({ error: 'Check type is required' });
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
       `INSERT INTO background_checks
-        (candidate_id, check_type, check_type_other, required)
-       VALUES ($1, $2, $3, $4)
+        (tenant_id, candidate_id, check_type, check_type_other, required)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [id, check_type, check_type_other, required !== false]
+      [tenantId, id, check_type, check_type_other, required !== false]
     );
 
     res.status(201).json({
@@ -509,7 +518,10 @@ async function addBackgroundCheck(req, res) {
       check: result.rows[0]
     });
   } catch (error) {
-    console.error('Add background check error:', error);
+    console.error('=== ADD BACKGROUND CHECK ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Detail:', error.detail);
+    console.error('Full:', error);
     res.status(500).json({ error: 'Failed to add background check' });
   }
 }
@@ -863,7 +875,8 @@ async function promoteCandidate(req, res) {
 
     if (candidate.stage === 'candidate') {
       // Promote to pre_colleague
-      await promoteToPreColleague(id, candidate, userId);
+      const tenantId = req.session?.tenantId || 1;
+      await promoteToPreColleague(id, candidate, userId, tenantId);
 
       res.json({
         message: 'Candidate promoted to Pre-Colleague',
@@ -895,7 +908,7 @@ async function promoteCandidate(req, res) {
  * - Generates onboarding tasks
  * - Sends welcome email (placeholder)
  */
-async function promoteToPreColleague(candidateId, candidate, adminId) {
+async function promoteToPreColleague(candidateId, candidate, adminId, tenantId = 1) {
   // Generate temporary password
   const tempPassword = generateTempPassword();
   const passwordHash = await bcrypt.hash(tempPassword, 10);
@@ -911,11 +924,12 @@ async function promoteToPreColleague(candidateId, candidate, adminId) {
   // Create user account
   const userResult = await pool.query(
     `INSERT INTO users (
-      email, full_name, password_hash, role_id, tier, employee_number,
+      tenant_id, email, full_name, password_hash, role_id, tier, employee_number,
       employment_status, start_date, created_by
-    ) VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, $8)
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', $8, $9)
     RETURNING id`,
     [
+      tenantId,
       candidate.email,
       candidate.full_name,
       passwordHash,
@@ -951,9 +965,9 @@ async function promoteToPreColleague(candidateId, candidate, adminId) {
 
   for (const task of defaultTasks) {
     await pool.query(
-      `INSERT INTO onboarding_tasks (candidate_id, task_name, task_type, required_before_start)
-       VALUES ($1, $2, $3, $4)`,
-      [candidateId, task.name, task.type, task.required]
+      `INSERT INTO onboarding_tasks (tenant_id, candidate_id, task_name, task_type, required_before_start)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [tenantId, candidateId, task.name, task.type, task.required]
     );
   }
 
@@ -992,7 +1006,8 @@ async function promoteToPreColleague(candidateId, candidate, adminId) {
     'Welcome to VoidStaffOS',
     'Your account has been created. Please complete your onboarding tasks before your start date.',
     candidateId,
-    'candidate'
+    'candidate',
+    tenantId
   );
 
   return { userId: newUserId, tempPassword };
@@ -1234,11 +1249,13 @@ async function acknowledgePolicy(req, res) {
       return res.status(400).json({ error: 'Policy already acknowledged' });
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
-      `INSERT INTO policy_acknowledgments (user_id, candidate_id, policy_id, ip_address)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO policy_acknowledgments (tenant_id, user_id, candidate_id, policy_id, ip_address)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [userId, candidateId, id, ipAddress]
+      [tenantId, userId, candidateId, id, ipAddress]
     );
 
     res.json({
@@ -1268,6 +1285,7 @@ async function addDayOneItem(req, res) {
     }
 
     const { time_slot, activity, location, meeting_with, notes } = req.body;
+    const tenantId = req.session?.tenantId || 1;
 
     const result = await pool.query(
       `INSERT INTO day_one_items (candidate_id, time_slot, activity, location, meeting_with, notes)
@@ -1281,7 +1299,9 @@ async function addDayOneItem(req, res) {
       item: result.rows[0]
     });
   } catch (error) {
-    console.error('Add day one item error:', error);
+    console.error('=== ADD DAY ONE ITEM ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Detail:', error.detail);
     res.status(500).json({ error: 'Failed to add day one item' });
   }
 }

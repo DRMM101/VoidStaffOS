@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import ReviewForm from './ReviewForm';
 import ReviewDetail from './ReviewDetail';
 
@@ -102,10 +103,8 @@ function Reviews({ user, canCreate }) {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
 

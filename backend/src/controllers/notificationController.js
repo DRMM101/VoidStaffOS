@@ -26,15 +26,16 @@ const pool = require('../config/database');
  * @param {string} message - Detailed notification message
  * @param {number} [relatedId] - ID of related entity (review, user, etc.)
  * @param {string} [relatedType] - Type of related entity ('review', 'leave_request', 'user')
+ * @param {number} [tenantId] - Tenant ID (defaults to 1)
  * @returns {Object|null} Created notification or null on error
  */
-const createNotification = async (userId, type, title, message, relatedId = null, relatedType = null) => {
+const createNotification = async (userId, type, title, message, relatedId = null, relatedType = null, tenantId = 1) => {
   try {
     const result = await pool.query(
-      `INSERT INTO notifications (user_id, type, title, message, related_id, related_type)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO notifications (tenant_id, user_id, type, title, message, related_id, related_type)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [userId, type, title, message, relatedId, relatedType]
+      [tenantId, userId, type, title, message, relatedId, relatedType]
     );
     return result.rows[0];
   } catch (error) {
@@ -168,9 +169,10 @@ const deleteNotification = async (req, res) => {
 };
 
 // === Notification trigger functions ===
+// All helper functions use default tenantId = 1 for system-generated notifications
 
 // Notify employee when manager commits their weekly snapshot
-const notifyManagerSnapshotCommitted = async (employeeId, managerId, reviewId, weekEnding) => {
+const notifyManagerSnapshotCommitted = async (employeeId, managerId, reviewId, weekEnding, tenantId = 1) => {
   const managerResult = await pool.query(
     `SELECT full_name FROM users WHERE id = $1`,
     [managerId]
@@ -183,12 +185,13 @@ const notifyManagerSnapshotCommitted = async (employeeId, managerId, reviewId, w
     'Manager Snapshot Submitted',
     `${managerName} has submitted their weekly snapshot for you (week ending ${weekEnding}).`,
     reviewId,
-    'review'
+    'review',
+    tenantId
   );
 };
 
 // Notify when KPIs are revealed (both committed)
-const notifyKPIsRevealed = async (employeeId, managerId, reviewId, weekEnding) => {
+const notifyKPIsRevealed = async (employeeId, managerId, reviewId, weekEnding, tenantId = 1) => {
   // Notify employee
   await createNotification(
     employeeId,
@@ -196,7 +199,8 @@ const notifyKPIsRevealed = async (employeeId, managerId, reviewId, weekEnding) =
     'Weekly KPIs Revealed',
     `Both you and your manager have submitted snapshots for week ending ${weekEnding}. KPIs are now visible.`,
     reviewId,
-    'review'
+    'review',
+    tenantId
   );
 
   // Notify manager
@@ -212,12 +216,13 @@ const notifyKPIsRevealed = async (employeeId, managerId, reviewId, weekEnding) =
     'Weekly KPIs Revealed',
     `Both you and ${employeeName} have submitted snapshots for week ending ${weekEnding}. KPIs are now visible.`,
     reviewId,
-    'review'
+    'review',
+    tenantId
   );
 };
 
 // Notify manager when employee submits leave request
-const notifyLeaveRequestPending = async (managerId, employeeId, leaveRequestId, startDate, endDate, totalDays) => {
+const notifyLeaveRequestPending = async (managerId, employeeId, leaveRequestId, startDate, endDate, totalDays, tenantId = 1) => {
   const employeeResult = await pool.query(
     `SELECT full_name FROM users WHERE id = $1`,
     [employeeId]
@@ -234,12 +239,13 @@ const notifyLeaveRequestPending = async (managerId, employeeId, leaveRequestId, 
     'New Leave Request',
     `${employeeName} has requested ${totalDays} day(s) of leave (${dateRange}).`,
     leaveRequestId,
-    'leave_request'
+    'leave_request',
+    tenantId
   );
 };
 
 // Notify employee when leave approved
-const notifyLeaveRequestApproved = async (employeeId, leaveRequestId, startDate, endDate) => {
+const notifyLeaveRequestApproved = async (employeeId, leaveRequestId, startDate, endDate, tenantId = 1) => {
   const dateRange = startDate === endDate
     ? startDate
     : `${startDate} to ${endDate}`;
@@ -250,12 +256,13 @@ const notifyLeaveRequestApproved = async (employeeId, leaveRequestId, startDate,
     'Leave Request Approved',
     `Your leave request for ${dateRange} has been approved.`,
     leaveRequestId,
-    'leave_request'
+    'leave_request',
+    tenantId
   );
 };
 
 // Notify employee when leave rejected
-const notifyLeaveRequestRejected = async (employeeId, leaveRequestId, startDate, endDate, reason = null) => {
+const notifyLeaveRequestRejected = async (employeeId, leaveRequestId, startDate, endDate, reason = null, tenantId = 1) => {
   const dateRange = startDate === endDate
     ? startDate
     : `${startDate} to ${endDate}`;
@@ -271,12 +278,13 @@ const notifyLeaveRequestRejected = async (employeeId, leaveRequestId, startDate,
     'Leave Request Rejected',
     message,
     leaveRequestId,
-    'leave_request'
+    'leave_request',
+    tenantId
   );
 };
 
 // Notify when employee is transferred
-const notifyEmployeeTransferred = async (employeeId, oldManagerId, newManagerId, employeeName) => {
+const notifyEmployeeTransferred = async (employeeId, oldManagerId, newManagerId, employeeName, tenantId = 1) => {
   const notifications = [];
 
   // Notify old manager
@@ -293,7 +301,8 @@ const notifyEmployeeTransferred = async (employeeId, oldManagerId, newManagerId,
       'Employee Transferred',
       `${employeeName} has been transferred to ${newManagerId ? newManagerName : 'no manager (orphaned)'}.`,
       employeeId,
-      'user'
+      'user',
+      tenantId
     ));
   }
 
@@ -305,7 +314,8 @@ const notifyEmployeeTransferred = async (employeeId, oldManagerId, newManagerId,
       'New Direct Report',
       `${employeeName} has been transferred to you.`,
       employeeId,
-      'user'
+      'user',
+      tenantId
     ));
   }
 
@@ -323,7 +333,8 @@ const notifyEmployeeTransferred = async (employeeId, oldManagerId, newManagerId,
       'Manager Changed',
       `You have been transferred to ${newManagerName}.`,
       newManagerId,
-      'user'
+      'user',
+      tenantId
     ));
   } else {
     notifications.push(createNotification(
@@ -332,7 +343,8 @@ const notifyEmployeeTransferred = async (employeeId, oldManagerId, newManagerId,
       'Manager Removed',
       `You no longer have an assigned manager.`,
       null,
-      'user'
+      'user',
+      tenantId
     ));
   }
 
@@ -340,7 +352,7 @@ const notifyEmployeeTransferred = async (employeeId, oldManagerId, newManagerId,
 };
 
 // Notify manager when new direct report assigned/adopted
-const notifyNewDirectReport = async (managerId, employeeId, employeeName, isAdoption = false) => {
+const notifyNewDirectReport = async (managerId, employeeId, employeeName, isAdoption = false, tenantId = 1) => {
   const action = isAdoption ? 'adopted' : 'assigned to';
 
   return createNotification(
@@ -349,7 +361,8 @@ const notifyNewDirectReport = async (managerId, employeeId, employeeName, isAdop
     'New Direct Report',
     `${employeeName} has been ${action} you.`,
     employeeId,
-    'user'
+    'user',
+    tenantId
   );
 };
 
@@ -401,6 +414,8 @@ const checkAndNotifyOverdueSnapshots = async (userId = null) => {
 
     const notifications = [];
 
+    const tenantId = 1; // Default tenant for system notifications
+
     for (const emp of missingReflections.rows) {
       // Notify employee about their overdue self-reflection
       notifications.push(createNotification(
@@ -409,7 +424,8 @@ const checkAndNotifyOverdueSnapshots = async (userId = null) => {
         'Self-Reflection Overdue',
         `Your self-reflection for week ending ${weekEnding} is overdue. Please submit it as soon as possible.`,
         null,
-        'review'
+        'review',
+        tenantId
       ));
 
       // Notify manager about overdue team member
@@ -431,7 +447,8 @@ const checkAndNotifyOverdueSnapshots = async (userId = null) => {
             'Team Snapshot Overdue',
             `${emp.full_name}'s weekly snapshot for week ending ${weekEnding} is overdue.`,
             emp.id,
-            'user'
+            'user',
+            tenantId
           ));
         }
       }

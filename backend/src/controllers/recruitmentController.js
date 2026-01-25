@@ -34,15 +34,17 @@ async function createRequest(req, res) {
       return res.status(400).json({ error: 'Role title and justification are required' });
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
       `INSERT INTO recruitment_requests (
-        requested_by, approver_id, role_title, role_tier, department,
+        tenant_id, requested_by, approver_id, role_title, role_tier, department,
         role_description, justification, proposed_salary_min, proposed_salary_max,
         proposed_hours, proposed_start_date
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *`,
       [
-        userId, manager_id, role_title, role_tier || null, department || null,
+        tenantId, userId, manager_id, role_title, role_tier || null, department || null,
         role_description || null, justification, proposed_salary_min || null,
         proposed_salary_max || null, proposed_hours || 'full-time', proposed_start_date || null
       ]

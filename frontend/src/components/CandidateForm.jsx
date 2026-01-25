@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 function CandidateForm({ candidate, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -99,10 +100,8 @@ function CandidateForm({ candidate, onClose, onSave }) {
         : '/api/onboarding/candidates';
       const method = candidate ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           ...formData,
           proposed_role_id: formData.proposed_role_id || null,

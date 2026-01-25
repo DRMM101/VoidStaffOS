@@ -122,12 +122,14 @@ async function submitFeedback(req, res) {
 
     await client.query('BEGIN');
 
+    const tenantId = req.session?.tenantId || 1;
+
     // Insert or update feedback
     const feedbackResult = await client.query(
       `INSERT INTO quarterly_feedback
-       (employee_id, reviewer_id, reviewer_type, quarter, tasks_completed, work_volume,
+       (tenant_id, employee_id, reviewer_id, reviewer_type, quarter, tasks_completed, work_volume,
         problem_solving, communication, leadership, comments, is_anonymous, submitted_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
        ON CONFLICT (employee_id, reviewer_id, quarter)
        DO UPDATE SET
          tasks_completed = EXCLUDED.tasks_completed,
@@ -138,7 +140,7 @@ async function submitFeedback(req, res) {
          comments = EXCLUDED.comments,
          submitted_at = NOW()
        RETURNING *`,
-      [employee_id, reviewerId, reviewer_type, quarter, tasks_completed, work_volume,
+      [tenantId, employee_id, reviewerId, reviewer_type, quarter, tasks_completed, work_volume,
        problem_solving, communication, leadership, comments, isAnonymous]
     );
 
@@ -158,7 +160,7 @@ async function submitFeedback(req, res) {
 
     if (parseInt(pendingCount.rows[0].count) === 0) {
       // All feedback received - calculate composite
-      await calculateAndStoreComposite(client, employee_id, quarter);
+      await calculateAndStoreComposite(client, employee_id, quarter, tenantId);
 
       // Notify employee and manager
       const employee = await client.query(
@@ -169,19 +171,19 @@ async function submitFeedback(req, res) {
       if (employee.rows[0]) {
         // Notify employee
         await client.query(
-          `INSERT INTO notifications (user_id, type, title, message)
-           VALUES ($1, 'info', '360 Feedback Complete',
+          `INSERT INTO notifications (tenant_id, user_id, type, title, message)
+           VALUES ($1, $2, 'info', '360 Feedback Complete',
                    'Your quarterly feedback for ${quarter} is now available to review.')`,
-          [employee_id]
+          [tenantId, employee_id]
         );
 
         // Notify manager
         if (employee.rows[0].manager_id) {
           await client.query(
-            `INSERT INTO notifications (user_id, type, title, message)
-             VALUES ($1, 'info', '360 Feedback Complete',
+            `INSERT INTO notifications (tenant_id, user_id, type, title, message)
+             VALUES ($1, $2, 'info', '360 Feedback Complete',
                      '360 feedback for ${employee.rows[0].full_name} (${quarter}) is ready for review.')`,
-            [employee.rows[0].manager_id]
+            [tenantId, employee.rows[0].manager_id]
           );
         }
       }
@@ -205,7 +207,7 @@ async function submitFeedback(req, res) {
 /**
  * Calculate and store composite KPIs
  */
-async function calculateAndStoreComposite(client, employeeId, quarter) {
+async function calculateAndStoreComposite(client, employeeId, quarter, tenantId = 1) {
   // Get all feedback for this employee
   const feedbackResult = await client.query(
     `SELECT * FROM quarterly_feedback
@@ -268,12 +270,12 @@ async function calculateAndStoreComposite(client, employeeId, quarter) {
   // Store composite
   await client.query(
     `INSERT INTO quarterly_composites
-     (employee_id, quarter, velocity, friction, cohesion,
+     (tenant_id, employee_id, quarter, velocity, friction, cohesion,
       manager_velocity, manager_friction, manager_cohesion,
       skip_level_velocity, skip_level_friction, skip_level_cohesion,
       direct_reports_velocity, direct_reports_friction, direct_reports_cohesion,
       self_velocity, self_friction, self_cohesion)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
      ON CONFLICT (employee_id, quarter)
      DO UPDATE SET
        velocity = EXCLUDED.velocity,
@@ -293,7 +295,7 @@ async function calculateAndStoreComposite(client, employeeId, quarter) {
        self_cohesion = EXCLUDED.self_cohesion,
        calculated_at = NOW()`,
     [
-      employeeId, quarter,
+      tenantId, employeeId, quarter,
       Math.round(finalVelocity * 100) / 100,
       Math.round(finalFriction * 100) / 100,
       Math.round(finalCohesion * 100) / 100,
@@ -460,13 +462,15 @@ async function startFeedbackCycle(req, res) {
       return res.status(400).json({ error: 'Feedback cycle already active for this quarter' });
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     // Create or reactivate cycle
     const cycleResult = await client.query(
-      `INSERT INTO feedback_cycles (quarter, status, started_by, deadline)
-       VALUES ($1, 'active', $2, $3)
-       ON CONFLICT (quarter) DO UPDATE SET status = 'active', started_at = NOW(), deadline = $3
+      `INSERT INTO feedback_cycles (tenant_id, quarter, status, started_by, deadline)
+       VALUES ($1, $2, 'active', $3, $4)
+       ON CONFLICT (tenant_id, quarter) DO UPDATE SET status = 'active', started_at = NOW(), deadline = $4
        RETURNING *`,
-      [quarter, adminId, deadline || null]
+      [tenantId, quarter, adminId, deadline || null]
     );
 
     // Get all active employees (excluding pre-colleagues)
@@ -475,7 +479,7 @@ async function startFeedbackCycle(req, res) {
               m.manager_id as skip_level_id
        FROM users u
        LEFT JOIN users m ON u.manager_id = m.id
-       WHERE u.is_active = true AND u.tier IS NOT NULL`
+       WHERE u.employment_status = 'active' AND u.tier IS NOT NULL`
     );
 
     let requestsCreated = 0;
@@ -483,73 +487,73 @@ async function startFeedbackCycle(req, res) {
     for (const employee of employees.rows) {
       // Self feedback
       await client.query(
-        `INSERT INTO feedback_requests (employee_id, reviewer_id, reviewer_type, quarter, deadline)
-         VALUES ($1, $1, 'self', $2, $3)
+        `INSERT INTO feedback_requests (tenant_id, employee_id, reviewer_id, reviewer_type, quarter, deadline)
+         VALUES ($1, $2, $2, 'self', $3, $4)
          ON CONFLICT (employee_id, reviewer_id, quarter) DO UPDATE SET status = 'pending'`,
-        [employee.id, quarter, deadline]
+        [tenantId, employee.id, quarter, deadline]
       );
       requestsCreated++;
 
       // Manager feedback
       if (employee.manager_id) {
         await client.query(
-          `INSERT INTO feedback_requests (employee_id, reviewer_id, reviewer_type, quarter, deadline)
-           VALUES ($1, $2, 'manager', $3, $4)
+          `INSERT INTO feedback_requests (tenant_id, employee_id, reviewer_id, reviewer_type, quarter, deadline)
+           VALUES ($1, $2, $3, 'manager', $4, $5)
            ON CONFLICT (employee_id, reviewer_id, quarter) DO UPDATE SET status = 'pending'`,
-          [employee.id, employee.manager_id, quarter, deadline]
+          [tenantId, employee.id, employee.manager_id, quarter, deadline]
         );
         requestsCreated++;
 
         // Notify manager
         await client.query(
-          `INSERT INTO notifications (user_id, type, title, message)
-           VALUES ($1, 'action_required', 'Feedback Request',
+          `INSERT INTO notifications (tenant_id, user_id, type, title, message)
+           VALUES ($1, $2, 'action_required', 'Feedback Request',
                    'Please provide quarterly feedback for ${employee.full_name} (${quarter})')`,
-          [employee.manager_id]
+          [tenantId, employee.manager_id]
         );
       }
 
       // Skip-level feedback
       if (employee.skip_level_id) {
         await client.query(
-          `INSERT INTO feedback_requests (employee_id, reviewer_id, reviewer_type, quarter, deadline)
-           VALUES ($1, $2, 'skip_level', $3, $4)
+          `INSERT INTO feedback_requests (tenant_id, employee_id, reviewer_id, reviewer_type, quarter, deadline)
+           VALUES ($1, $2, $3, 'skip_level', $4, $5)
            ON CONFLICT (employee_id, reviewer_id, quarter) DO UPDATE SET status = 'pending'`,
-          [employee.id, employee.skip_level_id, quarter, deadline]
+          [tenantId, employee.id, employee.skip_level_id, quarter, deadline]
         );
         requestsCreated++;
       }
 
       // Direct reports feedback (employee reviews their manager)
       const directReports = await client.query(
-        'SELECT id, full_name FROM users WHERE manager_id = $1 AND is_active = true',
+        `SELECT id, full_name FROM users WHERE manager_id = $1 AND employment_status = 'active'`,
         [employee.id]
       );
 
       for (const report of directReports.rows) {
         await client.query(
-          `INSERT INTO feedback_requests (employee_id, reviewer_id, reviewer_type, quarter, deadline)
-           VALUES ($1, $2, 'direct_report', $3, $4)
+          `INSERT INTO feedback_requests (tenant_id, employee_id, reviewer_id, reviewer_type, quarter, deadline)
+           VALUES ($1, $2, $3, 'direct_report', $4, $5)
            ON CONFLICT (employee_id, reviewer_id, quarter) DO UPDATE SET status = 'pending'`,
-          [employee.id, report.id, quarter, deadline]
+          [tenantId, employee.id, report.id, quarter, deadline]
         );
         requestsCreated++;
 
         // Notify direct report
         await client.query(
-          `INSERT INTO notifications (user_id, type, title, message)
-           VALUES ($1, 'action_required', 'Feedback Request',
+          `INSERT INTO notifications (tenant_id, user_id, type, title, message)
+           VALUES ($1, $2, 'action_required', 'Feedback Request',
                    'Please provide anonymous feedback for your manager (${quarter})')`,
-          [report.id]
+          [tenantId, report.id]
         );
       }
 
       // Notify employee about self-assessment
       await client.query(
-        `INSERT INTO notifications (user_id, type, title, message)
-         VALUES ($1, 'action_required', 'Self-Assessment Required',
+        `INSERT INTO notifications (tenant_id, user_id, type, title, message)
+         VALUES ($1, $2, 'action_required', 'Self-Assessment Required',
                  'Please complete your self-assessment for ${quarter}')`,
-        [employee.id]
+        [tenantId, employee.id]
       );
     }
 
@@ -562,8 +566,12 @@ async function startFeedbackCycle(req, res) {
     });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error('Error starting feedback cycle:', err);
-    res.status(500).json({ error: 'Failed to start feedback cycle' });
+    console.error('=== FEEDBACK CYCLE ERROR ===');
+    console.error('Message:', err.message);
+    console.error('Detail:', err.detail);
+    console.error('Code:', err.code);
+    console.error('Full error:', err);
+    res.status(500).json({ error: 'Failed to start feedback cycle', detail: err.message });
   } finally {
     client.release();
   }
@@ -607,7 +615,7 @@ async function getCycleStatus(req, res) {
          EXISTS(SELECT 1 FROM quarterly_composites qc WHERE qc.employee_id = u.id AND qc.quarter = $1) as composite_ready
        FROM users u
        JOIN feedback_requests fr ON u.id = fr.employee_id AND fr.quarter = $1
-       WHERE u.is_active = true
+       WHERE u.employment_status = 'active'
        GROUP BY u.id, u.full_name
        ORDER BY u.full_name`,
       [quarter]

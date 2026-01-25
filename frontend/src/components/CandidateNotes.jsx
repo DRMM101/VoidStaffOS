@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import './CandidateNotes.css';
 
 const NOTE_TYPES = [
@@ -68,10 +69,8 @@ export default function CandidateNotes({ candidateId, onNoteAdded }) {
     setError('');
 
     try {
-      const response = await fetch(`/api/pipeline/candidates/${candidateId}/notes`, {
+      const response = await apiFetch(`/api/pipeline/candidates/${candidateId}/notes`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
 

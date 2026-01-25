@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import SelfReflectionForm from './SelfReflectionForm';
 import LeaveRequest from './LeaveRequest';
 import MyLeaveRequests from './MyLeaveRequests';
@@ -235,9 +236,8 @@ function Dashboard({ user, onNavigate }) {
 
   const checkOverdueSnapshots = async () => {
     try {
-      await fetch('/api/notifications/check-overdue', {
-        method: 'POST',
-        credentials: 'include'
+      await apiFetch('/api/notifications/check-overdue', {
+        method: 'POST'
       });
     } catch (err) {
       console.error('Failed to check overdue snapshots');
@@ -323,10 +323,8 @@ function Dashboard({ user, onNavigate }) {
   const handleReflectionSubmit = async (formData) => {
     try {
       // Create the self-reflection
-      const createResponse = await fetch('/api/reviews/self-reflection', {
+      const createResponse = await apiFetch('/api/reviews/self-reflection', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -336,9 +334,8 @@ function Dashboard({ user, onNavigate }) {
       }
 
       // Commit the self-reflection immediately
-      const commitResponse = await fetch(`/api/reviews/self-reflection/${createData.review.id}/commit`, {
-        method: 'POST',
-        credentials: 'include'
+      const commitResponse = await apiFetch(`/api/reviews/self-reflection/${createData.review.id}/commit`, {
+        method: 'POST'
       });
 
       const commitData = await commitResponse.json();

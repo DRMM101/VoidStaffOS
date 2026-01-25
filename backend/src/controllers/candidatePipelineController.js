@@ -40,15 +40,15 @@ const STAGE_TRANSITIONS = {
   application: ['shortlisted', 'rejected', 'withdrawn'],
   shortlisted: ['interview_requested', 'rejected', 'withdrawn'],
   interview_requested: ['interview_scheduled', 'rejected', 'withdrawn'],
-  interview_scheduled: ['interview_complete', 'rejected', 'withdrawn'],
+  interview_scheduled: ['interview_complete', 'further_assessment', 'final_shortlist', 'rejected', 'withdrawn'],
   interview_complete: ['further_assessment', 'final_shortlist', 'rejected', 'withdrawn'],
   further_assessment: ['interview_scheduled', 'final_shortlist', 'rejected', 'withdrawn'],
   final_shortlist: ['offer_made', 'rejected', 'withdrawn'],
   offer_made: ['offer_accepted', 'offer_declined', 'withdrawn'],
   offer_accepted: [], // Terminal state - moves to onboarding
-  offer_declined: [],
-  rejected: [],
-  withdrawn: []
+  offer_declined: ['application', 'shortlisted'],
+  rejected: ['application', 'shortlisted'],
+  withdrawn: ['application', 'shortlisted']
 };
 
 /**
@@ -132,6 +132,7 @@ async function updateStage(req, res) {
     );
 
     // Record stage history
+    const tenantId = req.session?.tenantId || 1;
     await pool.query(
       `INSERT INTO candidate_stage_history (candidate_id, from_stage, to_stage, changed_by, reason)
        VALUES ($1, $2, $3, $4, $5)`,
@@ -141,9 +142,9 @@ async function updateStage(req, res) {
     // Add stage change note if reason provided
     if (reason) {
       await pool.query(
-        `INSERT INTO candidate_notes (candidate_id, user_id, note_type, content, from_stage, to_stage)
-         VALUES ($1, $2, 'stage_change', $3, $4, $5)`,
-        [id, userId, reason, currentStage, new_stage]
+        `INSERT INTO candidate_notes (tenant_id, candidate_id, user_id, note_type, content, from_stage, to_stage)
+         VALUES ($1, $2, $3, 'stage_change', $4, $5, $6)`,
+        [tenantId, id, userId, reason, currentStage, new_stage]
       );
     }
 
@@ -158,7 +159,7 @@ async function updateStage(req, res) {
 
     // If offer accepted, trigger onboarding
     if (new_stage === 'offer_accepted') {
-      await triggerOnboarding(id, candidate, userId);
+      await triggerOnboarding(id, candidate, userId, tenantId);
     }
 
     res.json({
@@ -221,7 +222,7 @@ async function validateStageTransition(candidateId, fromStage, toStage, reason) 
 /**
  * Trigger onboarding when offer is accepted
  */
-async function triggerOnboarding(candidateId, candidate, adminId) {
+async function triggerOnboarding(candidateId, candidate, adminId, tenantId = 1) {
   // Get recruitment request to find line manager
   let managerId = null;
   if (candidate.recruitment_request_id) {
@@ -248,16 +249,16 @@ async function triggerOnboarding(candidateId, candidate, adminId) {
 
   // Use offer details if available, fall back to proposed
   const startDate = candidate.offer_start_date || candidate.proposed_start_date;
-  const salary = candidate.offer_salary || candidate.proposed_salary;
 
   // Create user account
   const userResult = await pool.query(
     `INSERT INTO users (
-      email, full_name, password_hash, role_id, tier, employee_number,
-      employment_status, start_date, salary, manager_id, created_by
-    ) VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, $8, $9, $10)
+      tenant_id, email, full_name, password_hash, role_id, tier, employee_number,
+      employment_status, start_date, manager_id, created_by
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', $8, $9, $10)
     RETURNING id`,
     [
+      tenantId,
       candidate.email,
       candidate.full_name,
       passwordHash,
@@ -265,7 +266,6 @@ async function triggerOnboarding(candidateId, candidate, adminId) {
       candidate.proposed_tier,
       employeeNumber,
       startDate,
-      salary,
       managerId,
       adminId
     ]
@@ -295,9 +295,9 @@ async function triggerOnboarding(candidateId, candidate, adminId) {
 
   for (const task of defaultTasks) {
     await pool.query(
-      `INSERT INTO onboarding_tasks (candidate_id, task_name, task_type, required_before_start)
-       VALUES ($1, $2, $3, $4)`,
-      [candidateId, task.name, task.type, task.required]
+      `INSERT INTO onboarding_tasks (tenant_id, candidate_id, task_name, task_type, required_before_start)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [tenantId, candidateId, task.name, task.type, task.required]
     );
   }
 
@@ -338,7 +338,8 @@ async function triggerOnboarding(candidateId, candidate, adminId) {
     'Welcome to VoidStaffOS',
     'Your offer has been accepted! Please complete your onboarding tasks before your start date.',
     candidateId,
-    'candidate'
+    'candidate',
+    tenantId
   );
 
   // Notify the manager if set
@@ -349,7 +350,8 @@ async function triggerOnboarding(candidateId, candidate, adminId) {
       'New Team Member Joining',
       `${candidate.full_name} has accepted the offer and will be joining your team.`,
       candidateId,
-      'candidate'
+      'candidate',
+      tenantId
     );
   }
 
@@ -422,14 +424,16 @@ async function scheduleInterview(req, res) {
       return res.status(404).json({ error: 'Candidate not found' });
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
       `INSERT INTO candidate_interviews (
-        candidate_id, interview_type, scheduled_date, scheduled_time,
+        tenant_id, candidate_id, interview_type, scheduled_date, scheduled_time,
         duration_minutes, location, interviewer_ids, scheduled_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *`,
       [
-        id, interview_type, scheduled_date, scheduled_time,
+        tenantId, id, interview_type, scheduled_date, scheduled_time,
         duration_minutes || 60, location, interviewer_ids || [], userId
       ]
     );
@@ -469,7 +473,8 @@ async function scheduleInterview(req, res) {
           'Interview Scheduled',
           `You have been assigned to interview ${candidate.rows[0].full_name} on ${scheduled_date} at ${scheduled_time}.`,
           result.rows[0].id,
-          'interview'
+          'interview',
+          tenantId
         );
       }
     }
@@ -479,7 +484,9 @@ async function scheduleInterview(req, res) {
       interview: result.rows[0]
     });
   } catch (error) {
-    console.error('Schedule interview error:', error);
+    console.error('=== SCHEDULE INTERVIEW ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Detail:', error.detail);
     res.status(500).json({ error: 'Failed to schedule interview' });
   }
 }
@@ -577,10 +584,11 @@ async function updateInterview(req, res) {
 
     // Add interview feedback note
     if (status === 'completed' && notes) {
+      const tenantId = req.session?.tenantId || 1;
       await pool.query(
-        `INSERT INTO candidate_notes (candidate_id, user_id, note_type, content)
-         VALUES ($1, $2, 'interview_feedback', $3)`,
-        [interview.candidate_id, userId, notes]
+        `INSERT INTO candidate_notes (tenant_id, candidate_id, user_id, note_type, content)
+         VALUES ($1, $2, $3, 'interview_feedback', $4)`,
+        [tenantId, interview.candidate_id, userId, notes]
       );
     }
 
@@ -589,7 +597,9 @@ async function updateInterview(req, res) {
       interview: result.rows[0]
     });
   } catch (error) {
-    console.error('Update interview error:', error);
+    console.error('=== UPDATE INTERVIEW ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Detail:', error.detail);
     res.status(500).json({ error: 'Failed to update interview' });
   }
 }
@@ -617,11 +627,13 @@ async function addNote(req, res) {
       return res.status(404).json({ error: 'Candidate not found' });
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
-      `INSERT INTO candidate_notes (candidate_id, user_id, note_type, content, is_private)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO candidate_notes (tenant_id, candidate_id, user_id, note_type, content, is_private)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [id, userId, note_type || 'general', content, is_private || false]
+      [tenantId, id, userId, note_type || 'general', content, is_private || false]
     );
 
     res.status(201).json({
@@ -629,7 +641,9 @@ async function addNote(req, res) {
       note: result.rows[0]
     });
   } catch (error) {
-    console.error('Add note error:', error);
+    console.error('=== ADD NOTE ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Detail:', error.detail);
     res.status(500).json({ error: 'Failed to add note' });
   }
 }
@@ -714,6 +728,8 @@ async function makeOffer(req, res) {
       [offer_salary, offer_start_date, offer_expiry_date, id]
     );
 
+    const tenantId = req.session?.tenantId || 1;
+
     // Record stage history
     await pool.query(
       `INSERT INTO candidate_stage_history (candidate_id, from_stage, to_stage, changed_by, reason)
@@ -723,9 +739,9 @@ async function makeOffer(req, res) {
 
     // Add offer note
     await pool.query(
-      `INSERT INTO candidate_notes (candidate_id, user_id, note_type, content)
-       VALUES ($1, $2, 'offer', $3)`,
-      [id, userId, `Offer made: £${offer_salary} salary, start date ${offer_start_date}`]
+      `INSERT INTO candidate_notes (tenant_id, candidate_id, user_id, note_type, content)
+       VALUES ($1, $2, $3, 'offer', $4)`,
+      [tenantId, id, userId, `Offer made: £${offer_salary} salary, start date ${offer_start_date}`]
     );
 
     res.json({
@@ -733,7 +749,9 @@ async function makeOffer(req, res) {
       candidate: result.rows[0]
     });
   } catch (error) {
-    console.error('Make offer error:', error);
+    console.error('=== MAKE OFFER ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Detail:', error.detail);
     res.status(500).json({ error: 'Failed to make offer' });
   }
 }
@@ -773,6 +791,8 @@ async function acceptOffer(req, res) {
       [id]
     );
 
+    const tenantId = req.session?.tenantId || 1;
+
     // Record stage history
     await pool.query(
       `INSERT INTO candidate_stage_history (candidate_id, from_stage, to_stage, changed_by, reason)
@@ -781,14 +801,16 @@ async function acceptOffer(req, res) {
     );
 
     // Trigger onboarding
-    const result = await triggerOnboarding(id, candidate.rows[0], userId);
+    const result = await triggerOnboarding(id, candidate.rows[0], userId, tenantId);
 
     res.json({
       message: 'Offer accepted - onboarding initiated',
       user_id: result.userId
     });
   } catch (error) {
-    console.error('Accept offer error:', error);
+    console.error('=== ACCEPT OFFER ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Detail:', error.detail);
     res.status(500).json({ error: 'Failed to accept offer' });
   }
 }
@@ -831,6 +853,8 @@ async function declineOffer(req, res) {
       [reason, id]
     );
 
+    const tenantId = req.session?.tenantId || 1;
+
     // Record stage history
     await pool.query(
       `INSERT INTO candidate_stage_history (candidate_id, from_stage, to_stage, changed_by, reason)
@@ -843,7 +867,9 @@ async function declineOffer(req, res) {
       reason
     });
   } catch (error) {
-    console.error('Decline offer error:', error);
+    console.error('=== DECLINE OFFER ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Detail:', error.detail);
     res.status(500).json({ error: 'Failed to decline offer' });
   }
 }

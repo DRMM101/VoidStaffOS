@@ -194,15 +194,18 @@ async function createLeaveRequest(req, res) {
     }
 
     // Create the request
+    const leaveTypeValue = leave_type || 'full_day';
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
       `INSERT INTO leave_requests (
-        employee_id, manager_id, request_date, leave_start_date, leave_end_date,
+        tenant_id, employee_id, manager_id, request_date, leave_start_date, leave_end_date,
         leave_type, total_days, notice_days, required_notice_days, meets_notice_requirement, notes
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7::leave_type_enum, $8, $9, $10, $11, $12)
       RETURNING *`,
       [
-        userId, managerId, requestDate, leave_start_date, leave_end_date,
-        leave_type || 'full_day', totalDays, noticeDays, requiredNoticeDays,
+        tenantId, userId, managerId, requestDate, leave_start_date, leave_end_date,
+        leaveTypeValue, totalDays, noticeDays, requiredNoticeDays,
         meetsNoticeRequirement, notes || null
       ]
     );
@@ -239,7 +242,11 @@ async function createLeaveRequest(req, res) {
         : null
     });
   } catch (error) {
-    console.error('Create leave request error:', error);
+    console.error('=== CREATE LEAVE REQUEST ERROR ===');
+    console.error('Message:', error.message);
+    console.error('Code:', error.code);
+    console.error('Detail:', error.detail);
+    console.error('Full error:', error);
     res.status(500).json({ error: 'Failed to create leave request' });
   }
 }

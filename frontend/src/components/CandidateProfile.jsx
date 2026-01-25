@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import CandidateForm from './CandidateForm';
 
 function CandidateProfile({ candidateId, onClose }) {
@@ -80,9 +81,8 @@ function CandidateProfile({ candidateId, onClose }) {
 
     setPromoting(true);
     try {
-      const response = await fetch(`/api/onboarding/candidates/${candidateId}/promote`, {
-        method: 'POST',
-        credentials: 'include'
+      const response = await apiFetch(`/api/onboarding/candidates/${candidateId}/promote`, {
+        method: 'POST'
       });
       const data = await response.json();
       if (response.ok) {
@@ -101,10 +101,8 @@ function CandidateProfile({ candidateId, onClose }) {
 
   const updateReferenceStatus = async (refId, status) => {
     try {
-      const response = await fetch(`/api/onboarding/references/${refId}`, {
+      const response = await apiFetch(`/api/onboarding/references/${refId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           status,
           received_date: status === 'received' || status === 'verified' ? new Date().toISOString().split('T')[0] : null
@@ -121,10 +119,8 @@ function CandidateProfile({ candidateId, onClose }) {
 
   const updateCheckStatus = async (checkId, status) => {
     try {
-      const response = await fetch(`/api/onboarding/checks/${checkId}`, {
+      const response = await apiFetch(`/api/onboarding/checks/${checkId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           status,
           completed_date: status === 'cleared' || status === 'failed' ? new Date().toISOString().split('T')[0] : null
@@ -516,10 +512,8 @@ function AddReferenceModal({ candidateId, onClose, onSave }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch(`/api/onboarding/candidates/${candidateId}/references`, {
+      const response = await apiFetch(`/api/onboarding/candidates/${candidateId}/references`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
       if (response.ok) {
@@ -608,10 +602,8 @@ function AddCheckModal({ candidateId, onClose, onSave }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch(`/api/onboarding/candidates/${candidateId}/checks`, {
+      const response = await apiFetch(`/api/onboarding/candidates/${candidateId}/checks`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
       if (response.ok) {

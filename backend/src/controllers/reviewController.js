@@ -334,15 +334,18 @@ async function createReview(req, res) {
       return res.status(403).json({ error: 'Employees can only create self-assessments' });
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
       `INSERT INTO reviews (
-        employee_id, reviewer_id, review_date,
+        tenant_id, employee_id, reviewer_id, review_date,
         goals, achievements, areas_for_improvement,
         tasks_completed, work_volume, problem_solving, communication, leadership,
         is_self_assessment
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *`,
       [
+        tenantId,
         employee_id,
         userId,
         weekEndingDate,
@@ -791,15 +794,18 @@ async function createSelfReflection(req, res) {
       return res.status(400).json({ error: 'You have already submitted a self-reflection for this week' });
     }
 
+    const tenantId = req.session?.tenantId || 1;
+
     const result = await pool.query(
       `INSERT INTO reviews (
-        employee_id, reviewer_id, review_date,
+        tenant_id, employee_id, reviewer_id, review_date,
         goals, achievements, areas_for_improvement,
         tasks_completed, work_volume, problem_solving, communication, leadership,
         is_self_assessment
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, true)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, true)
       RETURNING *`,
       [
+        tenantId,
         userId,
         userId,
         weekEndingDate,

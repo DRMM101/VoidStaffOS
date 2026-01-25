@@ -151,4 +151,28 @@ const api = {
   }
 };
 
+/**
+ * Simple fetch wrapper with CSRF token
+ * Use this for gradual migration from raw fetch calls
+ * @param {string} url - Full URL or relative path
+ * @param {Object} options - Fetch options
+ * @returns {Promise<Response>} Raw fetch Response
+ */
+export const apiFetch = async (url, options = {}) => {
+  const csrfToken = getCSRFToken();
+
+  const config = {
+    ...options,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': csrfToken,
+      ...options.headers
+    }
+  };
+
+  return fetch(url, config);
+};
+
+export { getCSRFToken };
 export default api;

@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 function Notifications({ onClose }) {
   const [notifications, setNotifications] = useState([]);
@@ -47,9 +48,8 @@ function Notifications({ onClose }) {
 
   const markAsRead = async (notificationId) => {
     try {
-      await fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'PUT',
-        credentials: 'include'
+      await apiFetch(`/api/notifications/${notificationId}/read`, {
+        method: 'PUT'
       });
       setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
@@ -61,9 +61,8 @@ function Notifications({ onClose }) {
 
   const markAllAsRead = async () => {
     try {
-      await fetch('/api/notifications/read-all', {
-        method: 'PUT',
-        credentials: 'include'
+      await apiFetch('/api/notifications/read-all', {
+        method: 'PUT'
       });
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     } catch (err) {
@@ -73,9 +72,8 @@ function Notifications({ onClose }) {
 
   const deleteNotification = async (notificationId) => {
     try {
-      await fetch(`/api/notifications/${notificationId}`, {
-        method: 'DELETE',
-        credentials: 'include'
+      await apiFetch(`/api/notifications/${notificationId}`, {
+        method: 'DELETE'
       });
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
     } catch (err) {

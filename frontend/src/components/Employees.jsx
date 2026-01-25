@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import EmployeeForm from './EmployeeForm';
 import EmployeeProfile from './EmployeeProfile';
 import QuarterlyReport from './QuarterlyReport';
@@ -130,9 +131,8 @@ function Employees({ user }) {
 
   const handleAdoptEmployee = async (employeeId) => {
     try {
-      const response = await fetch(`/api/users/adopt-employee/${employeeId}`, {
-        method: 'POST',
-        credentials: 'include'
+      const response = await apiFetch(`/api/users/adopt-employee/${employeeId}`, {
+        method: 'POST'
       });
       const data = await response.json();
       if (response.ok) {
@@ -162,10 +162,8 @@ function Employees({ user }) {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -196,10 +194,8 @@ function Employees({ user }) {
 
   const handleSnapshotSubmit = async (formData) => {
     try {
-      const response = await fetch('/api/reviews', {
+      const response = await apiFetch('/api/reviews', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           ...formData,
           employee_id: snapshotEmployee.id

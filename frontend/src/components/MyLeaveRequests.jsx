@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import LeaveRequest from './LeaveRequest';
 
 function MyLeaveRequests({ onClose }) {
@@ -52,9 +53,8 @@ function MyLeaveRequests({ onClose }) {
   const handleCancel = async (requestId) => {
     setCancellingId(requestId);
     try {
-      const response = await fetch(`/api/leave/${requestId}/cancel`, {
-        method: 'PUT',
-        credentials: 'include'
+      const response = await apiFetch(`/api/leave/${requestId}/cancel`, {
+        method: 'PUT'
       });
 
       const data = await response.json();

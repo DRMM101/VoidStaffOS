@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import './RecruitmentRequestForm.css';
 
 export default function RecruitmentRequestForm({ onClose, onSubmit }) {
@@ -60,10 +61,8 @@ export default function RecruitmentRequestForm({ onClose, onSubmit }) {
     try {
 
       // Create the request
-      const createResponse = await fetch('/api/recruitment/requests', {
+      const createResponse = await apiFetch('/api/recruitment/requests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -75,9 +74,8 @@ export default function RecruitmentRequestForm({ onClose, onSubmit }) {
       const createData = await createResponse.json();
 
       // Submit for approval
-      const submitResponse = await fetch(`/api/recruitment/requests/${createData.request.id}/submit`, {
-        method: 'POST',
-        credentials: 'include'
+      const submitResponse = await apiFetch(`/api/recruitment/requests/${createData.request.id}/submit`, {
+        method: 'POST'
       });
 
       if (!submitResponse.ok) {

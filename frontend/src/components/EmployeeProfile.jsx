@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, onTransfer }) {
   const [profile, setProfile] = useState(null);
@@ -128,10 +129,8 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
         ? { orphan: true }
         : { new_manager_id: parseInt(selectedTransferTarget) };
 
-      const response = await fetch(`/api/users/${employeeId}/transfer`, {
+      const response = await apiFetch(`/api/users/${employeeId}/transfer`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(body)
       });
 
@@ -159,9 +158,8 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
   const handleAdopt = async () => {
     try {
-      const response = await fetch(`/api/users/adopt-employee/${employeeId}`, {
-        method: 'POST',
-        credentials: 'include'
+      const response = await apiFetch(`/api/users/adopt-employee/${employeeId}`, {
+        method: 'POST'
       });
       const data = await response.json();
       if (response.ok) {
@@ -183,10 +181,8 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
     setAssigning(true);
     try {
-      const response = await fetch(`/api/users/${employeeId}/assign-manager`, {
+      const response = await apiFetch(`/api/users/${employeeId}/assign-manager`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ manager_id: selectedManager || null })
       });
       const data = await response.json();

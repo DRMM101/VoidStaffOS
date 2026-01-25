@@ -22,6 +22,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '../utils/api';
 
 const AuditTrailViewer = ({ user }) => {
   // Verification state
@@ -133,10 +134,8 @@ const AuditTrailViewer = ({ user }) => {
     setVerifyError('');
 
     try {
-      const response = await fetch('/api/auth/verify-password', {
+      const response = await apiFetch('/api/auth/verify-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ password })
       });
 

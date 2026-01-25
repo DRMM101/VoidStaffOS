@@ -252,12 +252,13 @@ async function createUser(req, res) {
 
     const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
     const startDateValue = start_date || new Date().toISOString().split('T')[0];
+    const tenantId = req.session?.tenantId || 1;
 
     const result = await pool.query(
-      `INSERT INTO users (email, full_name, password_hash, role_id, start_date, created_by, employee_number, manager_id, tier)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `INSERT INTO users (tenant_id, email, full_name, password_hash, role_id, start_date, created_by, employee_number, manager_id, tier)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING id, email, full_name, role_id, employment_status, start_date, created_at, employee_number, manager_id, tier`,
-      [email, full_name, password_hash, role_id, startDateValue, req.user.id, employee_number || null, manager_id || null, userTier]
+      [tenantId, email, full_name, password_hash, role_id, startDateValue, req.user.id, employee_number || null, manager_id || null, userTier]
     );
 
     const user = result.rows[0];

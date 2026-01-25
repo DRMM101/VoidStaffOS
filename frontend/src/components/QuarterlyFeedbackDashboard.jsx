@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import './QuarterlyFeedbackDashboard.css';
 
 function getCurrentQuarter() {
@@ -96,10 +97,8 @@ export default function QuarterlyFeedbackDashboard({ onClose }) {
     setStarting(true);
     setError('');
     try {
-      const response = await fetch(`/api/feedback/request-cycle/${newQuarter}`, {
+      const response = await apiFetch(`/api/feedback/request-cycle/${newQuarter}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ deadline: deadline || null })
       });
       const data = await response.json();
@@ -120,9 +119,8 @@ export default function QuarterlyFeedbackDashboard({ onClose }) {
     if (!confirm(`Are you sure you want to close the ${quarter} feedback cycle?`)) return;
 
     try {
-      const response = await fetch(`/api/feedback/close-cycle/${quarter}`, {
-        method: 'POST',
-        credentials: 'include'
+      const response = await apiFetch(`/api/feedback/close-cycle/${quarter}`, {
+        method: 'POST'
       });
       if (response.ok) {
         fetchActiveCycles();

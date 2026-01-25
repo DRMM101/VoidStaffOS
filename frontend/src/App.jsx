@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from './utils/api';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Employees from './components/Employees';
@@ -53,9 +54,8 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
+      await apiFetch('/api/auth/logout', {
+        method: 'POST'
       });
     } catch (err) {
       console.error('Logout error:', err);

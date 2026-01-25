@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import './RecruitmentApprovals.css';
 
 export default function RecruitmentApprovals({ onClose }) {
@@ -50,9 +51,8 @@ export default function RecruitmentApprovals({ onClose }) {
   async function handleApprove(requestId) {
     setProcessing(requestId);
     try {
-      const response = await fetch(`/api/recruitment/requests/${requestId}/approve`, {
-        method: 'POST',
-        credentials: 'include'
+      const response = await apiFetch(`/api/recruitment/requests/${requestId}/approve`, {
+        method: 'POST'
       });
 
       if (!response.ok) {
@@ -74,10 +74,8 @@ export default function RecruitmentApprovals({ onClose }) {
 
     setProcessing(requestId);
     try {
-      const response = await fetch(`/api/recruitment/requests/${requestId}/reject`, {
+      const response = await apiFetch(`/api/recruitment/requests/${requestId}/reject`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ rejection_reason: reason })
       });
 
