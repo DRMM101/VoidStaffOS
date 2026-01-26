@@ -17,6 +17,7 @@
 
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const pool = require('../config/database');
 const { auditLog } = require('../utils/auditLog');
 const auditTrail = require('../utils/auditTrail');
 
@@ -101,11 +102,33 @@ async function login(req, res) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Fetch user's additional roles and their permissions
+    const additionalRolesResult = await pool.query(
+      `SELECT ar.role_code, ar.permissions_json
+       FROM user_additional_roles uar
+       JOIN additional_roles ar ON uar.additional_role_id = ar.id
+       WHERE uar.user_id = $1
+         AND ar.is_active = TRUE
+         AND (uar.expires_at IS NULL OR uar.expires_at > CURRENT_TIMESTAMP)`,
+      [user.id]
+    );
+
+    // Extract role codes and merge permissions
+    const additionalRoleCodes = additionalRolesResult.rows.map(r => r.role_code);
+    const additionalPermissions = additionalRolesResult.rows
+      .flatMap(r => r.permissions_json || []);
+
+    // Combine base permissions with additional role permissions
+    const basePermissions = Array.isArray(user.permissions_json) ? user.permissions_json : [];
+    const allPermissions = [...new Set([...basePermissions, ...additionalPermissions])];
+
     // Create session (secure cookie-based auth)
     req.session.userId = user.id;
     req.session.tenantId = user.tenant_id || 1; // Default tenant for migration
     req.session.roles = [user.role_name];
-    req.session.permissions = user.permissions_json || [];
+    req.session.tier = user.tier; // Store tier in session for tier-based auth
+    req.session.permissions = allPermissions;
+    req.session.additionalRoles = additionalRoleCodes;
     req.session.email = user.email;
     req.session.fullName = user.full_name;
 
@@ -128,7 +151,8 @@ async function login(req, res) {
           full_name: user.full_name,
           role_name: user.role_name,
           tier: user.tier,
-          employee_number: user.employee_number
+          employee_number: user.employee_number,
+          additionalRoles: additionalRoleCodes
         }
       });
     });

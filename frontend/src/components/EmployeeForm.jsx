@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 function EmployeeForm({ employee, roles, onSubmit, onClose }) {
   const isEdit = !!employee;
@@ -33,11 +34,18 @@ function EmployeeForm({ employee, roles, onSubmit, onClose }) {
   });
 
   const [managers, setManagers] = useState([]);
+  const [additionalRoles, setAdditionalRoles] = useState([]);
+  const [userAdditionalRoles, setUserAdditionalRoles] = useState([]);
+  const [selectedRoleToAdd, setSelectedRoleToAdd] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchManagers();
+    fetchAdditionalRoles();
+    if (isEdit && employee?.id) {
+      fetchUserAdditionalRoles();
+    }
   }, []);
 
   const fetchManagers = async () => {
@@ -51,6 +59,72 @@ function EmployeeForm({ employee, roles, onSubmit, onClose }) {
       }
     } catch (err) {
       console.error('Failed to fetch managers');
+    }
+  };
+
+  const fetchAdditionalRoles = async () => {
+    try {
+      const response = await fetch('/api/roles/additional', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setAdditionalRoles(data.roles.filter(r => r.is_active));
+      }
+    } catch (err) {
+      console.error('Failed to fetch additional roles');
+    }
+  };
+
+  const fetchUserAdditionalRoles = async () => {
+    try {
+      const response = await fetch(`/api/roles/user/${employee.id}/additional`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setUserAdditionalRoles(data.additional_roles);
+      }
+    } catch (err) {
+      console.error('Failed to fetch user additional roles');
+    }
+  };
+
+  const handleAddAdditionalRole = async () => {
+    if (!selectedRoleToAdd || !employee?.id) return;
+
+    try {
+      const response = await apiFetch(`/api/roles/user/${employee.id}/additional`, {
+        method: 'POST',
+        body: JSON.stringify({ additional_role_id: parseInt(selectedRoleToAdd) })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        fetchUserAdditionalRoles();
+        setSelectedRoleToAdd('');
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError('Failed to assign role');
+    }
+  };
+
+  const handleRemoveAdditionalRole = async (assignmentId) => {
+    if (!employee?.id) return;
+
+    try {
+      const response = await apiFetch(`/api/roles/user/${employee.id}/additional/${assignmentId}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        fetchUserAdditionalRoles();
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError('Failed to remove role');
     }
   };
 
@@ -190,7 +264,7 @@ function EmployeeForm({ employee, roles, onSubmit, onClose }) {
             <div className="form-group">
               <label htmlFor="tier">
                 Tier
-                <span className="field-hint-inline">(1=Executive, 5=Entry)</span>
+                <span className="field-hint-inline">(100=Chair/CEO, 10=Contractor)</span>
               </label>
               <select
                 id="tier"
@@ -199,11 +273,16 @@ function EmployeeForm({ employee, roles, onSubmit, onClose }) {
                 onChange={handleChange}
               >
                 <option value="">Auto (based on role)</option>
-                <option value="1">Tier 1 - Executive</option>
-                <option value="2">Tier 2 - Senior</option>
-                <option value="3">Tier 3 - Mid-Level</option>
-                <option value="4">Tier 4 - Junior</option>
-                <option value="5">Tier 5 - Entry Level</option>
+                <option value="100">100 - Chair/CEO</option>
+                <option value="90">90 - Director</option>
+                <option value="80">80 - Executive</option>
+                <option value="70">70 - Senior Manager</option>
+                <option value="60">60 - Manager</option>
+                <option value="50">50 - Team Lead</option>
+                <option value="40">40 - Senior Employee</option>
+                <option value="30">30 - Employee</option>
+                <option value="20">20 - Trainee</option>
+                <option value="10">10 - Contractor</option>
               </select>
             </div>
 
@@ -237,6 +316,56 @@ function EmployeeForm({ employee, roles, onSubmit, onClose }) {
               </div>
             )}
           </div>
+
+          {isEdit && (
+            <div className="additional-roles-section">
+              <label className="section-label">Additional Roles</label>
+              <div className="assigned-roles">
+                {userAdditionalRoles.length > 0 ? (
+                  userAdditionalRoles.map(role => (
+                    <div key={role.id} className="role-chip">
+                      <span className="role-chip-name">{role.role_name}</span>
+                      <span className="role-chip-category">{role.category}</span>
+                      <button
+                        type="button"
+                        className="role-chip-remove"
+                        onClick={() => handleRemoveAdditionalRole(role.id)}
+                        title="Remove role"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <span className="no-roles-text">No additional roles assigned</span>
+                )}
+              </div>
+              <div className="add-role-row">
+                <select
+                  value={selectedRoleToAdd}
+                  onChange={(e) => setSelectedRoleToAdd(e.target.value)}
+                  className="add-role-select"
+                >
+                  <option value="">Select role to add...</option>
+                  {additionalRoles
+                    .filter(r => !userAdditionalRoles.some(ur => ur.additional_role_id === r.id))
+                    .map(role => (
+                      <option key={role.id} value={role.id}>
+                        {role.role_name} ({role.category})
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="button"
+                  className="add-role-btn"
+                  onClick={handleAddAdditionalRole}
+                  disabled={!selectedRoleToAdd}
+                >
+                  Add Role
+                </button>
+              </div>
+            </div>
+          )}
 
           {error && <div className="error-message">{error}</div>}
 

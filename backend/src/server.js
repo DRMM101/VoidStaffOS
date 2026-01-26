@@ -37,6 +37,7 @@ const recruitmentRoutes = require('./routes/recruitment');
 const candidatePipelineRoutes = require('./routes/candidatePipeline');
 const feedbackRoutes = require('./routes/feedback');
 const auditRoutes = require('./routes/audit');
+const rolesRoutes = require('./routes/roles');
 const devRoutes = require('./routes/dev');
 
 const app = express();
@@ -141,6 +142,7 @@ app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/pipeline', candidatePipelineRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/audit-trail', auditRoutes);
+app.use('/api/roles', rolesRoutes);
 
 // Development routes (should be disabled in production)
 if (process.env.NODE_ENV !== 'production') {

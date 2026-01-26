@@ -44,17 +44,32 @@ function Employees({ user }) {
   const canViewReports = ['Admin', 'Manager', 'Compliance Officer'].includes(user.role_name);
   const canViewOrphaned = isAdmin || isManager;
 
-  // Tier display helper
+  // Tier display helper (10-100 scale)
   const getTierDisplay = (tier) => {
     if (tier === null) return '-';
     const tierNames = {
-      1: 'T1 - Executive',
-      2: 'T2 - Senior',
-      3: 'T3 - Mid',
-      4: 'T4 - Junior',
-      5: 'T5 - Entry'
+      100: 'Chair/CEO',
+      90: 'Director',
+      80: 'Executive',
+      70: 'Sr Manager',
+      60: 'Manager',
+      50: 'Team Lead',
+      40: 'Sr Employee',
+      30: 'Employee',
+      20: 'Trainee',
+      10: 'Contractor'
     };
     return tierNames[tier] || `T${tier}`;
+  };
+
+  // Tier CSS class helper (10-100 scale)
+  const getTierClass = (tier) => {
+    if (tier === null) return 'tier-admin';
+    if (tier >= 90) return 'tier-100';
+    if (tier >= 70) return 'tier-70';
+    if (tier >= 50) return 'tier-50';
+    if (tier >= 30) return 'tier-30';
+    return 'tier-10';
   };
 
   const handleViewReport = (employeeId) => {
@@ -368,7 +383,7 @@ function Employees({ user }) {
                   </td>
                   <td>{emp.email}</td>
                   <td><span className="role-badge">{emp.role_name}</span></td>
-                  <td><span className={`tier-badge tier-${emp.tier || 'admin'}`}>{getTierDisplay(emp.tier)}</span></td>
+                  <td><span className={`tier-badge ${getTierClass(emp.tier)}`}>{getTierDisplay(emp.tier)}</span></td>
                   <td>
                     <span className={`status-badge ${emp.employment_status}`}>
                       {emp.employment_status}

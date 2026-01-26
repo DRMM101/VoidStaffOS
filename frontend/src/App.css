@@ -419,6 +419,37 @@ button[type="submit"]:disabled {
   border: 1px solid rgba(160, 160, 160, 0.3);
 }
 
+/* New tier badges for 10-100 scale */
+.tier-badge.tier-100 {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.25));
+  color: #7c3aed;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+.tier-badge.tier-70 {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.tier-badge.tier-50 {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.tier-badge.tier-30 {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2));
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.tier-badge.tier-10 {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.2), rgba(75, 85, 99, 0.2));
+  color: #4b5563;
+  border: 1px solid rgba(107, 114, 128, 0.4);
+}
+
 /* Prominent tier badge for profile header */
 .tier-badge.prominent {
   padding: 6px 14px;
@@ -5165,4 +5196,118 @@ button[type="submit"]:disabled {
 
 .quick-action-btn.recruitment-btn:hover {
   background: #7c3aed;
+}
+
+/* ===================================
+   ADDITIONAL ROLES SECTION (EmployeeForm)
+   =================================== */
+
+.additional-roles-section {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(74, 108, 247, 0.05);
+  border: 1px solid rgba(74, 108, 247, 0.15);
+  border-radius: 8px;
+}
+
+.section-label {
+  display: block;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.assigned-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 40px;
+  margin-bottom: 12px;
+}
+
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.role-chip-name {
+  font-weight: 500;
+  color: #1a1a2e;
+}
+
+.role-chip-category {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #888;
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.role-chip-remove {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.role-chip-remove:hover {
+  color: #e53e3e;
+}
+
+.no-roles-text {
+  color: #888;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.add-role-row {
+  display: flex;
+  gap: 8px;
+}
+
+.add-role-select {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #fff;
+}
+
+.add-role-select:focus {
+  outline: none;
+  border-color: #4a6cf7;
+}
+
+.add-role-btn {
+  padding: 10px 16px;
+  background: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.add-role-btn:hover:not(:disabled) {
+  background: #3858e0;
+}
+
+.add-role-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }

@@ -121,10 +121,122 @@ const requirePermission = (...requiredPermissions) => {
   };
 };
 
+/**
+ * Tier-based authorization middleware factory
+ * Requires user tier to be at or above the specified level
+ * Higher tier number = more senior (100=CEO, 10=Contractor)
+ *
+ * @param {number} minTier - Minimum tier required for access
+ * @returns {Function} Express middleware
+ */
+const requireTier = (minTier) => {
+  return (req, res, next) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const userTier = req.session.tier;
+
+    // Admin role (null tier) has full access
+    if (userTier === null && req.session.roles?.includes('Admin')) {
+      return next();
+    }
+
+    // Check tier level
+    if (userTier === null || userTier === undefined || userTier < minTier) {
+      return res.status(403).json({
+        error: 'Insufficient tier level',
+        required: minTier,
+        current: userTier
+      });
+    }
+
+    next();
+  };
+};
+
+/**
+ * Additional role-based authorization middleware factory
+ * Requires user to have at least one of the specified additional roles
+ *
+ * @param {...string} roleCodes - Additional role codes that are allowed
+ * @returns {Function} Express middleware
+ */
+const requireAdditionalRole = (...roleCodes) => {
+  return (req, res, next) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const userAdditionalRoles = req.session.additionalRoles || [];
+    const hasRole = roleCodes.some(code =>
+      userAdditionalRoles.includes(code)
+    );
+
+    if (!hasRole) {
+      return res.status(403).json({
+        error: 'Required additional role not assigned',
+        required: roleCodes
+      });
+    }
+
+    next();
+  };
+};
+
+/**
+ * Combined tier OR additional role authorization middleware factory
+ * Passes if user meets tier requirement OR has one of the specified roles
+ *
+ * @param {Object} options - Authorization options
+ * @param {number} options.tier - Minimum tier (if met, passes)
+ * @param {string[]} options.roles - Additional role codes (if any match, passes)
+ * @returns {Function} Express middleware
+ */
+const requireTierOrRole = ({ tier, roles = [] }) => {
+  return (req, res, next) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const userTier = req.session.tier;
+    const userAdditionalRoles = req.session.additionalRoles || [];
+
+    // Admin role (null tier) has full access
+    if (userTier === null && req.session.roles?.includes('Admin')) {
+      return next();
+    }
+
+    // Check tier requirement
+    if (tier && userTier !== null && userTier !== undefined && userTier >= tier) {
+      return next();
+    }
+
+    // Check additional roles
+    if (roles.length > 0) {
+      const hasRole = roles.some(code => userAdditionalRoles.includes(code));
+      if (hasRole) {
+        return next();
+      }
+    }
+
+    return res.status(403).json({
+      error: 'Insufficient tier level or missing required role',
+      requiredTier: tier,
+      currentTier: userTier,
+      requiredRoles: roles,
+      currentRoles: userAdditionalRoles
+    });
+  };
+};
+
 module.exports = {
   sessionMiddleware,
   requireAuth,
   deriveTenantContext,
   requireRole,
-  requirePermission
+  requirePermission,
+  requireTier,
+  requireAdditionalRole,
+  requireTierOrRole
 };
