@@ -8,7 +8,7 @@
 
 # VoidStaffOS Database Schema
 
-Last Updated: 2026-01-25
+Last Updated: 2026-01-27
 
 ## Overview
 
@@ -325,6 +325,154 @@ CREATE TYPE notification_type_enum AS ENUM (
 | 010-015 | Recruitment, onboarding, feedback modules |
 | **016_multi_tenant_foundation.sql** | Tenants table, tenant_id on all tables |
 | **017_audit_log_enhanced.sql** | Enhanced audit_logs table |
+| 018_role_system.sql | Multi-role permission system |
+| 023_policies.sql | Policy management tables |
+| 024_document_storage.sql | Employee document storage |
+| **025_compliance_checks.sql** | RTW and DBS check tables |
+| **025b_compliance_settings_tasks.sql** | Compliance settings and tasks |
+
+---
+
+### policies
+Policy documents for employee acknowledgment.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique policy identifier |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| title | VARCHAR(255) | NOT NULL | Policy title |
+| content | TEXT | NOT NULL | Policy content (HTML) |
+| version | INTEGER | DEFAULT 1 | Version number |
+| status | policy_status | DEFAULT 'draft' | draft, published, archived |
+| requires_acknowledgment | BOOLEAN | DEFAULT true | Requires employee ack |
+| acknowledgment_deadline_days | INTEGER | | Days to acknowledge |
+| effective_date | DATE | | When policy takes effect |
+| created_by | INTEGER | REFERENCES users(id) | Author |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMP | DEFAULT NOW() | Last update |
+
+---
+
+### policy_acknowledgments
+Tracks employee acknowledgment of policies.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique acknowledgment ID |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| policy_id | INTEGER | REFERENCES policies(id), NOT NULL | Acknowledged policy |
+| user_id | INTEGER | REFERENCES users(id), NOT NULL | Employee acknowledging |
+| acknowledged_at | TIMESTAMP | DEFAULT NOW() | When acknowledged |
+| ip_address | INET | | Client IP address |
+
+---
+
+### employee_documents
+Secure document storage with expiry tracking.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique document ID |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| employee_id | INTEGER | REFERENCES users(id), NOT NULL | Document owner |
+| uploaded_by | INTEGER | REFERENCES users(id), NOT NULL | Uploader |
+| category | document_category | NOT NULL | cv, certificate, contract, rtw, dbs, etc |
+| title | VARCHAR(255) | NOT NULL | Document title |
+| filename | VARCHAR(255) | NOT NULL | Stored filename |
+| original_filename | VARCHAR(255) | NOT NULL | Original filename |
+| file_size | INTEGER | NOT NULL | Size in bytes |
+| mime_type | VARCHAR(100) | NOT NULL | MIME type |
+| expiry_date | DATE | | Document expiry |
+| status | document_status | DEFAULT 'active' | active, archived, expired |
+| created_at | TIMESTAMP | DEFAULT NOW() | Upload timestamp |
+
+---
+
+### rtw_checks
+Right to Work verification records.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique check ID |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| employee_id | INTEGER | REFERENCES users(id), NOT NULL | Employee checked |
+| document_id | INTEGER | REFERENCES employee_documents(id) | Linked document |
+| check_type | rtw_check_type | NOT NULL | passport_uk, visa, share_code, etc |
+| document_reference | VARCHAR(100) | | Document reference number |
+| immigration_status | VARCHAR(100) | | Immigration status |
+| check_date | DATE | NOT NULL | When check performed |
+| expiry_date | DATE | | RTW expiry date |
+| followup_date | DATE | | Follow-up verification date |
+| checked_by | INTEGER | REFERENCES users(id), NOT NULL | Who performed check |
+| verification_method | VARCHAR(50) | | online_check, manual_document, etc |
+| status | rtw_status | DEFAULT 'pending' | pending, verified, expired, action_required |
+| notes | TEXT | | Additional notes |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
+
+---
+
+### dbs_checks
+DBS certificate verification records.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique check ID |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| employee_id | INTEGER | REFERENCES users(id), NOT NULL | Employee checked |
+| document_id | INTEGER | REFERENCES employee_documents(id) | Linked document |
+| dbs_level | dbs_level | NOT NULL | basic, standard, enhanced, enhanced_barred |
+| certificate_number | VARCHAR(20) | | DBS certificate number |
+| issue_date | DATE | NOT NULL | Certificate issue date |
+| renewal_period_years | INTEGER | DEFAULT 3 | 1, 2, or 3 years |
+| calculated_expiry_date | DATE | | Auto-calculated expiry |
+| update_service_registered | BOOLEAN | DEFAULT false | On DBS Update Service |
+| update_service_id | VARCHAR(50) | | Update Service ID |
+| last_update_check | DATE | | Last Update Service check |
+| next_update_check | DATE | | Next Update Service check due |
+| checked_by | INTEGER | REFERENCES users(id), NOT NULL | Who recorded check |
+| workforce | VARCHAR(50) | | adult, child, adult_and_child |
+| status | dbs_status | DEFAULT 'valid' | valid, expired, action_required |
+| notes | TEXT | | Additional notes |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
+
+---
+
+### compliance_tasks
+Auto-generated and manual compliance tasks.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique task ID |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| task_type | compliance_task_type | NOT NULL | rtw_expiry, dbs_renewal, manual, etc |
+| employee_id | INTEGER | REFERENCES users(id), NOT NULL | Related employee |
+| title | VARCHAR(255) | NOT NULL | Task title |
+| description | TEXT | | Task details |
+| due_date | DATE | NOT NULL | Task due date |
+| status | task_status | DEFAULT 'pending' | pending, completed, dismissed |
+| assigned_to | INTEGER | REFERENCES users(id) | Assigned HR user |
+| completed_by | INTEGER | REFERENCES users(id) | Who completed |
+| dismissed_reason | TEXT | | If dismissed, why |
+| related_rtw_id | INTEGER | REFERENCES rtw_checks(id) | Linked RTW check |
+| related_dbs_id | INTEGER | REFERENCES dbs_checks(id) | Linked DBS check |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
+
+---
+
+### compliance_settings
+Per-tenant compliance module configuration.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique setting ID |
+| tenant_id | INTEGER | REFERENCES tenants(id), UNIQUE | Owning tenant |
+| module_enabled | BOOLEAN | DEFAULT true | Enable compliance module |
+| report_title | VARCHAR(100) | DEFAULT 'Compliance Report' | Configurable report name |
+| default_dbs_renewal_years | INTEGER | DEFAULT 3 | Default DBS renewal period |
+| update_service_check_months | INTEGER | DEFAULT 12 | Update Service check interval |
+| auto_create_followup_tasks | BOOLEAN | DEFAULT true | Auto-create tasks |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMP | DEFAULT NOW() | Last update |
 
 ---
 
@@ -335,3 +483,4 @@ CREATE TYPE notification_type_enum AS ENUM (
 3. **Session Storage**: PostgreSQL-backed sessions via connect-pg-simple
 4. **Audit Trail**: All sensitive operations logged to audit_logs
 5. **Soft Deletes**: Use `deleted_at` timestamp where applicable
+6. **Document Access Logging**: All document access logged to immutable audit table

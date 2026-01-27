@@ -81,7 +81,7 @@ cp .env.example .env
 
 # Run migrations
 psql -U your_user -d your_db -f migrations/001_initial_schema.sql
-# ... through 017_audit_log_enhanced.sql
+# ... through 025b_compliance_settings_tasks.sql
 
 # Start backend
 npm run dev
@@ -158,7 +158,9 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full details.
 | Core | Active | Employee management, reviews |
 | LeaveOS | Active | Leave request management |
 | FeedbackOS | Active | 360 feedback system |
-| PolicyOS | Planned | Policy management |
+| PolicyOS | Active | Policy management with acknowledgment tracking |
+| Document Storage | Active | Secure employee document management |
+| ComplianceOS | Active | RTW/DBS verification tracking (CQC-ready) |
 | LearnOS | Planned | Learning management |
 | AssetOS | Planned | Asset tracking |
 | TimeOS | Planned | Time tracking |

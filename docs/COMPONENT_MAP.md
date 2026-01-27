@@ -8,7 +8,7 @@
 
 # VoidStaffOS Component Map
 
-Last Updated: 2026-01-25
+Last Updated: 2026-01-27
 
 ## Architecture Overview
 
@@ -190,6 +190,33 @@ Last Updated: 2026-01-25
 | TrafficLight | (inline) | Red/amber/green KPI indicator |
 | KPIComparison | (inline) | Side-by-side manager vs self KPI display |
 
+### Policy Management (PolicyOS)
+| Component | File | Description |
+|-----------|------|-------------|
+| Policies | `Policies.jsx` | Main policy management container with tabs |
+| PolicyList | `PolicyList.jsx` | List of policies with status indicators |
+| PolicyEditor | `PolicyEditor.jsx` | Create/edit policy with rich text |
+| PolicyViewer | `PolicyViewer.jsx` | View policy and acknowledge |
+| PolicyAcknowledgments | `PolicyAcknowledgments.jsx` | Acknowledgment tracking dashboard |
+
+### Document Storage
+| Component | File | Description |
+|-----------|------|-------------|
+| Documents | `Documents.jsx` | Main document management interface |
+| DocumentUpload | `DocumentUpload.jsx` | File upload with category selection |
+| DocumentList | `DocumentList.jsx` | Document list with expiry indicators |
+
+### Compliance (RTW/DBS Tracking)
+| Component | File | Description |
+|-----------|------|-------------|
+| Compliance | `Compliance.jsx` | Main compliance container with tabs |
+| ComplianceDashboard | `ComplianceDashboard.jsx` | Overview with compliance rates |
+| RTWCheckManager | `RTWCheckManager.jsx` | Right to Work verification CRUD |
+| DBSCheckManager | `DBSCheckManager.jsx` | DBS certificate management |
+| ComplianceTasks | `ComplianceTasks.jsx` | Task management for follow-ups |
+| ComplianceReport | `ComplianceReport.jsx` | Configurable compliance report (CQC/etc) |
+| ComplianceSettings | `ComplianceSettings.jsx` | Module settings (HR only) |
+
 ---
 
 ## Backend Structure
@@ -223,6 +250,9 @@ Last Updated: 2026-01-25
 | notificationController | `notificationController.js` | CRUD notifications, trigger functions |
 | feedbackController | `feedbackController.js` | 360 feedback, quarterly KPIs |
 | reportController | `reportController.js` | Team performance reports |
+| policyController | `policyController.js` | Policy CRUD, acknowledgment tracking |
+| documentController | `documentController.js` | Document upload, access logging, expiry tracking |
+| complianceController | `complianceController.js` | RTW/DBS checks, compliance tasks, settings |
 
 ### Routes
 | Route File | Base Path | Description |
@@ -234,6 +264,9 @@ Last Updated: 2026-01-25
 | notifications.js | `/api/notifications` | Notification system |
 | feedback.js | `/api/feedback` | 360 feedback endpoints |
 | reports.js | `/api/reports` | Reporting endpoints |
+| policies.js | `/api/policies` | Policy management and acknowledgments |
+| documents.js | `/api/documents` | Document upload and access |
+| compliance.js | `/api/compliance` | RTW/DBS checks, tasks, settings |
 | dev.js | `/api/dev` | Development utilities |
 
 ### Repositories

@@ -8,7 +8,7 @@
 
 # VoidStaffOS API Reference
 
-Last Updated: 2026-01-25
+Last Updated: 2026-01-27
 
 Base URL: `http://localhost:3001/api`
 
@@ -531,6 +531,243 @@ Submit quarterly feedback.
 
 ### GET /feedback/composite/:employeeId/:quarter
 Get composite KPIs for employee.
+
+**Auth Required:** Yes
+
+---
+
+## Policy Endpoints (PolicyOS)
+
+### GET /policies
+Get all policies (filtered by status for non-HR).
+
+**Auth Required:** Yes
+
+---
+
+### GET /policies/:id
+Get single policy.
+
+**Auth Required:** Yes
+
+---
+
+### POST /policies
+Create new policy.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### PUT /policies/:id
+Update policy.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### POST /policies/:id/publish
+Publish a draft policy.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### POST /policies/:id/acknowledge
+Acknowledge a policy.
+
+**Auth Required:** Yes
+
+---
+
+### GET /policies/:id/acknowledgments
+Get acknowledgment status for a policy.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### GET /policies/pending-acknowledgments
+Get policies pending user acknowledgment.
+
+**Auth Required:** Yes
+
+---
+
+## Document Endpoints
+
+### GET /documents
+Get documents (filtered by permissions).
+
+**Auth Required:** Yes
+
+---
+
+### GET /documents/:id
+Get single document metadata.
+
+**Auth Required:** Yes
+
+---
+
+### GET /documents/:id/download
+Download document file.
+
+**Auth Required:** Yes
+
+---
+
+### POST /documents/upload
+Upload new document.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager (for any employee), Employee (for self)
+
+---
+
+### DELETE /documents/:id
+Archive/delete document.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+## Compliance Endpoints (RTW/DBS)
+
+### GET /compliance/dashboard
+Get compliance overview with statistics.
+
+**Auth Required:** Yes
+
+---
+
+### GET /compliance/stats
+Get summary compliance statistics.
+
+**Auth Required:** Yes
+
+---
+
+### GET /compliance/rtw
+Get RTW checks.
+
+**Auth Required:** Yes
+
+---
+
+### GET /compliance/rtw/:id
+Get single RTW check.
+
+**Auth Required:** Yes
+
+---
+
+### POST /compliance/rtw
+Create RTW check.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### PUT /compliance/rtw/:id
+Update RTW check.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### GET /compliance/dbs
+Get DBS checks.
+
+**Auth Required:** Yes
+
+---
+
+### GET /compliance/dbs/:id
+Get single DBS check.
+
+**Auth Required:** Yes
+
+---
+
+### POST /compliance/dbs
+Create DBS check.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### PUT /compliance/dbs/:id
+Update DBS check.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### POST /compliance/dbs/:id/update-check
+Record DBS Update Service check.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### GET /compliance/tasks
+Get compliance tasks.
+
+**Auth Required:** Yes
+
+---
+
+### POST /compliance/tasks
+Create manual compliance task.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### PUT /compliance/tasks/:id
+Update task (status, assignment).
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### GET /compliance/settings
+Get compliance module settings.
+
+**Auth Required:** Yes
+
+---
+
+### PUT /compliance/settings
+Update compliance settings.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### GET /compliance/report
+Get compliance report data for PDF generation.
+
+**Auth Required:** Yes
+
+---
+
+### GET /compliance/expiring
+Get checks expiring within specified days.
 
 **Auth Required:** Yes
 
