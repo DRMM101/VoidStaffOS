@@ -25,6 +25,7 @@ import EmployeeQuarterlyReport from './components/EmployeeQuarterlyReport';
 import RoleManagement from './components/RoleManagement';
 import Policies from './components/Policies';
 import Documents from './components/Documents';
+import Compliance from './components/Compliance';
 import Navigation from './components/Navigation';
 import './App.css';
 
@@ -96,6 +97,7 @@ function App() {
         {currentPage === 'my-reports' && <EmployeeQuarterlyReport user={user} />}
         {currentPage === 'policies' && <Policies user={user} />}
         {currentPage === 'documents' && <Documents user={user} />}
+        {currentPage === 'compliance' && (isAdmin || isManager) && <Compliance user={user} />}
         {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}
       </main>
     </div>

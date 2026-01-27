@@ -40,6 +40,7 @@ const auditRoutes = require('./routes/audit');
 const rolesRoutes = require('./routes/roles');
 const policyRoutes = require('./routes/policies');
 const documentRoutes = require('./routes/documents');
+const complianceRoutes = require('./routes/compliance');
 const devRoutes = require('./routes/dev');
 
 const app = express();
@@ -147,6 +148,7 @@ app.use('/api/audit-trail', auditRoutes);
 app.use('/api/roles', rolesRoutes);
 app.use('/api/policies', policyRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/compliance', complianceRoutes);
 
 // Development routes (should be disabled in production)
 if (process.env.NODE_ENV !== 'production') {
