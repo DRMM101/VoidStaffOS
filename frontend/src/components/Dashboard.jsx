@@ -177,6 +177,9 @@ function Dashboard({ user, onNavigate }) {
   // Policy state
   const [policyStats, setPolicyStats] = useState(null);
 
+  // Document state
+  const [documentStats, setDocumentStats] = useState(null);
+
   const isManager = user.role_name === 'Manager' || user.role_name === 'Admin';
   const isAdmin = user.role_name === 'Admin';
   const isHR = user.role_name === 'HR Manager' || user.role_name === 'Admin';
@@ -189,6 +192,7 @@ function Dashboard({ user, onNavigate }) {
     checkOverdueSnapshots();
     fetchPendingFeedbackCount();
     fetchPolicyStats();
+    fetchDocumentStats();
     if (isManager) {
       fetchTeamStats();
       fetchPendingLeaveCount();
@@ -221,6 +225,20 @@ function Dashboard({ user, onNavigate }) {
       }
     } catch (err) {
       console.error('Failed to fetch policy stats');
+    }
+  };
+
+  const fetchDocumentStats = async () => {
+    try {
+      const response = await fetch('/api/documents/my-stats', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setDocumentStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch document stats');
     }
   };
 
@@ -515,6 +533,15 @@ function Dashboard({ user, onNavigate }) {
               <span className="pending-badge">{policyStats.pending}</span>
             )}
           </button>
+          <button
+            onClick={() => onNavigate('documents')}
+            className={`quick-action-btn document-btn ${documentStats?.expiring_soon > 0 ? 'has-warning' : ''}`}
+          >
+            Documents
+            {documentStats?.expiring_soon > 0 && (
+              <span className="warning-badge">{documentStats.expiring_soon}</span>
+            )}
+          </button>
         </div>
 
         {/* Policy Summary Card */}
@@ -548,6 +575,30 @@ function Dashboard({ user, onNavigate }) {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Document Summary Card */}
+        {documentStats && (
+          <div className="document-summary-card">
+            <div className="document-summary-header">
+              <span className="document-icon">&#128196;</span>
+              <span className="document-title">My Documents</span>
+            </div>
+            <div className="document-stats-row">
+              <div className="document-stat">
+                <span className="stat-value">{documentStats.active || 0}</span>
+                <span className="stat-label">Active</span>
+              </div>
+              <div className={`document-stat ${documentStats.expiring_soon > 0 ? 'warning' : ''}`}>
+                <span className="stat-value">{documentStats.expiring_soon || 0}</span>
+                <span className="stat-label">Expiring Soon</span>
+              </div>
+              <div className={`document-stat ${documentStats.expired > 0 ? 'expired' : ''}`}>
+                <span className="stat-value">{documentStats.expired || 0}</span>
+                <span className="stat-label">Expired</span>
+              </div>
+            </div>
           </div>
         )}
       </div>

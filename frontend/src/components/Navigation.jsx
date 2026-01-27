@@ -50,6 +50,12 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
         >
           Policies
         </button>
+        <button
+          className={`nav-link ${currentPage === 'documents' ? 'active' : ''}`}
+          onClick={() => onNavigate('documents')}
+        >
+          Documents
+        </button>
         {isAdmin && (
           <button
             className={`nav-link ${currentPage === 'role-management' ? 'active' : ''}`}

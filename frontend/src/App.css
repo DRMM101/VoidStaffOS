@@ -5399,3 +5399,76 @@ button[type="submit"]:disabled {
   color: #a0a0a0;
   padding: 3px 0;
 }
+
+/* Document Summary Card */
+.document-summary-card {
+  background: linear-gradient(135deg, #16213e 0%, #1a2a3e 100%);
+  border: 1px solid #45b7d1;
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-top: 15px;
+}
+
+.document-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.document-icon {
+  font-size: 1.3rem;
+}
+
+.document-title {
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.document-stats-row {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+}
+
+.document-stat {
+  text-align: center;
+}
+
+.document-stat .stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #45b7d1;
+}
+
+.document-stat.warning .stat-value {
+  color: #f7b731;
+}
+
+.document-stat.expired .stat-value {
+  color: #ff6b6b;
+}
+
+.document-stat .stat-label {
+  font-size: 0.75rem;
+  color: #808080;
+  text-transform: uppercase;
+}
+
+/* Document button styles */
+.document-btn.has-warning {
+  border: 1px solid #f7b731;
+}
+
+.warning-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #f7b731;
+  color: #1a1a2e;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+}
