@@ -17,12 +17,14 @@
 
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../utils/api';
+import ProbationCard from './probation/ProbationCard';
 
 function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, onTransfer }) {
   const [profile, setProfile] = useState(null);
   const [managers, setManagers] = useState([]);
   const [transferTargets, setTransferTargets] = useState([]);
   const [leaveBalance, setLeaveBalance] = useState(null);
+  const [probation, setProbation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -35,6 +37,7 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
 
   const isAdmin = user.role_name === 'Admin';
   const isManager = user.role_name === 'Manager' || isAdmin;
+  const isHR = user.tier >= 60 || user.role_name === 'Admin' || user.role_name === 'HR Manager';
 
   // Tier display helper
   const getTierDisplay = (tier) => {
@@ -52,6 +55,7 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
   useEffect(() => {
     fetchProfile();
     fetchLeaveBalance();
+    fetchProbation();
     if (isManager) {
       fetchManagers();
     }
@@ -86,6 +90,20 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
       }
     } catch (err) {
       console.error('Failed to fetch leave balance');
+    }
+  };
+
+  const fetchProbation = async () => {
+    try {
+      const response = await fetch(`/api/probation/employee/${employeeId}`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok && data.probation) {
+        setProbation(data.probation);
+      }
+    } catch (err) {
+      console.error('Failed to fetch probation');
     }
   };
 
@@ -286,9 +304,15 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
             </div>
             <div className="profile-field">
               <label>Status</label>
-              <span className={`status-badge ${profile.employment_status}`}>
-                {profile.employment_status}
-              </span>
+              {probation && profile.employment_status === 'active' ? (
+                <span className="status-badge probation">
+                  Probation
+                </span>
+              ) : (
+                <span className={`status-badge ${profile.employment_status}`}>
+                  {profile.employment_status}
+                </span>
+              )}
             </div>
             <div className="profile-field">
               <label>Start Date</label>
@@ -322,6 +346,14 @@ function EmployeeProfile({ employeeId, user, onClose, onAdopt, onAssignManager, 
                   <span className="leave-label">Entitlement</span>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Probation Section */}
+          {probation && (
+            <div className="profile-section probation-section">
+              <h4>Probation Period</h4>
+              <ProbationCard probation={probation} onViewDetails={() => {}} />
             </div>
           )}
 

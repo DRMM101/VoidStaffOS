@@ -30,6 +30,7 @@ const {
   updateBackgroundCheck,
   getPromotionStatus,
   promoteCandidate,
+  confirmArrival,
   getMyTasks,
   completeTask,
   getPolicies,
@@ -82,6 +83,9 @@ router.put('/checks/:id', validateIdParam, authorize('Admin'), updateBackgroundC
 
 // GET /api/onboarding/candidates/:id/promotion-status - Get promotion requirements
 router.get('/candidates/:id/promotion-status', validateIdParam, authorize('Admin'), getPromotionStatus);
+
+// POST /api/onboarding/candidates/:id/confirm-arrival - Confirm pre-colleague has arrived
+router.post('/candidates/:id/confirm-arrival', validateIdParam, authorize('Admin'), confirmArrival);
 
 // POST /api/onboarding/candidates/:id/promote - Promote to next stage
 router.post('/candidates/:id/promote', validateIdParam, authorize('Admin'), promoteCandidate);

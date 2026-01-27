@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 import CandidateForm from './CandidateForm';
 import CandidateProfile from './CandidateProfile';
 
@@ -63,6 +64,10 @@ function OnboardingDashboard({ onClose }) {
   };
 
   const getStatusIndicator = (candidate) => {
+    // Debug: log probation status for active candidates
+    if (candidate.stage === 'active') {
+      console.log('Active candidate:', candidate.full_name, 'probation_status:', candidate.probation_status);
+    }
     if (candidate.stage === 'candidate') {
       const hasRefs = candidate.verified_refs >= 2;
       const hasChecks = candidate.pending_required_checks === 0;
@@ -75,6 +80,10 @@ function OnboardingDashboard({ onClose }) {
       if (candidate.pending_required_tasks === 0) return { color: 'green', text: 'Ready to activate' };
       return { color: 'amber', text: 'Onboarding' };
     }
+    // Active stage - check probation status
+    if (candidate.probation_status === 'active' || candidate.probation_status === 'extended') {
+      return { color: 'amber', text: 'Probation' };
+    }
     return { color: 'green', text: 'Active' };
   };
 
@@ -85,6 +94,48 @@ function OnboardingDashboard({ onClose }) {
       month: 'short',
       year: 'numeric'
     });
+  };
+
+  const handlePromote = async (candidateId, candidateName, stage) => {
+    const action = stage === 'candidate' ? 'promote to Pre-Colleague' : 'activate as Employee';
+    if (!confirm(`${action} ${candidateName}?`)) return;
+
+    try {
+      const response = await apiFetch(`/api/onboarding/candidates/${candidateId}/promote`, {
+        method: 'POST'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        fetchCandidates();
+      } else {
+        alert(data.error || data.missing?.join(', ') || 'Cannot promote');
+      }
+    } catch (err) {
+      alert('Failed to promote');
+    }
+  };
+
+  const handleConfirmArrival = async (candidateId, candidateName) => {
+    // Require password confirmation for security
+    const password = prompt(`To confirm ${candidateName} has arrived for their first day, please enter your password:`);
+    if (!password) return;
+
+    try {
+      const response = await apiFetch(`/api/onboarding/candidates/${candidateId}/confirm-arrival`, {
+        method: 'POST',
+        body: JSON.stringify({ password })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        fetchCandidates();
+      } else {
+        alert(data.error || 'Failed to confirm arrival');
+      }
+    } catch (err) {
+      alert('Failed to confirm arrival');
+    }
   };
 
   if (loading) {
@@ -210,13 +261,37 @@ function OnboardingDashboard({ onClose }) {
                           {status.text}
                         </span>
                       </td>
-                      <td>
+                      <td className="actions-cell">
                         <button
                           className="btn-small"
                           onClick={() => setSelectedCandidate(candidate.id)}
                         >
                           View
                         </button>
+                        {candidate.stage === 'candidate' && status.color === 'green' && (
+                          <button
+                            className="btn-small btn-promote-small"
+                            onClick={() => handlePromote(candidate.id, candidate.full_name, 'candidate')}
+                          >
+                            Promote
+                          </button>
+                        )}
+                        {candidate.stage === 'pre_colleague' && !candidate.arrival_confirmed && (
+                          <button
+                            className="btn-small btn-arrival"
+                            onClick={() => handleConfirmArrival(candidate.id, candidate.full_name)}
+                          >
+                            Confirm Arrival
+                          </button>
+                        )}
+                        {candidate.stage === 'pre_colleague' && candidate.arrival_confirmed && status.color === 'green' && (
+                          <button
+                            className="btn-small btn-activate"
+                            onClick={() => handlePromote(candidate.id, candidate.full_name, 'pre_colleague')}
+                          >
+                            Activate
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );

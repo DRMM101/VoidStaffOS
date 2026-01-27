@@ -385,9 +385,15 @@ function Employees({ user }) {
                   <td><span className="role-badge">{emp.role_name}</span></td>
                   <td><span className={`tier-badge ${getTierClass(emp.tier)}`}>{getTierDisplay(emp.tier)}</span></td>
                   <td>
-                    <span className={`status-badge ${emp.employment_status}`}>
-                      {emp.employment_status}
-                    </span>
+                    {emp.on_probation && emp.employment_status === 'active' ? (
+                      <span className="status-badge probation">
+                        Probation
+                      </span>
+                    ) : (
+                      <span className={`status-badge ${emp.employment_status}`}>
+                        {emp.employment_status}
+                      </span>
+                    )}
                   </td>
                   <td>
                     <div className="last-review-cell">

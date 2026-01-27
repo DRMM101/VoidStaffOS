@@ -20,6 +20,89 @@ const bcrypt = require('bcrypt');
 const { createNotification } = require('./notificationController');
 
 // ============================================
+// START DATE NOTIFICATIONS
+// ============================================
+
+/**
+ * Check for upcoming start dates and create notifications at 7, 5, 3, 2, 1 days
+ * This is called when the onboarding dashboard is accessed
+ */
+async function checkUpcomingStartDates(tenantId, userId) {
+  const alertDays = [7, 5, 3, 2, 1, 0]; // Days before start to send alerts
+
+  try {
+    // Get candidates/pre-colleagues with upcoming start dates
+    const result = await pool.query(`
+      SELECT id, full_name, proposed_start_date, stage
+      FROM candidates
+      WHERE tenant_id = $1
+        AND stage IN ('candidate', 'pre_colleague')
+        AND proposed_start_date IS NOT NULL
+        AND proposed_start_date >= CURRENT_DATE
+        AND proposed_start_date <= CURRENT_DATE + INTERVAL '7 days'
+    `, [tenantId]);
+
+    for (const candidate of result.rows) {
+      const startDate = new Date(candidate.proposed_start_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      startDate.setHours(0, 0, 0, 0);
+
+      const daysUntil = Math.round((startDate - today) / (1000 * 60 * 60 * 24));
+
+      if (alertDays.includes(daysUntil)) {
+        // Check if we already sent this notification today
+        const existingNotif = await pool.query(`
+          SELECT id FROM notifications
+          WHERE tenant_id = $1
+            AND type = 'onboarding_reminder'
+            AND related_id = $2
+            AND DATE(created_at) = CURRENT_DATE
+            AND message LIKE $3
+        `, [tenantId, candidate.id, `%${daysUntil} day%`]);
+
+        if (existingNotif.rows.length === 0) {
+          // Get HR users to notify
+          const hrUsers = await pool.query(`
+            SELECT u.id FROM users u
+            JOIN roles r ON u.role_id = r.id
+            WHERE u.tenant_id = $1
+              AND (r.role_name = 'Admin' OR r.onboarding_full = true)
+              AND u.employment_status = 'active'
+          `, [tenantId]);
+
+          let message;
+          if (daysUntil === 0) {
+            message = `🚨 TODAY: ${candidate.full_name} is starting today!`;
+          } else if (daysUntil === 1) {
+            message = `⚠️ TOMORROW: ${candidate.full_name} is starting tomorrow!`;
+          } else {
+            message = `📅 ${candidate.full_name} is starting in ${daysUntil} days (${startDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })})`;
+          }
+
+          for (const user of hrUsers.rows) {
+            try {
+              await createNotification(
+                tenantId,
+                user.id,
+                'onboarding_reminder',
+                message,
+                candidate.id
+              );
+            } catch (notifErr) {
+              console.error('Failed to create start date notification:', notifErr.message);
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Check upcoming start dates error:', error.message);
+    // Don't throw - this is a background check
+  }
+}
+
+// ============================================
 // CANDIDATES
 // ============================================
 
@@ -158,7 +241,8 @@ async function getCandidates(req, res) {
       SELECT c.*, r.role_name as proposed_role_name,
              (SELECT COUNT(*) FROM candidate_references cr WHERE cr.candidate_id = c.id AND cr.status = 'verified') as verified_refs,
              (SELECT COUNT(*) FROM background_checks bc WHERE bc.candidate_id = c.id AND bc.required = true AND bc.status != 'cleared') as pending_required_checks,
-             (SELECT COUNT(*) FROM onboarding_tasks ot WHERE ot.candidate_id = c.id AND ot.required_before_start = true AND ot.status != 'completed') as pending_required_tasks
+             (SELECT COUNT(*) FROM onboarding_tasks ot WHERE ot.candidate_id = c.id AND ot.required_before_start = true AND ot.status != 'completed') as pending_required_tasks,
+             (SELECT pp.status FROM probation_periods pp WHERE pp.employee_id = c.user_id AND pp.status IN ('active', 'extended') ORDER BY pp.created_at DESC LIMIT 1) as probation_status
       FROM candidates c
       LEFT JOIN roles r ON c.proposed_role_id = r.id
     `;
@@ -214,6 +298,12 @@ async function getCandidates(req, res) {
     };
     countResult.rows.forEach(row => {
       counts[row.stage] = parseInt(row.count);
+    });
+
+    // Check for upcoming start dates and create notifications (background task)
+    const tenantId = req.session?.tenantId || 1;
+    checkUpcomingStartDates(tenantId, req.user.id).catch(err => {
+      console.error('Background start date check failed:', err.message);
     });
 
     res.json({
@@ -307,8 +397,8 @@ async function getCandidate(req, res) {
        FROM policies p
        LEFT JOIN policy_acknowledgments pa ON p.id = pa.policy_id
          AND (pa.candidate_id = $1 OR pa.user_id = $2)
-       WHERE p.is_active = true AND p.requires_acknowledgment = true
-       ORDER BY p.policy_name`,
+       WHERE p.status = 'published' AND p.requires_acknowledgment = true
+       ORDER BY p.title`,
       [id, candidate.user_id]
     );
 
@@ -741,10 +831,10 @@ async function calculatePromotionStatus(candidateId, currentStage) {
 
     // 2. All policies acknowledged
     const policiesResult = await pool.query(
-      `SELECT p.policy_name, pa.id as ack_id
+      `SELECT p.title, pa.id as ack_id
        FROM policies p
        LEFT JOIN policy_acknowledgments pa ON p.id = pa.policy_id AND pa.candidate_id = $1
-       WHERE p.is_active = true AND p.requires_acknowledgment = true`,
+       WHERE p.status = 'published' AND p.requires_acknowledgment = true`,
       [candidateId]
     );
     const allPoliciesAcked = policiesResult.rows.every(p => p.ack_id);
@@ -752,40 +842,36 @@ async function calculatePromotionStatus(candidateId, currentStage) {
 
     status.requirements.push({
       name: 'All policies acknowledged',
-      policies: policiesResult.rows.map(p => ({ name: p.policy_name, acknowledged: !!p.ack_id }))
+      policies: policiesResult.rows.map(p => ({ name: p.title, acknowledged: !!p.ack_id }))
     });
 
     if (allPoliciesAcked) {
       status.completed.push('All policies acknowledged');
     } else {
       unackedPolicies.forEach(p => {
-        status.missing.push(`Policy not acknowledged: ${p.policy_name}`);
+        status.missing.push(`Policy not acknowledged: ${p.title}`);
       });
     }
 
-    // 3. Start date reached
-    const startResult = await pool.query(
-      `SELECT proposed_start_date FROM candidates WHERE id = $1`,
+    // 3. Arrival confirmed (manual confirmation that person has physically arrived)
+    const arrivalResult = await pool.query(
+      `SELECT arrival_confirmed, arrival_confirmed_at, proposed_start_date FROM candidates WHERE id = $1`,
       [candidateId]
     );
-    const startDate = startResult.rows[0].proposed_start_date;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
-    const startReached = start <= today;
+    const arrivalData = arrivalResult.rows[0];
+    const arrivalConfirmed = arrivalData.arrival_confirmed === true;
 
     status.requirements.push({
-      name: 'Start date reached',
-      start_date: startDate,
-      reached: startReached
+      name: 'Arrival confirmed',
+      confirmed: arrivalConfirmed,
+      confirmed_at: arrivalData.arrival_confirmed_at,
+      start_date: arrivalData.proposed_start_date
     });
 
-    if (startReached) {
-      status.completed.push('Start date reached');
+    if (arrivalConfirmed) {
+      status.completed.push('Arrival confirmed');
     } else {
-      const daysUntil = Math.ceil((start - today) / (1000 * 60 * 60 * 24));
-      status.missing.push(`Start date not reached (${daysUntil} days remaining)`);
+      status.missing.push('Arrival not confirmed - confirm when employee arrives for first day');
     }
 
     // 4. Background checks still valid
@@ -1017,6 +1103,9 @@ async function promoteToPreColleague(candidateId, candidate, adminId, tenantId =
  * Promote pre-colleague to active employee
  */
 async function promoteToActive(candidateId, candidate, adminId) {
+  // Get tenant_id from candidate
+  const tenantId = candidate.tenant_id || 1;
+
   // Update candidate stage
   await pool.query(
     `UPDATE candidates SET
@@ -1033,22 +1122,93 @@ async function promoteToActive(candidateId, candidate, adminId) {
     [candidate.user_id]
   );
 
-  // Create notification
-  await createNotification(
-    candidate.user_id,
-    'kpi_revealed', // Reusing, could add specific type
-    'Welcome - You are now active!',
-    'Your onboarding is complete. Welcome to the team!',
-    candidateId,
-    'candidate'
-  );
+  // Auto-create probation period (6 months standard)
+  if (candidate.user_id) {
+    try {
+      const startDate = candidate.proposed_start_date || new Date();
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 6);
 
-  // Log the promotion
-  await pool.query(
-    `INSERT INTO audit_log (user_id, action, table_name, record_id, new_value_json)
-     VALUES ($1, 'UPDATE', 'candidates', $2, $3)`,
-    [adminId, candidateId, JSON.stringify({ stage: 'active', promoted_at: new Date() })]
-  );
+      // Check if probation already exists
+      const existingProbation = await pool.query(
+        `SELECT id FROM probation_periods WHERE employee_id = $1 AND status IN ('active', 'extended')`,
+        [candidate.user_id]
+      );
+
+      if (existingProbation.rows.length === 0) {
+        // Create probation period
+        const probationResult = await pool.query(`
+          INSERT INTO probation_periods (
+            tenant_id, employee_id, start_date, end_date, duration_months, status, created_by
+          ) VALUES ($1, $2, $3, $4, 6, 'active', $5)
+          RETURNING id
+        `, [tenantId, candidate.user_id, startDate, endDate, adminId]);
+
+        const probationId = probationResult.rows[0].id;
+
+        // Create review milestones
+        const milestones = [
+          { type: '1_month', months: 1, number: 1 },
+          { type: '3_month', months: 3, number: 2 },
+          { type: '6_month', months: 6, number: 3 }
+        ];
+
+        for (const m of milestones) {
+          const reviewDate = new Date(startDate);
+          reviewDate.setMonth(reviewDate.getMonth() + m.months);
+
+          await pool.query(`
+            INSERT INTO probation_reviews (
+              tenant_id, probation_id, employee_id, review_type, review_number, scheduled_date, status
+            ) VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+          `, [tenantId, probationId, candidate.user_id, m.type, m.number, reviewDate]);
+        }
+
+        // Add final review 2 weeks before end
+        const finalDate = new Date(endDate);
+        finalDate.setDate(finalDate.getDate() - 14);
+        await pool.query(`
+          INSERT INTO probation_reviews (
+            tenant_id, probation_id, employee_id, review_type, review_number, scheduled_date, status
+          ) VALUES ($1, $2, $3, 'final', 4, $4, 'pending')
+        `, [tenantId, probationId, candidate.user_id, finalDate]);
+
+        console.log(`Created probation period for employee ${candidate.user_id}`);
+      }
+    } catch (probError) {
+      console.error('Error creating probation:', probError);
+      // Non-fatal, continue with promotion
+    }
+  }
+
+  // Create notification (only if user exists)
+  if (candidate.user_id) {
+    try {
+      await createNotification(
+        candidate.user_id,
+        'kpi_revealed', // Reusing, could add specific type
+        'Welcome - You are now active!',
+        'Your onboarding is complete. Welcome to the team!',
+        candidateId,
+        'candidate'
+      );
+    } catch (notifError) {
+      console.error('Error creating notification:', notifError);
+      // Non-fatal, continue
+    }
+  }
+
+  // Log the promotion (skip if audit_log doesn't exist)
+  try {
+    await pool.query(
+      `INSERT INTO audit_log (user_id, action, table_name, record_id, new_value_json)
+       VALUES ($1, 'UPDATE', 'candidates', $2, $3)`,
+      [adminId, candidateId, JSON.stringify({ stage: 'active', promoted_at: new Date() })]
+    );
+  } catch (auditError) {
+    // Audit log table may not exist - non-fatal
+    console.log('Audit log skipped (table may not exist)');
+  }
 }
 
 function generateTempPassword() {
@@ -1096,8 +1256,8 @@ async function getMyTasks(req, res) {
               pa.acknowledged_at
        FROM policies p
        LEFT JOIN policy_acknowledgments pa ON p.id = pa.policy_id AND pa.candidate_id = $1
-       WHERE p.is_active = true AND p.requires_acknowledgment = true
-       ORDER BY p.policy_name`,
+       WHERE p.status = 'published' AND p.requires_acknowledgment = true
+       ORDER BY p.title`,
       [candidate.id]
     );
 
@@ -1306,6 +1466,92 @@ async function addDayOneItem(req, res) {
   }
 }
 
+/**
+ * Confirm arrival of a pre-colleague
+ * This must be done before promoting to active employee
+ */
+async function confirmArrival(req, res) {
+  try {
+    const { role_name, id: userId } = req.user;
+    const { id } = req.params;
+    const { password } = req.body;
+
+    if (role_name !== 'Admin' && role_name !== 'HR Manager') {
+      return res.status(403).json({ error: 'Only Admin or HR can confirm arrival' });
+    }
+
+    // Require password confirmation
+    if (!password) {
+      return res.status(400).json({ error: 'Password confirmation required' });
+    }
+
+    // Verify user's password
+    const userResult = await pool.query(
+      'SELECT password_hash FROM users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    const validPassword = await bcrypt.compare(password, userResult.rows[0].password_hash);
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Incorrect password' });
+    }
+
+    // Check candidate exists and is pre_colleague
+    const candidateResult = await pool.query(
+      'SELECT id, full_name, stage, arrival_confirmed FROM candidates WHERE id = $1',
+      [id]
+    );
+
+    if (candidateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Candidate not found' });
+    }
+
+    const candidate = candidateResult.rows[0];
+
+    if (candidate.stage !== 'pre_colleague') {
+      return res.status(400).json({ error: 'Can only confirm arrival for pre-colleagues' });
+    }
+
+    if (candidate.arrival_confirmed) {
+      return res.status(400).json({ error: 'Arrival already confirmed' });
+    }
+
+    // Confirm arrival
+    await pool.query(
+      `UPDATE candidates SET
+        arrival_confirmed = true,
+        arrival_confirmed_at = NOW(),
+        arrival_confirmed_by = $1
+       WHERE id = $2`,
+      [userId, id]
+    );
+
+    // Get full candidate data for activation
+    const fullCandidateResult = await pool.query(
+      `SELECT * FROM candidates WHERE id = $1`,
+      [id]
+    );
+    const fullCandidate = fullCandidateResult.rows[0];
+
+    // Auto-activate the employee now they've arrived
+    await promoteToActive(id, fullCandidate, userId);
+
+    res.json({
+      message: `${candidate.full_name} has arrived and is now active!`,
+      confirmed_at: new Date(),
+      activated: true
+    });
+
+  } catch (error) {
+    console.error('Confirm arrival error:', error);
+    res.status(500).json({ error: 'Failed to confirm arrival' });
+  }
+}
+
 module.exports = {
   // Candidates
   createCandidate,
@@ -1321,6 +1567,7 @@ module.exports = {
   // Promotion
   getPromotionStatus,
   promoteCandidate,
+  confirmArrival,
   // Tasks
   getMyTasks,
   completeTask,

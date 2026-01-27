@@ -421,6 +421,11 @@ button[type="submit"]:disabled {
   color: #2ed573;
 }
 
+.status-badge.probation {
+  background: rgba(255, 165, 0, 0.2);
+  color: #ffa500;
+}
+
 .status-badge.inactive {
   background: rgba(255, 193, 7, 0.2);
   color: #ffc107;
@@ -4531,6 +4536,68 @@ button[type="submit"]:disabled {
 .stage-pre_colleague { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
 .stage-active { background: rgba(45, 212, 191, 0.2); color: #2dd4bf; }
 
+/* Start Date Banner */
+.start-date-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(127, 90, 240, 0.2), rgba(59, 130, 246, 0.2));
+  border: 2px solid #7f5af0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 16px 0;
+}
+
+.start-date-icon {
+  font-size: 2rem;
+}
+
+.start-date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.start-date-label {
+  font-size: 0.85rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.start-date-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.start-date-countdown {
+  font-size: 0.9rem;
+  color: #7f5af0;
+  font-weight: 500;
+}
+
+.start-date-countdown.today {
+  color: #2dd4bf;
+  font-weight: 700;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.start-date-countdown.urgent {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.start-date-countdown.overdue {
+  color: #ff4757;
+  font-weight: 600;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 /* Candidate Profile */
 .candidate-profile .modal-header {
   border-bottom: 1px solid #2a2a4a;
@@ -4666,6 +4733,42 @@ button[type="submit"]:disabled {
   background: #2a2a4a;
   color: #666;
   cursor: not-allowed;
+}
+
+.btn-confirm-arrival {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  margin-bottom: 10px;
+}
+
+.btn-confirm-arrival:hover {
+  background: rgba(245, 158, 11, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-confirm-arrival:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.arrival-confirmed-notice {
+  padding: 10px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+  color: #10b981;
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: 10px;
 }
 
 /* Items list (references, checks, tasks) */
@@ -6488,6 +6591,36 @@ button[type="submit"]:disabled {
   color: #fff;
 }
 
+.btn-small.btn-promote-small {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.btn-small.btn-promote-small:hover {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.btn-small.btn-arrival {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+.btn-small.btn-arrival:hover {
+  background: #fbbf24;
+  color: #1a1a2e;
+}
+
+.btn-small.btn-activate {
+  background: rgba(45, 212, 191, 0.2);
+  color: #2dd4bf;
+}
+
+.btn-small.btn-activate:hover {
+  background: #2dd4bf;
+  color: #1a1a2e;
+}
+
 /* Emergency Form Modal */
 .emergency-form-modal {
   width: 600px;
@@ -6846,4 +6979,966 @@ button[type="submit"]:disabled {
   border-radius: 8px;
   margin-bottom: 20px;
   font-size: 0.9rem;
+}
+
+/* ===========================================
+   PROBATION MANAGEMENT STYLES
+   =========================================== */
+
+/* Probation Container */
+.probation-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.probation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.probation-header h1 {
+  color: #7f5af0;
+  margin-bottom: 5px;
+}
+
+.probation-subtitle {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* Probation Tabs */
+.probation-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #2a2a4a;
+  padding-bottom: 10px;
+}
+
+.probation-tabs .tab-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  background: #16213e;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.probation-tabs .tab-btn:hover {
+  background: #1e2a4a;
+  color: #ccc;
+}
+
+.probation-tabs .tab-btn.active {
+  background: #7f5af0;
+  color: #fff;
+}
+
+/* Probation Dashboard */
+.probation-dashboard {
+  padding: 0;
+}
+
+.probation-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.probation-stats .stat-card {
+  background: #16213e;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+
+.probation-stats .stat-card h3 {
+  color: #888;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.probation-stats .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #7f5af0;
+}
+
+.probation-stats .stat-value.success { color: #2ed573; }
+.probation-stats .stat-value.warning { color: #ffa500; }
+.probation-stats .stat-value.danger { color: #ff4757; }
+
+/* Alerts */
+.probation-alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.probation-alert.warning {
+  background: rgba(255, 165, 0, 0.15);
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  color: #ffa500;
+}
+
+.probation-alert.danger {
+  background: rgba(255, 71, 87, 0.15);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  color: #ff4757;
+}
+
+/* Filters */
+.probation-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border: 2px solid #2a2a4a;
+  border-radius: 20px;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: #7f5af0;
+  color: #ccc;
+}
+
+.filter-btn.active {
+  background: #7f5af0;
+  border-color: #7f5af0;
+  color: #fff;
+}
+
+/* Probation Cards Grid */
+.probation-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+/* Probation Card */
+.probation-card {
+  background: #16213e;
+  border-radius: 12px;
+  padding: 20px;
+  border-left: 4px solid #7f5af0;
+}
+
+.probation-card.status-red { border-left-color: #ff4757; }
+.probation-card.status-amber { border-left-color: #ffa500; }
+.probation-card.status-green { border-left-color: #2ed573; }
+
+.probation-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.probation-card-header .employee-info h4 {
+  color: #eee;
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+}
+
+.probation-card-header .employee-number {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.status-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-light.red { background: #ff4757; box-shadow: 0 0 8px rgba(255, 71, 87, 0.5); }
+.status-light.amber { background: #ffa500; box-shadow: 0 0 8px rgba(255, 165, 0, 0.5); }
+.status-light.green { background: #2ed573; box-shadow: 0 0 8px rgba(46, 213, 115, 0.5); }
+
+.probation-card-body {
+  margin-bottom: 15px;
+}
+
+.probation-dates {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.date-label {
+  color: #666;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.date-value {
+  color: #ddd;
+  font-size: 0.95rem;
+}
+
+.probation-progress {
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #2a2a4a;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7f5af0, #6b46e5);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.progress-text {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.progress-text .overdue {
+  color: #ff4757;
+}
+
+.probation-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.badge.extended {
+  background: rgba(255, 165, 0, 0.2);
+  color: #ffa500;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.manager-info {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.review-status {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.next-review.overdue {
+  color: #ff4757;
+}
+
+.probation-card-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #2a2a4a;
+}
+
+/* Probation Status (Employee View) */
+.probation-status {
+  background: #16213e;
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.probation-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.probation-status-header h2 {
+  color: #eee;
+  margin: 0;
+}
+
+.probation-status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.probation-status-badge.active {
+  background: rgba(127, 90, 240, 0.2);
+  color: #7f5af0;
+}
+
+.probation-status-badge.extended {
+  background: rgba(255, 165, 0, 0.2);
+  color: #ffa500;
+}
+
+.probation-status-badge.passed {
+  background: rgba(46, 213, 115, 0.2);
+  color: #2ed573;
+}
+
+.probation-status-badge.failed {
+  background: rgba(255, 71, 87, 0.2);
+  color: #ff4757;
+}
+
+.probation-overview {
+  background: #1a1a2e;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.overview-dates {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.date-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-block .date-label {
+  color: #888;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.date-block .date-value {
+  color: #eee;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.probation-progress-large {
+  margin-bottom: 15px;
+}
+
+.progress-bar-large {
+  height: 12px;
+  background: #2a2a4a;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-bar-large .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7f5af0, #6b46e5);
+  border-radius: 6px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.extension-notice {
+  background: rgba(255, 165, 0, 0.1);
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  color: #ffa500;
+  font-size: 0.9rem;
+}
+
+.extension-notice p {
+  margin: 8px 0 0 0;
+  color: #ccc;
+}
+
+/* Review Timeline */
+.review-timeline {
+  background: #1a1a2e;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.review-timeline h3 {
+  color: #eee;
+  margin-bottom: 20px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #2a2a4a;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 25px;
+  cursor: pointer;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -30px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2a2a4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.timeline-item.completed .timeline-marker {
+  background: #2ed573;
+  color: #fff;
+}
+
+.timeline-item.awaiting-action .timeline-marker {
+  background: #ffa500;
+  color: #fff;
+}
+
+.timeline-item.overdue .timeline-marker {
+  background: #ff4757;
+  color: #fff;
+}
+
+.timeline-content {
+  background: #16213e;
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.2s;
+}
+
+.timeline-item:hover .timeline-content {
+  background: #1e2a4a;
+}
+
+.timeline-content h4 {
+  color: #eee;
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+}
+
+.scheduled-date {
+  color: #888;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.review-summary {
+  margin-top: 10px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.review-summary .rating {
+  color: #7f5af0;
+  font-size: 0.85rem;
+}
+
+.review-summary .action-needed {
+  color: #ffa500;
+  font-size: 0.85rem;
+}
+
+.review-summary .acknowledged {
+  color: #2ed573;
+  font-size: 0.85rem;
+}
+
+/* No Probation State */
+.no-probation {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.no-probation h3 {
+  color: #eee;
+  margin-bottom: 10px;
+}
+
+.no-probation p {
+  color: #888;
+}
+
+/* Modal Styles for Probation */
+.probation-review-modal,
+.review-view-modal,
+.extend-modal,
+.outcome-modal,
+.start-probation-modal {
+  width: 600px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.review-info,
+.extend-info,
+.outcome-info {
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.review-info p,
+.extend-info p,
+.outcome-info p {
+  margin: 5px 0;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.already-extended {
+  color: #ffa500 !important;
+  margin-top: 10px !important;
+}
+
+.new-end-date,
+.calculated-end-date {
+  background: rgba(127, 90, 240, 0.1);
+  border: 1px solid rgba(127, 90, 240, 0.3);
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.new-end-date .label,
+.calculated-end-date .label {
+  color: #888;
+}
+
+.new-end-date .date,
+.calculated-end-date .date {
+  color: #7f5af0;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Rating Selector */
+.rating-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.rating-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 2px solid #2a2a4a;
+  background: #1a1a2e;
+  color: #888;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rating-btn:hover {
+  border-color: #7f5af0;
+  color: #ccc;
+}
+
+.rating-btn.selected {
+  background: #7f5af0;
+  border-color: #7f5af0;
+  color: #fff;
+}
+
+.rating-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* Rating Display */
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 4px;
+}
+
+.rating-stars .star {
+  font-size: 1.5rem;
+  color: #2a2a4a;
+}
+
+.rating-stars .star.filled {
+  color: #ffa500;
+}
+
+.rating-number {
+  color: #888;
+  font-size: 1rem;
+}
+
+.expectations-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.expectations-badge.meeting {
+  background: rgba(46, 213, 115, 0.2);
+  color: #2ed573;
+}
+
+.expectations-badge.not-meeting {
+  background: rgba(255, 71, 87, 0.2);
+  color: #ff4757;
+}
+
+/* Review Sections */
+.review-view-content {
+  padding: 10px 0;
+}
+
+.review-info-section {
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.info-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-row .info-label {
+  color: #888;
+  min-width: 100px;
+}
+
+.info-row .info-value {
+  color: #eee;
+}
+
+.review-section {
+  margin-bottom: 20px;
+}
+
+.review-section h4 {
+  color: #7f5af0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.review-section p {
+  color: #ddd;
+  line-height: 1.6;
+}
+
+.review-section.recommendation {
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.recommendation-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.recommendation-badge.continue {
+  background: rgba(127, 90, 240, 0.2);
+  color: #7f5af0;
+}
+
+.recommendation-badge.extend {
+  background: rgba(255, 165, 0, 0.2);
+  color: #ffa500;
+}
+
+.recommendation-badge.pass {
+  background: rgba(46, 213, 115, 0.2);
+  color: #2ed573;
+}
+
+.recommendation-badge.fail {
+  background: rgba(255, 71, 87, 0.2);
+  color: #ff4757;
+}
+
+/* Sign-off Section */
+.signoff-section {
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 20px;
+}
+
+.signoff-section h4 {
+  color: #eee;
+  margin-bottom: 15px;
+}
+
+.signoff-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.signoff-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.signoff-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.signoff-item.signed .signoff-icon {
+  background: #2ed573;
+  color: #fff;
+}
+
+.signoff-item.pending .signoff-icon {
+  background: #2a2a4a;
+  color: #888;
+}
+
+.signoff-label {
+  color: #ddd;
+  flex: 1;
+}
+
+.signoff-date {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.employee-comments {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #2a2a4a;
+}
+
+.employee-comments h5 {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.employee-comments p {
+  color: #ddd;
+  font-style: italic;
+}
+
+.review-view-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid #2a2a4a;
+  margin-top: 20px;
+}
+
+.acknowledge-form {
+  flex: 1;
+}
+
+.acknowledge-form textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.acknowledge-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Outcome Modal */
+.outcome-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.outcome-btn {
+  flex: 1;
+  padding: 20px;
+  border: 2px solid #2a2a4a;
+  border-radius: 10px;
+  background: #1a1a2e;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.outcome-btn:hover {
+  border-color: #7f5af0;
+}
+
+.outcome-btn.selected.passed {
+  border-color: #2ed573;
+  background: rgba(46, 213, 115, 0.1);
+}
+
+.outcome-btn.selected.failed {
+  border-color: #ff4757;
+  background: rgba(255, 71, 87, 0.1);
+}
+
+.outcome-icon {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.outcome-btn.passed .outcome-icon { color: #2ed573; }
+.outcome-btn.failed .outcome-icon { color: #ff4757; }
+
+.outcome-label {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #eee;
+  margin-bottom: 5px;
+}
+
+.outcome-desc {
+  display: block;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.confirm-fail-warning {
+  background: rgba(255, 71, 87, 0.15);
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #ff4757;
+}
+
+.confirm-fail-warning p {
+  margin: 10px 0 0 0;
+  color: #ccc;
+}
+
+.form-help {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+/* Info Notice */
+.info-notice {
+  background: rgba(127, 90, 240, 0.1);
+  border: 1px solid rgba(127, 90, 240, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.info-notice p {
+  color: #ccc;
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+}
+
+.info-notice ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.info-notice li {
+  margin-bottom: 4px;
+}
+
+/* Access Denied */
+.access-denied {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+
+.loading-small {
+  color: #888;
+  font-size: 0.9rem;
+  padding: 10px 0;
 }

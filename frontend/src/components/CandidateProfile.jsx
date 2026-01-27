@@ -33,6 +33,7 @@ function CandidateProfile({ candidateId, onClose }) {
   const [showAddRef, setShowAddRef] = useState(false);
   const [showAddCheck, setShowAddCheck] = useState(false);
   const [promoting, setPromoting] = useState(false);
+  const [confirmingArrival, setConfirmingArrival] = useState(false);
 
   useEffect(() => {
     fetchCandidate();
@@ -96,6 +97,32 @@ function CandidateProfile({ candidateId, onClose }) {
       alert('Failed to promote candidate');
     } finally {
       setPromoting(false);
+    }
+  };
+
+  const handleConfirmArrival = async () => {
+    // Require password confirmation for security
+    const password = prompt(`To confirm ${candidate.full_name} has arrived for their first day, please enter your password:`);
+    if (!password) return;
+
+    setConfirmingArrival(true);
+    try {
+      const response = await apiFetch(`/api/onboarding/candidates/${candidateId}/confirm-arrival`, {
+        method: 'POST',
+        body: JSON.stringify({ password })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        fetchCandidate();
+        fetchPromotionStatus();
+      } else {
+        alert(data.error || 'Failed to confirm arrival');
+      }
+    } catch (err) {
+      alert('Failed to confirm arrival');
+    } finally {
+      setConfirmingArrival(false);
     }
   };
 
@@ -226,6 +253,35 @@ function CandidateProfile({ candidateId, onClose }) {
 
         {error && <div className="error-message">{error}</div>}
 
+        {/* Highlighted Start Date Banner */}
+        {candidate.proposed_start_date && candidate.stage !== 'active' && (
+          <div className="start-date-banner">
+            <div className="start-date-icon">📅</div>
+            <div className="start-date-info">
+              <span className="start-date-label">
+                {candidate.stage === 'candidate' ? 'Proposed Start Date' : 'Start Date'}
+              </span>
+              <span className="start-date-value">{formatDate(candidate.proposed_start_date)}</span>
+              {(() => {
+                const startDate = new Date(candidate.proposed_start_date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                startDate.setHours(0, 0, 0, 0);
+                const daysUntil = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
+                if (daysUntil < 0) {
+                  return <span className="start-date-countdown overdue">{Math.abs(daysUntil)} days overdue</span>;
+                } else if (daysUntil === 0) {
+                  return <span className="start-date-countdown today">TODAY</span>;
+                } else if (daysUntil <= 7) {
+                  return <span className="start-date-countdown urgent">{daysUntil} day{daysUntil > 1 ? 's' : ''} away</span>;
+                } else {
+                  return <span className="start-date-countdown">{daysUntil} days away</span>;
+                }
+              })()}
+            </div>
+          </div>
+        )}
+
         <div className="profile-content">
           {/* Left Column - Details */}
           <div className="profile-left">
@@ -321,6 +377,25 @@ function CandidateProfile({ candidateId, onClose }) {
                     </div>
                   ))}
                 </div>
+
+                {/* Confirm Arrival Button - only for pre-colleagues who haven't arrived */}
+                {candidate.stage === 'pre_colleague' && !candidate.arrival_confirmed && (
+                  <button
+                    className="btn-confirm-arrival"
+                    onClick={handleConfirmArrival}
+                    disabled={confirmingArrival}
+                  >
+                    {confirmingArrival ? 'Confirming...' : '✓ Confirm Arrival (First Day)'}
+                  </button>
+                )}
+
+                {/* Show arrival confirmed status */}
+                {candidate.stage === 'pre_colleague' && candidate.arrival_confirmed && (
+                  <div className="arrival-confirmed-notice">
+                    ✅ Arrival confirmed
+                  </div>
+                )}
+
                 <button
                   className={`btn-promote ${promotionStatus?.can_promote ? 'ready' : 'disabled'}`}
                   onClick={handlePromote}

@@ -716,9 +716,15 @@ async function getUsersWithReviewStatus(req, res) {
                r.role_name,
                (SELECT MAX(review_date) FROM reviews WHERE employee_id = u.id AND is_self_assessment = false) as last_review_date,
                (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $1 AND is_self_assessment = false) as current_week_review_count,
-               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as previous_week_review_count
+               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as previous_week_review_count,
+               pp.id as probation_id,
+               pp.status as probation_status,
+               pp.start_date as probation_start,
+               pp.end_date as probation_end,
+               pp.extended as probation_extended
         FROM users u
         LEFT JOIN roles r ON u.role_id = r.id
+        LEFT JOIN probation_periods pp ON pp.employee_id = u.id AND pp.status IN ('active', 'extended')
         ORDER BY u.tier NULLS FIRST, u.full_name
       `;
       params = [currentWeekFriday, previousWeekFriday];
@@ -729,9 +735,15 @@ async function getUsersWithReviewStatus(req, res) {
                r.role_name,
                (SELECT MAX(review_date) FROM reviews WHERE employee_id = u.id AND is_self_assessment = false) as last_review_date,
                (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as current_week_review_count,
-               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $3 AND is_self_assessment = false) as previous_week_review_count
+               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $3 AND is_self_assessment = false) as previous_week_review_count,
+               pp.id as probation_id,
+               pp.status as probation_status,
+               pp.start_date as probation_start,
+               pp.end_date as probation_end,
+               pp.extended as probation_extended
         FROM users u
         LEFT JOIN roles r ON u.role_id = r.id
+        LEFT JOIN probation_periods pp ON pp.employee_id = u.id AND pp.status IN ('active', 'extended')
         WHERE u.manager_id = $1
         ORDER BY u.tier, u.full_name
       `;
@@ -744,9 +756,15 @@ async function getUsersWithReviewStatus(req, res) {
                r.role_name,
                (SELECT MAX(review_date) FROM reviews WHERE employee_id = u.id AND is_self_assessment = false) as last_review_date,
                (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $2 AND is_self_assessment = false) as current_week_review_count,
-               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $3 AND is_self_assessment = false) as previous_week_review_count
+               (SELECT COUNT(*) FROM reviews WHERE employee_id = u.id AND review_date = $3 AND is_self_assessment = false) as previous_week_review_count,
+               pp.id as probation_id,
+               pp.status as probation_status,
+               pp.start_date as probation_start,
+               pp.end_date as probation_end,
+               pp.extended as probation_extended
         FROM users u
         LEFT JOIN roles r ON u.role_id = r.id
+        LEFT JOIN probation_periods pp ON pp.employee_id = u.id AND pp.status IN ('active', 'extended')
         WHERE u.id = $1
         ORDER BY u.full_name
       `;
@@ -800,7 +818,8 @@ async function getUsersWithReviewStatus(req, res) {
         has_previous_week_review: hasPreviousWeekReview,
         review_status: reviewStatus,
         review_status_color: reviewStatusColor,
-        missed_weeks: missedWeeks
+        missed_weeks: missedWeeks,
+        on_probation: !!user.probation_id
       };
     });
 
