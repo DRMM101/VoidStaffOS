@@ -18,17 +18,22 @@
 import { useState, useEffect, useRef } from 'react';
 import { apiFetch } from '../utils/api';
 
-function NotificationBell({ onViewAll }) {
+function NotificationBell({ onViewAll, onNavigate }) {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [pendingPolicies, setPendingPolicies] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     fetchUnreadCount();
+    fetchPendingPolicies();
     // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchUnreadCount, 30000);
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+      fetchPendingPolicies();
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -54,6 +59,20 @@ function NotificationBell({ onViewAll }) {
       }
     } catch (err) {
       console.error('Failed to fetch unread count');
+    }
+  };
+
+  const fetchPendingPolicies = async () => {
+    try {
+      const response = await fetch('/api/policies/my-stats', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setPendingPolicies(data.pending || 0);
+      }
+    } catch (err) {
+      console.error('Failed to fetch pending policies');
     }
   };
 
@@ -118,7 +137,9 @@ function NotificationBell({ onViewAll }) {
       'leave_request_rejected': '❌',
       'employee_transferred': '👥',
       'new_direct_report': '👥',
-      'kpi_revealed': '📊'
+      'kpi_revealed': '📊',
+      'policy_requires_acknowledgment': '📋',
+      'pending_policies': '📋'
     };
     return icons[type] || '🔔';
   };
@@ -142,8 +163,10 @@ function NotificationBell({ onViewAll }) {
     <div className="notification-bell-container" ref={dropdownRef}>
       <button className="notification-bell-btn" onClick={handleBellClick}>
         <span className="bell-icon">🔔</span>
-        {unreadCount > 0 && (
-          <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+        {(unreadCount + pendingPolicies) > 0 && (
+          <span className="notification-badge">
+            {(unreadCount + pendingPolicies) > 99 ? '99+' : (unreadCount + pendingPolicies)}
+          </span>
         )}
       </button>
 
@@ -159,9 +182,27 @@ function NotificationBell({ onViewAll }) {
           </div>
 
           <div className="notification-dropdown-body">
+            {pendingPolicies > 0 && (
+              <div
+                className="notification-item unread policy-alert"
+                onClick={() => {
+                  setIsOpen(false);
+                  if (onNavigate) onNavigate('policies');
+                }}
+              >
+                <span className="notification-icon">📋</span>
+                <div className="notification-content">
+                  <div className="notification-title">Policies Pending</div>
+                  <div className="notification-message">
+                    You have {pendingPolicies} {pendingPolicies === 1 ? 'policy' : 'policies'} requiring acknowledgment
+                  </div>
+                </div>
+                <span className="notification-unread-dot"></span>
+              </div>
+            )}
             {loading ? (
               <div className="notification-loading">Loading...</div>
-            ) : notifications.length === 0 ? (
+            ) : notifications.length === 0 && pendingPolicies === 0 ? (
               <div className="notification-empty">No notifications</div>
             ) : (
               notifications.map(notification => (

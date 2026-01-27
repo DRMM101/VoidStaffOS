@@ -461,6 +461,42 @@ const checkAndNotifyOverdueSnapshots = async (userId = null) => {
   }
 };
 
+/**
+ * Notify users when a new policy requires acknowledgment
+ * @param {number} policyId - Policy ID
+ * @param {string} policyTitle - Policy title
+ * @param {string} category - Policy category
+ * @param {number} tenantId - Tenant ID
+ * @returns {Promise<Array>} Array of created notifications
+ */
+const notifyPolicyPublished = async (policyId, policyTitle, category, tenantId = 1) => {
+  try {
+    // Get all active users in the tenant
+    const usersResult = await pool.query(
+      `SELECT id FROM users WHERE tenant_id = $1 AND employment_status = 'active'`,
+      [tenantId]
+    );
+
+    const notifications = [];
+    for (const user of usersResult.rows) {
+      notifications.push(createNotification(
+        user.id,
+        'policy_requires_acknowledgment',
+        'New Policy Requires Acknowledgment',
+        `A new ${category} policy "${policyTitle}" has been published and requires your acknowledgment.`,
+        policyId,
+        'policy',
+        tenantId
+      ));
+    }
+
+    return Promise.all(notifications.filter(n => n));
+  } catch (error) {
+    console.error('Error sending policy notifications:', error);
+    return [];
+  }
+};
+
 module.exports = {
   getNotifications,
   getUnreadCount,
@@ -476,5 +512,6 @@ module.exports = {
   notifyLeaveRequestRejected,
   notifyEmployeeTransferred,
   notifyNewDirectReport,
-  checkAndNotifyOverdueSnapshots
+  checkAndNotifyOverdueSnapshots,
+  notifyPolicyPublished
 };

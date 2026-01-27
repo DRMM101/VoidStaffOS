@@ -174,6 +174,9 @@ function Dashboard({ user, onNavigate }) {
   const [showCompositeView, setShowCompositeView] = useState(false);
   const [pendingFeedbackCount, setPendingFeedbackCount] = useState(0);
 
+  // Policy state
+  const [policyStats, setPolicyStats] = useState(null);
+
   const isManager = user.role_name === 'Manager' || user.role_name === 'Admin';
   const isAdmin = user.role_name === 'Admin';
   const isHR = user.role_name === 'HR Manager' || user.role_name === 'Admin';
@@ -185,6 +188,7 @@ function Dashboard({ user, onNavigate }) {
     fetchUnreadNotifications();
     checkOverdueSnapshots();
     fetchPendingFeedbackCount();
+    fetchPolicyStats();
     if (isManager) {
       fetchTeamStats();
       fetchPendingLeaveCount();
@@ -203,6 +207,20 @@ function Dashboard({ user, onNavigate }) {
       }
     } catch (err) {
       console.error('Failed to fetch pending feedback count');
+    }
+  };
+
+  const fetchPolicyStats = async () => {
+    try {
+      const response = await fetch('/api/policies/my-stats', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setPolicyStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch policy stats');
     }
   };
 
@@ -383,7 +401,7 @@ function Dashboard({ user, onNavigate }) {
       <div className="welcome-card">
         <div className="welcome-header">
           <h2>Welcome, {user.full_name}!</h2>
-          <NotificationBell onViewAll={() => setShowNotifications(true)} />
+          <NotificationBell onViewAll={() => setShowNotifications(true)} onNavigate={onNavigate} />
         </div>
         <div className="user-info">
           <p><strong>Email:</strong> {user.email}</p>
@@ -488,7 +506,50 @@ function Dashboard({ user, onNavigate }) {
               Feedback Cycles
             </button>
           )}
+          <button
+            onClick={() => onNavigate('policies')}
+            className={`quick-action-btn policy-btn ${policyStats?.pending > 0 ? 'has-pending' : ''}`}
+          >
+            Policies
+            {policyStats?.pending > 0 && (
+              <span className="pending-badge">{policyStats.pending}</span>
+            )}
+          </button>
         </div>
+
+        {/* Policy Summary Card */}
+        {policyStats && (
+          <div className="policy-summary-card">
+            <div className="policy-summary-header">
+              <span className="policy-icon">&#128220;</span>
+              <span className="policy-title">Policy Compliance</span>
+            </div>
+            <div className="policy-stats-row">
+              <div className="policy-stat">
+                <span className="stat-value">{policyStats.acknowledged}</span>
+                <span className="stat-label">Acknowledged</span>
+              </div>
+              <div className="policy-stat pending">
+                <span className="stat-value">{policyStats.pending}</span>
+                <span className="stat-label">Pending</span>
+              </div>
+              <div className="policy-stat">
+                <span className="stat-value">{policyStats.compliance_rate}%</span>
+                <span className="stat-label">Compliance</span>
+              </div>
+            </div>
+            {policyStats.upcoming_renewals?.length > 0 && (
+              <div className="upcoming-renewals">
+                <span className="renewal-label">Upcoming renewals:</span>
+                {policyStats.upcoming_renewals.slice(0, 2).map(r => (
+                  <span key={r.id} className="renewal-item">
+                    {r.title} - {new Date(r.next_due).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* My Weekly Reflection Card */}

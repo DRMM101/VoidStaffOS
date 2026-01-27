@@ -4,3 +4,6 @@
 .DS_Store
 nul
 backend/nul
+
+# Uploaded files
+backend/uploads/

@@ -23,6 +23,7 @@ import Employees from './components/Employees';
 import Reviews from './components/Reviews';
 import EmployeeQuarterlyReport from './components/EmployeeQuarterlyReport';
 import RoleManagement from './components/RoleManagement';
+import Policies from './components/Policies';
 import Navigation from './components/Navigation';
 import './App.css';
 
@@ -92,6 +93,7 @@ function App() {
         {currentPage === 'reviews' && <Reviews user={user} canCreate={canCreateReviews} />}
         {currentPage === 'review-detail' && <Reviews user={user} canCreate={canCreateReviews} viewMode="detail" />}
         {currentPage === 'my-reports' && <EmployeeQuarterlyReport user={user} />}
+        {currentPage === 'policies' && <Policies user={user} />}
         {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}
       </main>
     </div>

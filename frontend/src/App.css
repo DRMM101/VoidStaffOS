@@ -5311,3 +5311,91 @@ button[type="submit"]:disabled {
   background: #ccc;
   cursor: not-allowed;
 }
+
+/* ========================================
+   PolicyOS Dashboard Styles
+   ======================================== */
+
+.policy-btn {
+  background: #7f5af0 !important;
+}
+
+.policy-btn.has-pending {
+  background: linear-gradient(135deg, #7f5af0 0%, #e040fb 100%) !important;
+  animation: pulse-policy 2s infinite;
+}
+
+@keyframes pulse-policy {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(127, 90, 240, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(127, 90, 240, 0); }
+}
+
+.policy-summary-card {
+  background: linear-gradient(135deg, #16213e 0%, #1a1a3e 100%);
+  border: 1px solid #7f5af0;
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-top: 15px;
+}
+
+.policy-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.policy-icon {
+  font-size: 1.3rem;
+}
+
+.policy-title {
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.policy-stats-row {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+}
+
+.policy-stat {
+  text-align: center;
+}
+
+.policy-stat .stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2cb67d;
+}
+
+.policy-stat.pending .stat-value {
+  color: #f7b731;
+}
+
+.policy-stat .stat-label {
+  font-size: 0.75rem;
+  color: #808080;
+  text-transform: uppercase;
+}
+
+.upcoming-renewals {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #2a2a4a;
+  font-size: 0.85rem;
+}
+
+.renewal-label {
+  color: #808080;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.renewal-item {
+  display: block;
+  color: #a0a0a0;
+  padding: 3px 0;
+}
