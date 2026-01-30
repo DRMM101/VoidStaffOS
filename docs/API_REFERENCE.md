@@ -773,6 +773,162 @@ Get checks expiring within specified days.
 
 ---
 
+## Sick & Statutory Leave Endpoints
+
+### GET /sick-leave/categories
+Get available absence categories for the tenant.
+
+**Auth Required:** Yes
+
+**Response:**
+```json
+{
+  "categories": [
+    {
+      "category": "sick",
+      "display_name": "Sick Leave",
+      "requires_approval": false,
+      "requires_evidence_after_days": 7,
+      "rtw_required_after_days": 1
+    }
+  ]
+}
+```
+
+---
+
+### POST /sick-leave/report
+Report sick leave (employee self-service). No approval required.
+
+**Auth Required:** Yes
+
+**Request Body:**
+```json
+{
+  "start_date": "2026-01-30",
+  "end_date": "2026-01-31",
+  "sick_reason": "illness",
+  "sick_notes": "Flu symptoms",
+  "is_ongoing": false
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Sick leave reported successfully",
+  "leave_request": { ... },
+  "fit_note_required": false
+}
+```
+
+---
+
+### PUT /sick-leave/:id
+Update sick leave (extend or close ongoing absence).
+
+**Auth Required:** Yes
+
+---
+
+### POST /sick-leave/:id/fit-note
+Attach fit note document to sick leave.
+
+**Auth Required:** Yes
+
+---
+
+### POST /sick-leave/statutory
+Request statutory leave (maternity, paternity, bereavement, etc.).
+
+**Auth Required:** Yes
+
+**Request Body:**
+```json
+{
+  "absence_category": "maternity",
+  "start_date": "2026-03-01",
+  "end_date": "2026-08-31",
+  "expected_date": "2026-03-15",
+  "weeks_requested": 26,
+  "notes": "Starting 2 weeks before due date"
+}
+```
+
+---
+
+### GET /sick-leave/rtw/pending
+Get pending Return to Work interviews.
+
+**Auth Required:** Yes
+**Roles:** Admin, Manager
+
+---
+
+### POST /sick-leave/rtw
+Create Return to Work interview for a sick leave record.
+
+**Auth Required:** Yes
+**Roles:** Admin, Manager
+
+**Request Body:**
+```json
+{
+  "leave_request_id": 123
+}
+```
+
+---
+
+### GET /sick-leave/rtw/:leaveRequestId
+Get RTW interview for a specific leave request.
+
+**Auth Required:** Yes
+
+---
+
+### PUT /sick-leave/rtw/:id/complete
+Complete RTW interview with wellbeing notes.
+
+**Auth Required:** Yes
+**Roles:** Admin, Manager
+
+**Request Body:**
+```json
+{
+  "feeling_ready": true,
+  "ready_notes": "Feeling much better",
+  "ongoing_concerns": "",
+  "workplace_adjustments": "Phased return first week",
+  "support_required": "",
+  "wellbeing_notes": "Good spirits",
+  "follow_up_required": true,
+  "follow_up_date": "2026-02-07",
+  "oh_referral_recommended": false,
+  "manager_notes": "Smooth return expected"
+}
+```
+
+---
+
+### GET /sick-leave/ssp/:employeeId
+Get employee's SSP (Statutory Sick Pay) status.
+
+**Auth Required:** Yes
+**Roles:** Admin, Manager
+
+**Response:**
+```json
+{
+  "ssp_periods": [...],
+  "total_weeks_paid": 4,
+  "remaining_weeks": 24,
+  "max_weeks": 28
+}
+```
+
+---
+
 ## Error Responses
 
 All errors return JSON with an `error` field:

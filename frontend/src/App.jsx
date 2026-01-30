@@ -28,6 +28,7 @@ import Documents from './components/Documents';
 import Compliance from './components/Compliance';
 import Emergency from './components/Emergency';
 import Probation from './components/Probation';
+import AbsenceDashboard from './components/AbsenceDashboard';
 import Navigation from './components/Navigation';
 import './App.css';
 
@@ -100,6 +101,7 @@ function App() {
         {currentPage === 'policies' && <Policies user={user} />}
         {currentPage === 'documents' && <Documents user={user} />}
         {currentPage === 'emergency' && <Emergency user={user} />}
+        {currentPage === 'absence' && <AbsenceDashboard user={user} />}
         {currentPage === 'compliance' && (isAdmin || isManager) && <Compliance user={user} />}
         {currentPage === 'probation' && (isAdmin || isManager) && <Probation user={user} />}
         {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}

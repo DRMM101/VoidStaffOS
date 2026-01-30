@@ -89,6 +89,14 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
           )}
         </div>
 
+        {/* Absence - standalone for quick access */}
+        <button
+          className={`nav-link ${currentPage === 'absence' ? 'active' : ''}`}
+          onClick={() => handleNavigate('absence')}
+        >
+          Absence
+        </button>
+
         {/* Company dropdown */}
         <div className="nav-dropdown">
           <button

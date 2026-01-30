@@ -157,6 +157,7 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full details.
 |--------|--------|-------------|
 | Core | Active | Employee management, reviews |
 | LeaveOS | Active | Leave request management |
+| Sick & Statutory | Active | Sick leave, maternity/paternity, RTW interviews |
 | FeedbackOS | Active | 360 feedback system |
 | PolicyOS | Active | Policy management with acknowledgment tracking |
 | Document Storage | Active | Secure employee document management |

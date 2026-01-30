@@ -220,6 +220,55 @@ function validateIdParam(req, res, next) {
   next();
 }
 
+/**
+ * Middleware: Validate sick leave report
+ */
+function validateSickLeave(req, res, next) {
+  const { start_date, sick_reason } = req.body;
+
+  if (!start_date) {
+    return res.status(400).json({ error: 'Start date is required' });
+  }
+
+  if (!isValidDate(start_date)) {
+    return res.status(400).json({ error: 'Invalid date format (use YYYY-MM-DD)' });
+  }
+
+  const validReasons = ['illness', 'medical_appointment', 'injury', 'mental_health', 'hospital', 'covid', 'other'];
+  if (sick_reason && !validReasons.includes(sick_reason)) {
+    return res.status(400).json({ error: 'Invalid sick reason' });
+  }
+
+  next();
+}
+
+/**
+ * Middleware: Validate statutory leave request
+ */
+function validateStatutoryLeave(req, res, next) {
+  const { absence_category, start_date, end_date } = req.body;
+
+  const validCategories = [
+    'maternity', 'paternity', 'adoption', 'shared_parental',
+    'parental', 'bereavement', 'jury_duty', 'public_duties',
+    'compassionate', 'toil', 'unpaid'
+  ];
+
+  if (!absence_category || !validCategories.includes(absence_category)) {
+    return res.status(400).json({ error: 'Invalid absence category' });
+  }
+
+  if (!start_date || !end_date) {
+    return res.status(400).json({ error: 'Start and end dates are required' });
+  }
+
+  if (!isValidDate(start_date) || !isValidDate(end_date)) {
+    return res.status(400).json({ error: 'Invalid date format (use YYYY-MM-DD)' });
+  }
+
+  next();
+}
+
 module.exports = {
   sanitizeString,
   isValidEmail,
@@ -232,5 +281,7 @@ module.exports = {
   validateUser,
   validateLeaveRequest,
   validateReview,
-  validateIdParam
+  validateIdParam,
+  validateSickLeave,
+  validateStatutoryLeave
 };
