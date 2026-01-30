@@ -6,6 +6,10 @@
 
 Chunk 7 (Sick & Statutory Leave) is **mostly complete** and functional.
 
+> **⚠️ IMPORTANT: Frontend has NOT been tested!**
+> All 4 frontend components were created but have not been run or tested in the browser.
+> This is the first priority for the next session.
+
 ---
 
 ## What's Working
@@ -46,12 +50,16 @@ Chunk 7 (Sick & Statutory Leave) is **mostly complete** and functional.
 - ✅ Manager notified for statutory leave requests (pending approval)
 - ✅ Follow-up notification created when RTW requires follow-up
 
-### Frontend Components (Created, Untested)
+### Frontend Components (Created, NOT TESTED)
+
+**⚠️ These components have been written but NEVER run in a browser:**
 
 - `SickLeaveReport.jsx` - Employee sick reporting form
 - `ReturnToWorkForm.jsx` - 4-step RTW interview form
 - `AbsenceRequest.jsx` - Statutory leave request form
 - `AbsenceDashboard.jsx` - Main dashboard with tabs
+
+May contain bugs, typos, or API integration issues. Must test before considering complete.
 
 ---
 
