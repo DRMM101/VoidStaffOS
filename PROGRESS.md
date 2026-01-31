@@ -1,6 +1,6 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-01-31 22:00 UTC
+**Last Updated:** 2026-01-31 23:30 UTC
 
 ## Current State
 
@@ -19,10 +19,88 @@ All core modules are **COMPLETE** and production-ready.
 > ✅ **Urgent Notifications** - Complete
 > ✅ **Absence Insights** - Complete
 > ✅ **Offboarding** - Complete
+> ✅ **HR Cases (PIP/Disciplinary/Grievance)** - Complete
 
 ---
 
 ## Recent Updates (2026-01-31)
+
+### Chunk 10: HR Cases (PIP/Disciplinary/Grievance) - COMPLETE
+
+ACAS-compliant HR case management for Performance Improvement Plans, Disciplinary procedures, and Grievances with full audit trails.
+
+**Features Implemented:**
+- Three case types: PIP, Disciplinary, Grievance
+- Auto-generated case references (PIP-2026-001, DISC-2026-001, GRIEV-2026-001)
+- Case status workflow: draft → open → investigation → hearing_scheduled → awaiting_decision → appeal → closed
+- **PIP**: SMART objectives with progress tracking (pending, on_track, at_risk, met, not_met)
+- **Disciplinary**: ACAS-compliant workflow with investigation, hearing, and decision stages
+- **Grievance**: Confidential employee self-service submission
+- Meeting scheduler with companion rights (union rep, colleague)
+- Witness statement capture
+- Full audit trail via case notes (with visibility controls)
+- Case timeline view
+- ACAS guidance prompts at each stage
+- Legal hold flag to prevent deletion
+- Confidential flag for restricted access
+
+**Outcomes:**
+- PIP: passed, extended, failed, cancelled
+- Disciplinary: no_action, verbal_warning, written_warning, final_warning, dismissal
+- Grievance: upheld, partially_upheld, not_upheld, withdrawn
+
+**Backend Endpoints Added:**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/hr-cases` | GET | List cases with filtering |
+| `/api/hr-cases` | POST | Create new case |
+| `/api/hr-cases/stats` | GET | Dashboard statistics |
+| `/api/hr-cases/my-cases` | GET | Cases for current user's team |
+| `/api/hr-cases/guidance/:type/:stage` | GET | ACAS guidance text |
+| `/api/hr-cases/:id` | GET | Full case details |
+| `/api/hr-cases/:id` | PUT | Update case |
+| `/api/hr-cases/:id` | DELETE | Delete draft case only |
+| `/api/hr-cases/:id/open` | POST | Open case from draft |
+| `/api/hr-cases/:id/status` | POST | Update case status |
+| `/api/hr-cases/:id/close` | POST | Close case with outcome |
+| `/api/hr-cases/:id/appeal` | POST | Record appeal request |
+| `/api/hr-cases/:id/objectives` | GET | Get PIP objectives |
+| `/api/hr-cases/:id/objectives` | POST | Add PIP objective |
+| `/api/hr-cases/:id/objectives/:objId` | PUT | Update/review objective |
+| `/api/hr-cases/:id/objectives/:objId` | DELETE | Remove objective |
+| `/api/hr-cases/:id/milestones` | GET | Get case milestones |
+| `/api/hr-cases/:id/milestones` | POST | Add milestone |
+| `/api/hr-cases/:id/milestones/:mId` | PUT | Update milestone |
+| `/api/hr-cases/:id/meetings` | GET | Get case meetings |
+| `/api/hr-cases/:id/meetings` | POST | Schedule meeting |
+| `/api/hr-cases/:id/meetings/:mId` | PUT | Update meeting |
+| `/api/hr-cases/:id/notes` | GET | Get case notes |
+| `/api/hr-cases/:id/notes` | POST | Add case note |
+| `/api/hr-cases/:id/witnesses` | GET | Get witnesses |
+| `/api/hr-cases/:id/witnesses` | POST | Add witness |
+| `/api/hr-cases/:id/witnesses/:wId` | PUT | Update witness statement |
+| `/api/hr-cases/grievance/submit` | POST | Employee submits grievance |
+| `/api/hr-cases/grievance/my-grievances` | GET | Employee views own grievances |
+
+**Database Migration:**
+- **Migration 033**: hr_cases, pip_objectives, hr_case_milestones, hr_case_meetings, hr_case_notes, hr_case_witnesses tables
+- 5 enums: hr_case_type, hr_case_status, pip_outcome, disciplinary_outcome, grievance_outcome
+- Auto-generated case_reference via trigger
+- 6 notification types: hr_case_opened, hr_case_meeting_scheduled, hr_case_outcome_recorded, hr_case_appeal_submitted, pip_objective_due, grievance_submitted
+
+**Frontend Components:**
+- `HRCasesDashboard.jsx` - Main dashboard with stats, filters, case list
+- `CreateCaseModal.jsx` - Form to create new PIP/Disciplinary/Grievance case
+- `HRCaseDetail.jsx` - Full case view with tabs: overview, objectives (PIP), meetings, notes, witnesses, timeline
+- `GrievanceSubmitForm.jsx` - Employee self-service grievance submission
+
+**Access Control:**
+- HR and Admin: Full access to all cases
+- Managers: Access to their team's cases
+- Employees: Can only submit and view own grievances (limited view)
+
+---
 
 ### Chunk 9: Offboarding - COMPLETE
 
@@ -178,6 +256,7 @@ Full sick leave and statutory leave management with Return to Work interviews.
 | Sick/Statutory | ✅ Complete | 029-030 | Sick leave & RTW |
 | Insights | ✅ Complete | 031 | Absence pattern detection |
 | Offboarding | ✅ Complete | 032 | Exit workflow & compliance |
+| HR Cases | ✅ Complete | 033 | PIP, Disciplinary, Grievance |
 
 ---
 

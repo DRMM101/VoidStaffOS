@@ -31,6 +31,7 @@ import Probation from './components/Probation';
 import AbsenceDashboard from './components/AbsenceDashboard';
 import InsightsDashboard from './components/InsightsDashboard';
 import OffboardingDashboard from './components/OffboardingDashboard';
+import HRCasesDashboard from './components/HRCasesDashboard';
 import Navigation from './components/Navigation';
 import './App.css';
 
@@ -117,6 +118,7 @@ function App() {
         {currentPage === 'probation' && (isAdmin || isManager) && <Probation user={user} />}
         {currentPage === 'insights' && (isAdmin || isManager) && <InsightsDashboard user={user} />}
         {currentPage === 'offboarding' && (isAdmin || isManager) && <OffboardingDashboard user={user} />}
+        {currentPage === 'hr-cases' && <HRCasesDashboard user={user} />}
         {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}
       </main>
     </div>

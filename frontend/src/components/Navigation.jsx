@@ -97,6 +97,16 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
           Absence
         </button>
 
+        {/* Grievance - available to all employees */}
+        {!isAdmin && !isManager && (
+          <button
+            className={`nav-link ${currentPage === 'hr-cases' ? 'active' : ''}`}
+            onClick={() => handleNavigate('hr-cases')}
+          >
+            Grievance
+          </button>
+        )}
+
         {/* Company dropdown */}
         <div className="nav-dropdown">
           <button
@@ -134,7 +144,7 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
         {(isAdmin || isManager) && (
           <div className="nav-dropdown">
             <button
-              className={`nav-link dropdown-trigger ${isDropdownActive(['compliance', 'probation', 'insights', 'offboarding', 'role-management']) ? 'active' : ''}`}
+              className={`nav-link dropdown-trigger ${isDropdownActive(['compliance', 'probation', 'insights', 'offboarding', 'hr-cases', 'role-management']) ? 'active' : ''}`}
               onClick={() => toggleDropdown('admin')}
             >
               Admin
@@ -165,6 +175,12 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
                   onClick={() => handleNavigate('offboarding')}
                 >
                   Offboarding
+                </button>
+                <button
+                  className={`dropdown-item ${currentPage === 'hr-cases' ? 'active' : ''}`}
+                  onClick={() => handleNavigate('hr-cases')}
+                >
+                  HR Cases
                 </button>
                 {isAdmin && (
                   <button
