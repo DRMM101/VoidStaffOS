@@ -40,24 +40,36 @@ function InsightsDashboard({ user }) {
 
   const fetchInsights = async () => {
     setLoading(true);
+    setError('');
     try {
-      let url = '/api/absence-insights?';
-      if (activeTab === 'pending') {
-        url += 'status=new&status=pending_review';
-      } else if (activeTab === 'reviewed') {
-        url += 'status=reviewed';
+      let url = '/api/absence-insights?limit=100';
+      // For pending tab, we fetch all and filter client-side since API takes single status
+      if (activeTab === 'reviewed') {
+        url += '&status=reviewed';
       } else if (activeTab === 'actioned') {
-        url += 'status=action_taken';
+        url += '&status=action_taken';
       } else if (activeTab === 'dismissed') {
-        url += 'status=dismissed';
+        url += '&status=dismissed';
       }
+      // Note: pending tab doesn't add status filter - we filter below
+
       if (filterType) {
         url += `&pattern_type=${filterType}`;
       }
 
       const data = await apiFetch(url);
-      setInsights(data.insights);
+      let filteredInsights = data.insights || [];
+
+      // Client-side filter for pending (new + pending_review)
+      if (activeTab === 'pending') {
+        filteredInsights = filteredInsights.filter(i =>
+          i.status === 'new' || i.status === 'pending_review'
+        );
+      }
+
+      setInsights(filteredInsights);
     } catch (err) {
+      console.error('Fetch insights error:', err);
       setError('Failed to load insights');
     } finally {
       setLoading(false);

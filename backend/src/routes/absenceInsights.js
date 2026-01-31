@@ -35,7 +35,7 @@ router.get('/', authorize('Admin', 'Manager'), async (req, res) => {
     const { status, priority, pattern_type, employee_id, limit = 50, offset = 0 } = req.query;
 
     let whereClause = 'WHERE ai.tenant_id = $1';
-    const params = [user.tenant_id];
+    const params = [req.session?.tenantId || 1];
     let paramIndex = 2;
 
     // Managers can only see their direct reports' insights
@@ -135,7 +135,7 @@ router.get('/dashboard', authorize('Admin', 'Manager'), async (req, res) => {
     const { user } = req;
 
     let managerFilter = '';
-    const params = [user.tenant_id];
+    const params = [req.session?.tenantId || 1];
 
     if (user.role_name === 'Manager') {
       managerFilter = `AND ai.employee_id IN (SELECT id FROM users WHERE manager_id = $2)`;
@@ -227,7 +227,7 @@ router.get('/:id', authorize('Admin', 'Manager'), async (req, res) => {
       LEFT JOIN users reviewer ON ai.reviewed_by = reviewer.id
       LEFT JOIN users actioner ON ai.action_by = actioner.id
       WHERE ai.id = $1 AND ai.tenant_id = $2
-    `, [id, user.tenant_id]);
+    `, [id, req.session?.tenantId || 1]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Insight not found' });
@@ -271,7 +271,7 @@ router.get('/:id', authorize('Admin', 'Manager'), async (req, res) => {
     const summaryResult = await db.query(`
       SELECT * FROM absence_summaries
       WHERE tenant_id = $1 AND employee_id = $2
-    `, [user.tenant_id, insight.employee_id]);
+    `, [req.session?.tenantId || 1, insight.employee_id]);
     insight.employee_summary = summaryResult.rows[0] || null;
 
     res.json({ insight });
@@ -294,7 +294,7 @@ router.put('/:id/review', authorize('Admin', 'Manager'), async (req, res) => {
     // Get current insight
     const current = await db.query(
       'SELECT * FROM absence_insights WHERE id = $1 AND tenant_id = $2',
-      [id, user.tenant_id]
+      [id, req.session?.tenantId || 1]
     );
 
     if (current.rows.length === 0) {
@@ -320,7 +320,7 @@ router.put('/:id/review', authorize('Admin', 'Manager'), async (req, res) => {
       RETURNING *
     `, [user.id, notes, id]);
 
-    await logAction(db, user.tenant_id, user.id, 'INSIGHT_REVIEWED', 'absence_insights', id, insight, result.rows[0]);
+    await logAction(db, req.session?.tenantId || 1, user.id, 'INSIGHT_REVIEWED', 'absence_insights', id, insight, result.rows[0]);
 
     res.json({ insight: result.rows[0], message: 'Insight marked as reviewed' });
   } catch (err) {
@@ -345,7 +345,7 @@ router.put('/:id/action', authorize('Admin', 'Manager'), async (req, res) => {
 
     const current = await db.query(
       'SELECT * FROM absence_insights WHERE id = $1 AND tenant_id = $2',
-      [id, user.tenant_id]
+      [id, req.session?.tenantId || 1]
     );
 
     if (current.rows.length === 0) {
@@ -372,7 +372,7 @@ router.put('/:id/action', authorize('Admin', 'Manager'), async (req, res) => {
       RETURNING *
     `, [action_taken, user.id, follow_up_date || null, id]);
 
-    await logAction(db, user.tenant_id, user.id, 'INSIGHT_ACTION_TAKEN', 'absence_insights', id, insight, result.rows[0]);
+    await logAction(db, req.session?.tenantId || 1, user.id, 'INSIGHT_ACTION_TAKEN', 'absence_insights', id, insight, result.rows[0]);
 
     res.json({ insight: result.rows[0], message: 'Action recorded' });
   } catch (err) {
@@ -393,7 +393,7 @@ router.put('/:id/dismiss', authorize('Admin', 'Manager'), async (req, res) => {
 
     const current = await db.query(
       'SELECT * FROM absence_insights WHERE id = $1 AND tenant_id = $2',
-      [id, user.tenant_id]
+      [id, req.session?.tenantId || 1]
     );
 
     if (current.rows.length === 0) {
@@ -419,7 +419,7 @@ router.put('/:id/dismiss', authorize('Admin', 'Manager'), async (req, res) => {
       RETURNING *
     `, [user.id, reason || 'Dismissed by reviewer', id]);
 
-    await logAction(db, user.tenant_id, user.id, 'INSIGHT_DISMISSED', 'absence_insights', id, insight, result.rows[0]);
+    await logAction(db, req.session?.tenantId || 1, user.id, 'INSIGHT_DISMISSED', 'absence_insights', id, insight, result.rows[0]);
 
     res.json({ insight: result.rows[0], message: 'Insight dismissed' });
   } catch (err) {
@@ -454,12 +454,12 @@ router.get('/employee/:employeeId', authorize('Admin', 'Manager'), async (req, r
       LEFT JOIN users reviewer ON ai.reviewed_by = reviewer.id
       WHERE ai.tenant_id = $1 AND ai.employee_id = $2
       ORDER BY ai.detection_date DESC
-    `, [user.tenant_id, employeeId]);
+    `, [req.session?.tenantId || 1, employeeId]);
 
     const summaryResult = await db.query(`
       SELECT * FROM absence_summaries
       WHERE tenant_id = $1 AND employee_id = $2
-    `, [user.tenant_id, employeeId]);
+    `, [req.session?.tenantId || 1, employeeId]);
 
     res.json({
       insights: insightsResult.rows,
@@ -483,14 +483,14 @@ router.post('/run-detection/:employeeId', authorize('Admin'), async (req, res) =
     // Verify employee exists in tenant
     const empCheck = await db.query(
       'SELECT id FROM users WHERE id = $1 AND tenant_id = $2',
-      [employeeId, user.tenant_id]
+      [employeeId, req.session?.tenantId || 1]
     );
 
     if (empCheck.rows.length === 0) {
       return res.status(404).json({ error: 'Employee not found' });
     }
 
-    const insights = await patternService.analyzeAfterAbsence(user.tenant_id, parseInt(employeeId));
+    const insights = await patternService.analyzeAfterAbsence(req.session?.tenantId || 1, parseInt(employeeId));
 
     res.json({
       message: `Pattern detection complete. ${insights.length} new insight(s) generated.`,
@@ -511,7 +511,7 @@ router.get('/follow-ups/pending', authorize('Admin', 'Manager'), async (req, res
     const { user } = req;
 
     let managerFilter = '';
-    const params = [user.tenant_id];
+    const params = [req.session?.tenantId || 1];
 
     if (user.role_name === 'Manager') {
       managerFilter = `AND ai.employee_id IN (SELECT id FROM users WHERE manager_id = $2)`;
