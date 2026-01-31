@@ -8,7 +8,7 @@
 
 # VoidStaffOS Component Map
 
-Last Updated: 2026-01-27
+Last Updated: 2026-01-31
 
 ## Architecture Overview
 
@@ -217,6 +217,34 @@ Last Updated: 2026-01-27
 | ComplianceReport | `ComplianceReport.jsx` | Configurable compliance report (CQC/etc) |
 | ComplianceSettings | `ComplianceSettings.jsx` | Module settings (HR only) |
 
+### Probation Management
+| Component | File | Description |
+|-----------|------|-------------|
+| ProbationDashboard | `ProbationDashboard.jsx` | Main probation tracking interface |
+| ProbationReviewModal | `ProbationReviewModal.jsx` | Create/edit probation reviews |
+
+### Sick & Statutory Leave
+| Component | File | Description |
+|-----------|------|-------------|
+| AbsenceDashboard | `AbsenceDashboard.jsx` | Main absence management interface |
+| ReportSickLeaveModal | `ReportSickLeaveModal.jsx` | Employee sick leave self-reporting |
+| StatutoryLeaveModal | `StatutoryLeaveModal.jsx` | Statutory leave request form |
+| RTWInterviewModal | `RTWInterviewModal.jsx` | Return to Work interview form |
+
+### Absence Insights
+| Component | File | Description |
+|-----------|------|-------------|
+| InsightsDashboard | `InsightsDashboard.jsx` | HR dashboard for absence pattern analysis |
+| InsightCard | `InsightCard.jsx` | Individual insight display card |
+| InsightReviewModal | `InsightReviewModal.jsx` | Insight review and action modal |
+
+### Offboarding
+| Component | File | Description |
+|-----------|------|-------------|
+| OffboardingDashboard | `OffboardingDashboard.jsx` | Main dashboard with stats, active/completed/cancelled tabs |
+| InitiateOffboardingModal | `InitiateOffboardingModal.jsx` | Form to start offboarding workflow (employee, type, dates) |
+| OffboardingDetail | `OffboardingDetail.jsx` | Full workflow view with 4 tabs: checklist, exit interview, handovers, details |
+
 ---
 
 ## Backend Structure
@@ -253,6 +281,11 @@ Last Updated: 2026-01-27
 | policyController | `policyController.js` | Policy CRUD, acknowledgment tracking |
 | documentController | `documentController.js` | Document upload, access logging, expiry tracking |
 | complianceController | `complianceController.js` | RTW/DBS checks, compliance tasks, settings |
+| probationController | `probationController.js` | Probation period tracking, reviews |
+| sickLeaveController | `sickLeaveController.js` | Sick leave reporting, RTW interviews |
+| statutoryLeaveController | `statutoryLeaveController.js` | Statutory leave management |
+| absenceInsightsController | `absenceInsightsController.js` | Absence pattern detection, Bradford Factor |
+| offboardingController | `offboardingController.js` | Offboarding workflow, checklists, exit interviews |
 
 ### Routes
 | Route File | Base Path | Description |
@@ -267,6 +300,11 @@ Last Updated: 2026-01-27
 | policies.js | `/api/policies` | Policy management and acknowledgments |
 | documents.js | `/api/documents` | Document upload and access |
 | compliance.js | `/api/compliance` | RTW/DBS checks, tasks, settings |
+| probation.js | `/api/probation` | Probation tracking and reviews |
+| sick-leave.js | `/api/sick-leave` | Sick leave reporting and RTW interviews |
+| statutory-leave.js | `/api/statutory-leave` | Statutory leave requests |
+| absence-insights.js | `/api/absence-insights` | Absence pattern detection and insights |
+| offboarding.js | `/api/offboarding` | Offboarding workflow, checklists, exit interviews |
 | dev.js | `/api/dev` | Development utilities |
 
 ### Repositories
@@ -309,6 +347,16 @@ notifyLeaveRequestRejected()       // Leave rejected
 notifyEmployeeTransferred()        // Transfer notification
 notifyNewDirectReport()            // Manager adoption
 checkAndNotifyOverdueSnapshots()   // Overdue check
+// Sick Leave
+notifySickLeaveReported()          // Same-day marked urgent (🚨)
+notifyRTWInterviewRequired()       // After sick leave return
+// Offboarding
+notifyOffboardingInitiated()       // Workflow started
+notifyOffboardingTaskAssigned()    // Task assigned to user
+notifyExitInterviewScheduled()     // Interview scheduled
+notifyHandoverAssigned()           // Knowledge transfer assigned
+notifyOffboardingCompleted()       // Workflow complete
+notifyOffboardingReminder()        // Deadline reminders (2wk, 1wk, 2d, 1d)
 ```
 
 ### Audit Logging (auditLog.js)
@@ -334,6 +382,17 @@ recordUpdate(tenantId, userId, type, id, req)  // Log record update
 | leave_requests | Time-off management | → users (employee, manager), → tenants |
 | notifications | System alerts | → users, → tenants |
 | audit_logs | Security audit trail | → users, → tenants |
+| probation_periods | Probation tracking | → users (employee, manager) |
+| probation_reviews | Probation review records | → probation_periods |
+| sick_leave_records | Sick leave reporting | → users (employee, manager) |
+| rtw_interviews | Return to Work interviews | → sick_leave_records |
+| statutory_leave_requests | Statutory leave management | → users (employee, manager) |
+| absence_insights | Pattern detection results | → users (employee) |
+| absence_summaries | 12-month rolling summaries | → users (employee) |
+| offboarding_workflows | Exit workflow management | → users (employee, manager, hr) |
+| offboarding_checklist_items | Compliance checklist | → offboarding_workflows |
+| exit_interviews | Exit interview records | → offboarding_workflows |
+| offboarding_handovers | Knowledge transfer tracking | → offboarding_workflows |
 
 ---
 
@@ -352,6 +411,12 @@ recordUpdate(tenantId, userId, type, id, req)  // Log record update
 | Adopt orphan | ✓ | ✓ (lower tier) | | |
 | Uncommit review | ✓ | | | |
 | View reports | ✓ | ✓ (team) | ✓ (self) | ✓ |
+| Report sick leave | ✓ | ✓ | ✓ | |
+| Conduct RTW interview | ✓ | ✓ (team) | | |
+| View absence insights | ✓ | | | |
+| Initiate offboarding | ✓ | ✓ | | |
+| Complete checklist items | ✓ | ✓ | ✓ (assigned) | |
+| Conduct exit interview | ✓ | | | |
 
 ---
 

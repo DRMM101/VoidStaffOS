@@ -8,7 +8,7 @@
 
 # VoidStaffOS Database Schema
 
-Last Updated: 2026-01-27
+Last Updated: 2026-01-31
 
 ## Overview
 
@@ -303,7 +303,37 @@ CREATE TYPE leave_status_enum AS ENUM ('pending', 'approved', 'rejected', 'cance
 CREATE TYPE notification_type_enum AS ENUM (
   'manager_snapshot_committed', 'snapshot_overdue', 'self_reflection_overdue',
   'leave_request_pending', 'leave_request_approved', 'leave_request_rejected',
-  'employee_transferred', 'new_direct_report', 'kpi_revealed'
+  'employee_transferred', 'new_direct_report', 'kpi_revealed',
+  'policy_requires_acknowledgment', 'document_expiry_90', 'document_expiry_60',
+  'document_expiry_30', 'document_expired', 'rtw_expiry_warning', 'rtw_expired',
+  'dbs_expiry_warning', 'dbs_update_due', 'sick_leave_reported', 'rtw_follow_up',
+  'rtw_required', 'offboarding_initiated', 'offboarding_task_assigned',
+  'exit_interview_scheduled', 'handover_assigned', 'offboarding_completed',
+  'offboarding_reminder'
+);
+```
+
+### termination_type
+```sql
+CREATE TYPE termination_type AS ENUM (
+  'resignation', 'termination', 'redundancy', 'retirement',
+  'end_of_contract', 'tupe_transfer', 'death_in_service'
+);
+```
+
+### offboarding_status
+```sql
+CREATE TYPE offboarding_status AS ENUM (
+  'pending', 'in_progress', 'completed', 'cancelled'
+);
+```
+
+### checklist_item_type
+```sql
+CREATE TYPE checklist_item_type AS ENUM (
+  'equipment_return', 'it_access_revoke', 'badge_collection', 'key_return',
+  'handover_docs', 'exit_interview', 'final_pay', 'p45_issued',
+  'reference_policy', 'data_retention', 'manager_signoff', 'hr_signoff', 'custom'
 );
 ```
 
@@ -323,13 +353,20 @@ CREATE TYPE notification_type_enum AS ENUM (
 | 008_leave_system.sql | Leave management |
 | 009_notifications.sql | Notifications |
 | 010-015 | Recruitment, onboarding, feedback modules |
-| **016_multi_tenant_foundation.sql** | Tenants table, tenant_id on all tables |
-| **017_audit_log_enhanced.sql** | Enhanced audit_logs table |
+| 016_multi_tenant_foundation.sql | Tenants table, tenant_id on all tables |
+| 017_audit_log_enhanced.sql | Enhanced audit_logs table |
 | 018_role_system.sql | Multi-role permission system |
 | 023_policies.sql | Policy management tables |
 | 024_document_storage.sql | Employee document storage |
-| **025_compliance_checks.sql** | RTW and DBS check tables |
-| **025b_compliance_settings_tasks.sql** | Compliance settings and tasks |
+| 025_compliance_checks.sql | RTW and DBS check tables |
+| 025b_compliance_settings_tasks.sql | Compliance settings and tasks |
+| 026_emergency_contacts.sql | Emergency contact information |
+| 027_probation.sql | Probation tracking tables |
+| 028_probation_settings.sql | Probation settings and milestones |
+| 029_sick_leave.sql | Sick leave and statutory absence |
+| 030_rtw_interviews.sql | Return to Work interviews |
+| 031_absence_insights.sql | Absence pattern detection and Bradford Factor |
+| **032_offboarding.sql** | Offboarding workflows, checklist, exit interviews, handovers |
 
 ---
 
@@ -473,6 +510,129 @@ Per-tenant compliance module configuration.
 | auto_create_followup_tasks | BOOLEAN | DEFAULT true | Auto-create tasks |
 | created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
 | updated_at | TIMESTAMP | DEFAULT NOW() | Last update |
+
+---
+
+---
+
+### offboarding_workflows
+Main offboarding workflow tracking - one per employee exit.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique workflow identifier |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| employee_id | INTEGER | REFERENCES users(id), NOT NULL | Employee being offboarded |
+| termination_type | termination_type | NOT NULL | Type of termination |
+| status | offboarding_status | DEFAULT 'pending' | Workflow status |
+| notice_date | DATE | NOT NULL | Date notice was given |
+| last_working_day | DATE | NOT NULL | Employee's final working day |
+| reason | TEXT | | Reason for leaving |
+| eligible_for_rehire | BOOLEAN | | Eligible for future employment |
+| reference_agreed | BOOLEAN | DEFAULT true | Reference agreed |
+| initiated_by | INTEGER | REFERENCES users(id) | Who started the offboarding |
+| manager_id | INTEGER | REFERENCES users(id) | Employee's manager |
+| hr_owner_id | INTEGER | REFERENCES users(id) | HR owner of workflow |
+| completed_at | TIMESTAMP | | When workflow completed |
+| completed_by | INTEGER | REFERENCES users(id) | Who completed workflow |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMP | DEFAULT NOW() | Last update |
+
+**Unique Constraints:**
+- `unique_active_offboarding` on (tenant_id, employee_id, status)
+
+**Indexes:**
+- `idx_offboarding_employee` on employee_id
+- `idx_offboarding_tenant` on tenant_id
+- `idx_offboarding_status` on status
+- `idx_offboarding_last_day` on last_working_day
+
+---
+
+### offboarding_checklist_items
+Checklist items for offboarding compliance.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique item identifier |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| workflow_id | INTEGER | REFERENCES offboarding_workflows(id), NOT NULL | Parent workflow |
+| item_type | checklist_item_type | NOT NULL | Type of checklist item |
+| item_name | VARCHAR(255) | NOT NULL | Item name/description |
+| description | TEXT | | Detailed description |
+| assigned_to | INTEGER | REFERENCES users(id) | Assigned user |
+| assigned_role | VARCHAR(50) | | IT, HR, Manager, Employee, Payroll |
+| due_date | DATE | | Item due date |
+| completed | BOOLEAN | DEFAULT false | Completion status |
+| completed_by | INTEGER | REFERENCES users(id) | Who completed |
+| completed_at | TIMESTAMP | | When completed |
+| completion_notes | TEXT | | Notes on completion |
+| sort_order | INTEGER | DEFAULT 0 | Display order |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
+
+**Indexes:**
+- `idx_checklist_workflow` on workflow_id
+- `idx_checklist_assigned` on assigned_to WHERE completed = false
+
+---
+
+### exit_interviews
+Exit interview feedback and scheduling.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique interview identifier |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| workflow_id | INTEGER | REFERENCES offboarding_workflows(id), NOT NULL | Parent workflow |
+| employee_id | INTEGER | REFERENCES users(id), NOT NULL | Employee being interviewed |
+| scheduled_date | DATE | | Scheduled interview date |
+| scheduled_time | TIME | | Scheduled time |
+| interviewer_id | INTEGER | REFERENCES users(id) | Who conducts interview |
+| completed | BOOLEAN | DEFAULT false | Interview completed |
+| completed_at | TIMESTAMP | | When completed |
+| overall_experience | INTEGER | CHECK (1-5) | Overall experience rating |
+| would_recommend_employer | BOOLEAN | | Would recommend as employer |
+| would_consider_return | BOOLEAN | | Would consider returning |
+| reason_for_leaving | TEXT | | Why leaving |
+| feedback_management | TEXT | | Feedback on management |
+| feedback_role | TEXT | | Feedback on role |
+| feedback_culture | TEXT | | Feedback on culture |
+| feedback_improvements | TEXT | | Suggestions for improvement |
+| additional_comments | TEXT | | Additional comments |
+| hr_notes | TEXT | | HR-only notes |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMP | DEFAULT NOW() | Last update |
+
+**Unique Constraints:**
+- `unique_exit_interview` on workflow_id
+
+**Indexes:**
+- `idx_exit_interview_workflow` on workflow_id
+
+---
+
+### offboarding_handovers
+Knowledge transfer and handover tracking.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Unique handover identifier |
+| tenant_id | INTEGER | REFERENCES tenants(id), NOT NULL | Owning tenant |
+| workflow_id | INTEGER | REFERENCES offboarding_workflows(id), NOT NULL | Parent workflow |
+| item_name | VARCHAR(255) | NOT NULL | Item being handed over |
+| item_type | VARCHAR(50) | NOT NULL | project, client, document, system_access, responsibility, other |
+| description | TEXT | | Handover details |
+| priority | VARCHAR(20) | DEFAULT 'medium' | high, medium, low |
+| handover_to | INTEGER | REFERENCES users(id) | Who receives handover |
+| status | VARCHAR(20) | DEFAULT 'pending' | pending, in_progress, completed |
+| completed_at | TIMESTAMP | | When completed |
+| notes | TEXT | | Handover notes |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creation timestamp |
+| updated_at | TIMESTAMP | DEFAULT NOW() | Last update |
+
+**Indexes:**
+- `idx_handover_workflow` on workflow_id
+- `idx_handover_to` on handover_to WHERE status != 'completed'
 
 ---
 
