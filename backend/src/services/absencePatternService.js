@@ -58,7 +58,7 @@ async function detectPatterns(tenantId, employeeId) {
            (leave_end_date - leave_start_date + 1) as duration_days
     FROM leave_requests
     WHERE tenant_id = $1
-      AND user_id = $2
+      AND employee_id = $2
       AND absence_category IN ('sick', 'bereavement', 'compassionate')
       AND leave_start_date >= CURRENT_DATE - INTERVAL '12 months'
       AND status != 'cancelled'
@@ -196,8 +196,8 @@ async function detectPostHolidayPattern(tenantId, employeeId, absences) {
     SELECT id, leave_end_date
     FROM leave_requests
     WHERE tenant_id = $1
-      AND user_id = $2
-      AND absence_category = 'annual_leave'
+      AND employee_id = $2
+      AND absence_category = 'annual'
       AND status = 'approved'
       AND leave_end_date >= CURRENT_DATE - INTERVAL '12 months'
     ORDER BY leave_end_date DESC
@@ -498,7 +498,7 @@ async function updateEmployeeSummary(tenantId, employeeId) {
       COUNT(*) FILTER (WHERE notice_days <= 0) as same_day_count
     FROM leave_requests
     WHERE tenant_id = $1
-      AND user_id = $2
+      AND employee_id = $2
       AND absence_category IN ('sick', 'bereavement', 'compassionate')
       AND leave_start_date >= CURRENT_DATE - INTERVAL '12 months'
       AND status != 'cancelled'
@@ -513,7 +513,7 @@ async function updateEmployeeSummary(tenantId, employeeId) {
            sick_reason
     FROM leave_requests
     WHERE tenant_id = $1
-      AND user_id = $2
+      AND employee_id = $2
       AND absence_category IN ('sick', 'bereavement', 'compassionate')
       AND status != 'cancelled'
     ORDER BY leave_start_date DESC
