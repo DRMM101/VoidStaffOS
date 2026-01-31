@@ -1,6 +1,6 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-01-31 18:00 UTC
+**Last Updated:** 2026-01-31 20:00 UTC
 
 ## Current State
 
@@ -18,10 +18,56 @@ All core modules are **COMPLETE** and production-ready.
 > ✅ **Sick & Statutory Leave** - Complete
 > ✅ **Urgent Notifications** - Complete
 > ✅ **Absence Insights** - Complete
+> ✅ **Offboarding** - Complete
 
 ---
 
 ## Recent Updates (2026-01-31)
+
+### Chunk 9: Offboarding - COMPLETE
+
+Structured offboarding workflow with compliance tracking, knowledge transfer, and asset recovery.
+
+**Features Implemented:**
+- 7 termination types: resignation, termination, redundancy, retirement, end_of_contract, tupe_transfer, death_in_service
+- Default checklist with 13 compliance items auto-created
+- Exit interview scheduling and feedback capture
+- Knowledge transfer/handover tracking with priorities
+- Workflow status tracking (pending → in_progress → completed/cancelled)
+- Progress tracking with checklist completion percentage
+- Days-until-last-day countdown with urgency highlighting
+- Stats dashboard (pending, in progress, leaving this week, completed)
+
+**Backend Endpoints Added:**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/offboarding` | GET | List workflows with filtering |
+| `/api/offboarding` | POST | Initiate new offboarding |
+| `/api/offboarding/stats` | GET | Dashboard statistics |
+| `/api/offboarding/:id` | GET | Full workflow details |
+| `/api/offboarding/:id` | PUT | Update workflow |
+| `/api/offboarding/:id/checklist` | GET | Get checklist items |
+| `/api/offboarding/:id/checklist` | POST | Add checklist item |
+| `/api/offboarding/:id/checklist/:itemId` | PUT | Update checklist item |
+| `/api/offboarding/:id/exit-interview` | GET | Get exit interview |
+| `/api/offboarding/:id/exit-interview` | POST | Create exit interview |
+| `/api/offboarding/:id/exit-interview` | PUT | Update exit interview |
+| `/api/offboarding/:id/handovers` | GET | List handover items |
+| `/api/offboarding/:id/handovers` | POST | Add handover item |
+| `/api/offboarding/:id/handovers/:handoverId` | PUT | Update handover |
+
+**Database Migration:**
+- **Migration 032**: offboarding_workflows, offboarding_checklist_items, exit_interviews, offboarding_handovers tables
+- 3 enums: termination_type, offboarding_status, checklist_item_type
+- 5 notification types added
+
+**Frontend Components:**
+- `OffboardingDashboard.jsx` - Main dashboard with active/completed tabs
+- `InitiateOffboardingModal.jsx` - Form to start offboarding workflow
+- `OffboardingDetail.jsx` - Full workflow view with checklist, exit interview, handovers
+
+---
 
 ### Chunk 8: Absence Insights - COMPLETE
 
@@ -110,6 +156,7 @@ Full sick leave and statutory leave management with Return to Work interviews.
 | Probation | ✅ Complete | 027-028 | Probation tracking |
 | Sick/Statutory | ✅ Complete | 029-030 | Sick leave & RTW |
 | Insights | ✅ Complete | 031 | Absence pattern detection |
+| Offboarding | ✅ Complete | 032 | Exit workflow & compliance |
 
 ---
 
@@ -168,6 +215,7 @@ npm run dev
 
 ## Git Commit History (Recent)
 
+- Offboarding module (workflow, checklist, exit interviews, handovers)
 - Absence Insights module (pattern detection, Bradford Factor)
 - Urgent notifications with click-to-navigate
 - Follow-ups tab for RTW interviews
