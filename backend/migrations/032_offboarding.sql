@@ -245,6 +245,11 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN null;
 END $$;
 
+DO $$ BEGIN
+    ALTER TYPE notification_type ADD VALUE IF NOT EXISTS 'offboarding_reminder';
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
 -- Comments
 COMMENT ON TABLE offboarding_workflows IS 'Main offboarding workflow tracking - one per employee exit';
 COMMENT ON TABLE offboarding_checklist_items IS 'Checklist items for offboarding compliance';

@@ -44,7 +44,11 @@ function OffboardingDashboard({ user }) {
       } else if (activeTab === 'cancelled') {
         url += '&status=cancelled';
       }
-      const data = await apiFetch(url);
+      const response = await apiFetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch workflows');
+      }
+      const data = await response.json();
       setWorkflows(data.workflows || []);
     } catch (err) {
       console.error('Fetch workflows error:', err);
@@ -56,7 +60,11 @@ function OffboardingDashboard({ user }) {
 
   const fetchStats = async () => {
     try {
-      const data = await apiFetch('/api/offboarding/stats');
+      const response = await apiFetch('/api/offboarding/stats');
+      if (!response.ok) {
+        throw new Error('Failed to fetch stats');
+      }
+      const data = await response.json();
       setStats(data);
     } catch (err) {
       console.error('Fetch stats error:', err);

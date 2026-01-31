@@ -18,6 +18,7 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
   const [loadingEmployees, setLoadingEmployees] = useState(true);
   const [error, setError] = useState('');
   const [employees, setEmployees] = useState([]);
+  const [canClose, setCanClose] = useState(false);
   const [formData, setFormData] = useState({
     employee_id: '',
     termination_type: 'resignation',
@@ -30,12 +31,19 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
 
   useEffect(() => {
     fetchEmployees();
+    // Prevent immediate close from click event bubbling
+    const timer = setTimeout(() => setCanClose(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchEmployees = async () => {
     try {
-      const data = await apiFetch('/api/users?status=active');
-      setEmployees(data.users || data || []);
+      const response = await apiFetch('/api/users');
+      if (!response.ok) {
+        throw new Error('Failed to fetch employees');
+      }
+      const data = await response.json();
+      setEmployees(data.users || []);
     } catch (err) {
       console.error('Fetch employees error:', err);
       setError('Failed to load employees');
@@ -77,10 +85,15 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
                             formData.eligible_for_rehire === 'false' ? false : null
       };
 
-      await apiFetch('/api/offboarding', {
+      const response = await apiFetch('/api/offboarding', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to initiate offboarding');
+      }
 
       onSuccess();
     } catch (err) {
@@ -102,27 +115,34 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
   ];
 
   return (
-    <div className="modal-overlay" style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
-    }}>
-      <div className="modal-content" style={{
-        background: '#fff',
-        borderRadius: '12px',
-        padding: '24px',
-        width: '100%',
-        maxWidth: '500px',
-        maxHeight: '90vh',
-        overflow: 'auto'
-      }}>
+    <div
+      className="modal-overlay"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}
+    >
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: '#fff',
+          borderRadius: '12px',
+          padding: '24px',
+          width: '100%',
+          maxWidth: '500px',
+          maxHeight: '90vh',
+          overflow: 'auto'
+        }}
+      >
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -176,13 +196,14 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
                   borderRadius: '8px',
                   border: '1px solid #e0e0e0',
                   fontSize: '14px',
-                  color: '#111'
+                  color: '#111',
+                  background: '#fff'
                 }}
               >
                 <option value="">Select an employee...</option>
                 {employees.map(emp => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.first_name} {emp.last_name} ({emp.email})
+                    {emp.full_name} ({emp.email})
                   </option>
                 ))}
               </select>
@@ -205,7 +226,8 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
                 borderRadius: '8px',
                 border: '1px solid #e0e0e0',
                 fontSize: '14px',
-                color: '#111'
+                color: '#111',
+                background: '#fff'
               }}
             >
               {terminationTypes.map(type => (
@@ -234,6 +256,7 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
                 border: '1px solid #e0e0e0',
                 fontSize: '14px',
                 color: '#111',
+                background: '#fff',
                 boxSizing: 'border-box'
               }}
             />
@@ -257,6 +280,7 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
                 border: '1px solid #e0e0e0',
                 fontSize: '14px',
                 color: '#111',
+                background: '#fff',
                 boxSizing: 'border-box'
               }}
             />
@@ -280,6 +304,7 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
                 border: '1px solid #e0e0e0',
                 fontSize: '14px',
                 color: '#111',
+                background: '#fff',
                 resize: 'vertical',
                 boxSizing: 'border-box'
               }}
@@ -293,7 +318,7 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
             </label>
             <select
               name="eligible_for_rehire"
-              value={formData.eligible_for_rehire ?? ''}
+              value={formData.eligible_for_rehire === null ? '' : formData.eligible_for_rehire}
               onChange={handleChange}
               style={{
                 width: '100%',
@@ -301,7 +326,8 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
                 borderRadius: '8px',
                 border: '1px solid #e0e0e0',
                 fontSize: '14px',
-                color: '#111'
+                color: '#111',
+                background: '#fff'
               }}
             >
               <option value="">Not determined</option>

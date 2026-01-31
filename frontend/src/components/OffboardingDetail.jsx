@@ -34,12 +34,19 @@ function OffboardingDetail({ workflowId, onBack, user }) {
     setLoading(true);
     setError('');
     try {
-      const [workflowData, checklistData, exitData, handoverData] = await Promise.all([
+      const [workflowRes, checklistRes, exitRes, handoverRes] = await Promise.all([
         apiFetch(`/api/offboarding/${workflowId}`),
         apiFetch(`/api/offboarding/${workflowId}/checklist`),
-        apiFetch(`/api/offboarding/${workflowId}/exit-interview`).catch(() => null),
+        apiFetch(`/api/offboarding/${workflowId}/exit-interview`).catch(() => ({ ok: false })),
         apiFetch(`/api/offboarding/${workflowId}/handovers`)
       ]);
+
+      if (!workflowRes.ok) throw new Error('Failed to fetch workflow');
+      const workflowData = await workflowRes.json();
+
+      const checklistData = checklistRes.ok ? await checklistRes.json() : { items: [] };
+      const exitData = exitRes.ok ? await exitRes.json() : null;
+      const handoverData = handoverRes.ok ? await handoverRes.json() : { handovers: [] };
 
       setWorkflow(workflowData);
       setChecklist(checklistData.items || []);
@@ -55,11 +62,13 @@ function OffboardingDetail({ workflowId, onBack, user }) {
 
   const handleChecklistToggle = async (itemId, completed) => {
     try {
-      await apiFetch(`/api/offboarding/${workflowId}/checklist/${itemId}`, {
+      const response = await apiFetch(`/api/offboarding/${workflowId}/checklist/${itemId}`, {
         method: 'PUT',
         body: JSON.stringify({ completed: !completed })
       });
-      fetchWorkflowDetails();
+      if (response.ok) {
+        fetchWorkflowDetails();
+      }
     } catch (err) {
       console.error('Toggle checklist error:', err);
     }
@@ -67,11 +76,13 @@ function OffboardingDetail({ workflowId, onBack, user }) {
 
   const handleUpdateStatus = async (newStatus) => {
     try {
-      await apiFetch(`/api/offboarding/${workflowId}`, {
+      const response = await apiFetch(`/api/offboarding/${workflowId}`, {
         method: 'PUT',
         body: JSON.stringify({ status: newStatus })
       });
-      fetchWorkflowDetails();
+      if (response.ok) {
+        fetchWorkflowDetails();
+      }
     } catch (err) {
       console.error('Update status error:', err);
     }
@@ -82,18 +93,13 @@ function OffboardingDetail({ workflowId, onBack, user }) {
     if (!date) return;
 
     try {
-      if (exitInterview) {
-        await apiFetch(`/api/offboarding/${workflowId}/exit-interview`, {
-          method: 'PUT',
-          body: JSON.stringify({ scheduled_date: date })
-        });
-      } else {
-        await apiFetch(`/api/offboarding/${workflowId}/exit-interview`, {
-          method: 'POST',
-          body: JSON.stringify({ scheduled_date: date })
-        });
+      const response = await apiFetch(`/api/offboarding/${workflowId}/exit-interview`, {
+        method: exitInterview ? 'PUT' : 'POST',
+        body: JSON.stringify({ scheduled_date: date })
+      });
+      if (response.ok) {
+        fetchWorkflowDetails();
       }
-      fetchWorkflowDetails();
     } catch (err) {
       console.error('Schedule interview error:', err);
     }
@@ -110,12 +116,14 @@ function OffboardingDetail({ workflowId, onBack, user }) {
     };
 
     try {
-      await apiFetch(`/api/offboarding/${workflowId}/handovers`, {
+      const response = await apiFetch(`/api/offboarding/${workflowId}/handovers`, {
         method: 'POST',
         body: JSON.stringify(data)
       });
-      setShowAddHandover(false);
-      fetchWorkflowDetails();
+      if (response.ok) {
+        setShowAddHandover(false);
+        fetchWorkflowDetails();
+      }
     } catch (err) {
       console.error('Add handover error:', err);
     }

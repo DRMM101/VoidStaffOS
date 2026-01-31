@@ -917,6 +917,142 @@ router.get('/my-tasks/pending', async (req, res) => {
 });
 
 // =====================================================
+// Deadline Notifications
+// =====================================================
+
+/**
+ * POST /api/offboarding/check-deadlines
+ * Check for upcoming last working days and create notifications
+ * Should be called daily by a scheduled job
+ */
+router.post('/check-deadlines', authorize('Admin'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Milestones to check (days before last working day)
+    const milestones = [
+      { days: 14, label: '2 weeks', urgent: false },
+      { days: 7, label: '1 week', urgent: false },
+      { days: 2, label: '2 days', urgent: true },
+      { days: 1, label: 'tomorrow', urgent: true },
+      { days: 0, label: 'today', urgent: true }
+    ];
+
+    const notifications = [];
+
+    for (const milestone of milestones) {
+      const targetDate = new Date(today);
+      targetDate.setDate(targetDate.getDate() + milestone.days);
+      const dateStr = targetDate.toISOString().split('T')[0];
+
+      // Find workflows with last_working_day matching this milestone
+      const workflows = await db.query(`
+        SELECT
+          ow.id,
+          ow.employee_id,
+          ow.manager_id,
+          ow.hr_owner_id,
+          ow.last_working_day,
+          ow.termination_type,
+          u.full_name as employee_name
+        FROM offboarding_workflows ow
+        JOIN users u ON ow.employee_id = u.id
+        WHERE ow.tenant_id = $1
+          AND ow.status IN ('pending', 'in_progress')
+          AND ow.last_working_day::date = $2::date
+      `, [tenantId, dateStr]);
+
+      for (const workflow of workflows.rows) {
+        const title = milestone.days === 0
+          ? `Last Day: ${workflow.employee_name}`
+          : `Offboarding Reminder: ${workflow.employee_name}`;
+
+        const message = milestone.days === 0
+          ? `Today is ${workflow.employee_name}'s last working day. Ensure all offboarding tasks are complete.`
+          : `${workflow.employee_name}'s last working day is ${milestone.label} away (${formatDate(workflow.last_working_day)}).`;
+
+        // Notify HR owner
+        if (workflow.hr_owner_id) {
+          await createNotification(
+            workflow.hr_owner_id,
+            'offboarding_reminder',
+            title,
+            message,
+            workflow.id,
+            'offboarding',
+            tenantId,
+            milestone.urgent
+          );
+          notifications.push({ user: 'HR Owner', employee: workflow.employee_name, milestone: milestone.label });
+        }
+
+        // Notify manager
+        if (workflow.manager_id) {
+          await createNotification(
+            workflow.manager_id,
+            'offboarding_reminder',
+            title,
+            message,
+            workflow.id,
+            'offboarding',
+            tenantId,
+            milestone.urgent
+          );
+          notifications.push({ user: 'Manager', employee: workflow.employee_name, milestone: milestone.label });
+        }
+      }
+    }
+
+    res.json({
+      message: `Checked ${milestones.length} milestones`,
+      notifications_created: notifications.length,
+      details: notifications
+    });
+  } catch (err) {
+    console.error('Check deadlines error:', err);
+    res.status(500).json({ error: 'Failed to check deadlines' });
+  }
+});
+
+/**
+ * GET /api/offboarding/upcoming
+ * Get list of employees with upcoming last working days
+ */
+router.get('/upcoming', authorize('Admin', 'Manager'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const { days = 30 } = req.query;
+
+    const result = await db.query(`
+      SELECT
+        ow.id,
+        ow.employee_id,
+        ow.termination_type,
+        ow.last_working_day,
+        ow.status,
+        u.full_name as employee_name,
+        u.email,
+        u.employee_number,
+        (ow.last_working_day::date - CURRENT_DATE) as days_until
+      FROM offboarding_workflows ow
+      JOIN users u ON ow.employee_id = u.id
+      WHERE ow.tenant_id = $1
+        AND ow.status IN ('pending', 'in_progress')
+        AND ow.last_working_day >= CURRENT_DATE
+        AND ow.last_working_day <= CURRENT_DATE + INTERVAL '1 day' * $2
+      ORDER BY ow.last_working_day ASC
+    `, [tenantId, parseInt(days)]);
+
+    res.json({ upcoming: result.rows });
+  } catch (err) {
+    console.error('Get upcoming error:', err);
+    res.status(500).json({ error: 'Failed to fetch upcoming offboardings' });
+  }
+});
+
+// =====================================================
 // Helper Functions
 // =====================================================
 
