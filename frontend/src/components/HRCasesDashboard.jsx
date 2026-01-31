@@ -16,6 +16,7 @@ import { apiFetch } from '../utils/api';
 import CreateCaseModal from './CreateCaseModal';
 import HRCaseDetail from './HRCaseDetail';
 import GrievanceSubmitForm from './GrievanceSubmitForm';
+import EmployeeHRView from './EmployeeHRView';
 
 function HRCasesDashboard({ user }) {
   const [loading, setLoading] = useState(true);
@@ -164,29 +165,10 @@ function HRCasesDashboard({ user }) {
     );
   }
 
-  // Employee view - only grievance submission
+  // Employee view - PIPs and grievance submission
   if (!canManageCases) {
     return (
-      <div style={{ padding: '24px' }}>
-        <h2 style={{ marginBottom: '24px', color: '#111' }}>Submit a Grievance</h2>
-
-        <div style={{
-          background: '#fff3e0',
-          border: '1px solid #ffb74d',
-          borderRadius: '12px',
-          padding: '16px',
-          marginBottom: '24px'
-        }}>
-          <h4 style={{ margin: '0 0 8px', color: '#e65100' }}>Confidential Process</h4>
-          <p style={{ margin: 0, color: '#424242', fontSize: '14px' }}>
-            If you have a workplace concern, you can submit a formal grievance. Your submission
-            will be handled confidentially by HR. You have the right to be accompanied by a
-            workplace colleague or trade union representative at any grievance meeting.
-          </p>
-        </div>
-
-        <GrievanceSubmitForm user={user} />
-      </div>
+      <EmployeeHRView user={user} onSelectCase={handleCaseClick} />
     );
   }
 

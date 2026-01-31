@@ -375,6 +375,234 @@ function HRCaseDetail({ caseId, user, onBack }) {
     colorScheme: 'light'
   };
 
+  // Employee PIP View - Encouraging, goal-focused
+  if (hrCase.employee_view && hrCase.case_type === 'pip') {
+    const progress = hrCase.pip_progress || { total: 0, met: 0, on_track: 0 };
+    const progressPct = progress.total > 0 ? Math.round((progress.met / progress.total) * 100) : 0;
+    const onTrackPct = progress.on_track_percentage || 0;
+
+    return (
+      <div style={{ padding: '24px', background: '#e8f5e9', minHeight: '100vh' }}>
+        <button
+          onClick={onBack}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#2e7d32',
+            cursor: 'pointer',
+            fontSize: '14px',
+            padding: 0,
+            marginBottom: '16px'
+          }}
+        >
+          &larr; Back to Development Plans
+        </button>
+
+        {/* Encouraging Header */}
+        <div style={{
+          background: '#fff',
+          borderRadius: '12px',
+          padding: '24px',
+          marginBottom: '24px',
+          border: '2px solid #c8e6c9'
+        }}>
+          <h2 style={{ margin: '0 0 8px', color: '#2e7d32' }}>Your Development Plan</h2>
+          <p style={{ margin: '0 0 16px', color: '#424242' }}>
+            This plan is designed to help you succeed. Focus on your goals one step at a time.
+          </p>
+
+          {/* Progress Summary */}
+          {progress.total > 0 && (
+            <div style={{ marginTop: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontWeight: '500', color: '#424242' }}>Your Progress</span>
+                <span style={{ fontWeight: '600', color: onTrackPct >= 50 ? '#2e7d32' : '#ff9800' }}>
+                  {onTrackPct}% on track
+                </span>
+              </div>
+              <div style={{
+                height: '12px',
+                background: '#e0e0e0',
+                borderRadius: '6px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  height: '100%',
+                  width: `${onTrackPct}%`,
+                  background: onTrackPct >= 50 ? 'linear-gradient(90deg, #4caf50, #81c784)' : 'linear-gradient(90deg, #ff9800, #ffb74d)',
+                  borderRadius: '6px',
+                  transition: 'width 0.5s ease'
+                }} />
+              </div>
+              <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#666' }}>
+                {progress.met} of {progress.total} objectives completed
+              </p>
+            </div>
+          )}
+
+          {/* Encouraging Message */}
+          <div style={{
+            background: '#f1f8e9',
+            borderRadius: '8px',
+            padding: '16px',
+            marginTop: '16px'
+          }}>
+            <p style={{ margin: 0, color: '#33691e', fontSize: '15px' }}>
+              {onTrackPct >= 75 ? "&#127881; Excellent work! You're making fantastic progress. Keep it up!" :
+               onTrackPct >= 50 ? "&#128170; Great job! You're on track. Continue focusing on your objectives." :
+               progress.total > 0 ? "&#127793; Every step counts. Focus on one objective at a time - you've got this!" :
+               "&#128218; Your objectives will be discussed with your manager. This is your opportunity to grow."}
+            </p>
+          </div>
+        </div>
+
+        {/* Objectives */}
+        <div style={{
+          background: '#fff',
+          borderRadius: '12px',
+          padding: '24px',
+          marginBottom: '24px'
+        }}>
+          <h3 style={{ margin: '0 0 16px', color: '#424242' }}>Your Objectives</h3>
+
+          {objectives.length === 0 ? (
+            <p style={{ color: '#666', textAlign: 'center', padding: '24px' }}>
+              Your objectives will be set in discussion with your manager.
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {objectives.map((obj, index) => (
+                <div key={obj.id} style={{
+                  border: '2px solid',
+                  borderColor: obj.status === 'met' ? '#4caf50' :
+                              obj.status === 'on_track' ? '#81c784' :
+                              obj.status === 'at_risk' ? '#ffb74d' : '#e0e0e0',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  background: obj.status === 'met' ? '#f1f8e9' : '#fff'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: obj.status === 'met' ? '#4caf50' :
+                                   obj.status === 'on_track' ? '#81c784' :
+                                   obj.status === 'at_risk' ? '#ff9800' : '#e0e0e0',
+                        color: '#fff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: '600',
+                        fontSize: '14px'
+                      }}>
+                        {obj.status === 'met' ? '✓' : index + 1}
+                      </span>
+                      <h4 style={{ margin: 0, color: '#111' }}>{obj.objective}</h4>
+                    </div>
+                    <span style={{
+                      padding: '4px 12px',
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      background: obj.status === 'met' ? '#e8f5e9' :
+                                 obj.status === 'on_track' ? '#e8f5e9' :
+                                 obj.status === 'at_risk' ? '#fff3e0' : '#f5f5f5',
+                      color: obj.status === 'met' ? '#2e7d32' :
+                            obj.status === 'on_track' ? '#4caf50' :
+                            obj.status === 'at_risk' ? '#e65100' : '#666'
+                    }}>
+                      {obj.status === 'met' ? 'Achieved!' :
+                       obj.status === 'on_track' ? 'On Track' :
+                       obj.status === 'at_risk' ? 'Needs Focus' : 'In Progress'}
+                    </span>
+                  </div>
+
+                  <div style={{ marginLeft: '44px' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#2e7d32', fontSize: '13px' }}>How to succeed:</strong>
+                      <p style={{ margin: '4px 0 0', color: '#424242', fontSize: '14px' }}>{obj.success_criteria}</p>
+                    </div>
+
+                    {obj.support_provided && (
+                      <div style={{ marginBottom: '8px' }}>
+                        <strong style={{ color: '#2e7d32', fontSize: '13px' }}>Support available:</strong>
+                        <p style={{ margin: '4px 0 0', color: '#424242', fontSize: '14px' }}>{obj.support_provided}</p>
+                      </div>
+                    )}
+
+                    <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#666' }}>
+                      Target date: {new Date(obj.target_date).toLocaleDateString('en-GB')}
+                    </p>
+
+                    {obj.review_notes && (
+                      <div style={{
+                        marginTop: '12px',
+                        padding: '12px',
+                        background: '#e3f2fd',
+                        borderRadius: '8px'
+                      }}>
+                        <strong style={{ color: '#1565c0', fontSize: '13px' }}>Feedback:</strong>
+                        <p style={{ margin: '4px 0 0', color: '#424242', fontSize: '14px' }}>{obj.review_notes}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Upcoming Meetings */}
+        {meetings.filter(m => !m.held).length > 0 && (
+          <div style={{
+            background: '#fff',
+            borderRadius: '12px',
+            padding: '24px',
+            marginBottom: '24px'
+          }}>
+            <h3 style={{ margin: '0 0 16px', color: '#424242' }}>Upcoming Meetings</h3>
+            {meetings.filter(m => !m.held).map(meeting => (
+              <div key={meeting.id} style={{
+                padding: '16px',
+                background: '#f5f5f5',
+                borderRadius: '8px',
+                marginBottom: '12px'
+              }}>
+                <p style={{ margin: '0 0 4px', fontWeight: '500', color: '#111' }}>
+                  {meeting.meeting_type.charAt(0).toUpperCase() + meeting.meeting_type.slice(1)} Meeting
+                </p>
+                <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>
+                  {new Date(meeting.scheduled_date).toLocaleDateString('en-GB')}
+                  {meeting.scheduled_time && ` at ${meeting.scheduled_time}`}
+                  {meeting.location && ` - ${meeting.location}`}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Support Info */}
+        <div style={{
+          background: '#fff',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid #c8e6c9'
+        }}>
+          <h3 style={{ margin: '0 0 12px', color: '#2e7d32' }}>Remember</h3>
+          <ul style={{ margin: 0, paddingLeft: '20px', color: '#424242', lineHeight: '1.8' }}>
+            <li>Your manager wants you to succeed and is here to support you</li>
+            <li>Ask for help whenever you need it - that's what the support is there for</li>
+            <li>Progress is more important than perfection</li>
+            <li>You can request regular check-ins with your manager</li>
+            <li>You have the right to be accompanied at any formal meetings</li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: '24px', background: '#fce4ec', minHeight: '100vh' }}>
       {/* Header */}

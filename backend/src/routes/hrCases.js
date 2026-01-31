@@ -53,7 +53,7 @@ const ACAS_GUIDANCE = {
 /**
  * Check if user can access a specific case
  * HR and Admin can access all, managers can access their team's cases,
- * employees can only see their own grievances (limited view)
+ * employees can see their own grievances and PIPs (limited/encouraging view)
  */
 const canAccessCase = async (req, res, next) => {
   try {
@@ -86,9 +86,16 @@ const canAccessCase = async (req, res, next) => {
       return next();
     }
 
-    // Employee can only see own grievances with limited view
+    // Employee can see own grievances with limited view
     if (hrCase.employee_id === userId && hrCase.case_type === 'grievance') {
       req.limitedView = true;
+      return next();
+    }
+
+    // Employee can see own PIP with encouraging/goal-focused view
+    if (hrCase.employee_id === userId && hrCase.case_type === 'pip') {
+      req.limitedView = true;
+      req.employeePIPView = true; // Flag for encouraging view
       return next();
     }
 
@@ -307,6 +314,42 @@ router.get('/grievance/my-grievances', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/hr-cases/pip/my-pips
+ * Employee views own PIPs (encouraging, goal-focused view)
+ */
+router.get('/pip/my-pips', async (req, res) => {
+  try {
+    const { user } = req;
+    const tenantId = req.session?.tenantId || 1;
+
+    const result = await db.query(`
+      SELECT
+        c.id,
+        c.case_reference,
+        c.status,
+        c.summary,
+        c.opened_date,
+        c.target_close_date,
+        c.pip_outcome,
+        c.outcome_date,
+        (SELECT COUNT(*) FROM pip_objectives WHERE case_id = c.id) as total_objectives,
+        (SELECT COUNT(*) FROM pip_objectives WHERE case_id = c.id AND status = 'met') as objectives_met,
+        (SELECT COUNT(*) FROM pip_objectives WHERE case_id = c.id AND status IN ('on_track', 'met')) as objectives_on_track
+      FROM hr_cases c
+      WHERE c.tenant_id = $1
+        AND c.employee_id = $2
+        AND c.case_type = 'pip'
+      ORDER BY c.created_at DESC
+    `, [tenantId, user.id]);
+
+    res.json({ pips: result.rows });
+  } catch (error) {
+    console.error('Get my PIPs error:', error);
+    res.status(500).json({ error: 'Failed to load PIPs' });
+  }
+});
+
 // =====================================================
 // Case CRUD
 // =====================================================
@@ -466,7 +509,7 @@ router.get('/:id', canAccessCase, async (req, res) => {
   try {
     const hrCase = req.hrCase;
 
-    // If limited view (employee viewing own grievance), remove sensitive data
+    // If limited view (employee viewing own grievance/PIP), remove sensitive data
     if (req.limitedView) {
       delete hrCase.background;
       delete hrCase.outcome_notes;
@@ -482,10 +525,45 @@ router.get('/:id', canAccessCase, async (req, res) => {
         (SELECT COUNT(*) FROM hr_case_witnesses WHERE case_id = $1) as witnesses_count
     `, [hrCase.id]);
 
+    // For employee PIP view, add progress stats and encouraging messaging
+    let pipProgress = null;
+    let employeeView = false;
+
+    if (req.employeePIPView) {
+      employeeView = true;
+      const progressResult = await db.query(`
+        SELECT
+          COUNT(*) as total,
+          COUNT(*) FILTER (WHERE status = 'met') as met,
+          COUNT(*) FILTER (WHERE status = 'on_track') as on_track,
+          COUNT(*) FILTER (WHERE status = 'at_risk') as at_risk,
+          COUNT(*) FILTER (WHERE status = 'pending') as pending
+        FROM pip_objectives
+        WHERE case_id = $1
+      `, [hrCase.id]);
+
+      const progress = progressResult.rows[0];
+      const totalObj = parseInt(progress.total) || 0;
+      const metObj = parseInt(progress.met) || 0;
+      const onTrackObj = parseInt(progress.on_track) || 0;
+
+      pipProgress = {
+        total: totalObj,
+        met: metObj,
+        on_track: onTrackObj,
+        at_risk: parseInt(progress.at_risk) || 0,
+        pending: parseInt(progress.pending) || 0,
+        completion_percentage: totalObj > 0 ? Math.round((metObj / totalObj) * 100) : 0,
+        on_track_percentage: totalObj > 0 ? Math.round(((metObj + onTrackObj) / totalObj) * 100) : 0
+      };
+    }
+
     res.json({
       ...hrCase,
       ...counts.rows[0],
-      guidance: ACAS_GUIDANCE[hrCase.case_type]
+      guidance: ACAS_GUIDANCE[hrCase.case_type],
+      employee_view: employeeView,
+      pip_progress: pipProgress
     });
   } catch (error) {
     console.error('Get HR case error:', error);
