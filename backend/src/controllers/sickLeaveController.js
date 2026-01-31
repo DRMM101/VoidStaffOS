@@ -13,6 +13,7 @@
 const pool = require('../config/database');
 const { notifyManager, notifyEmployee, createNotification } = require('./notificationController');
 const auditTrail = require('../utils/auditTrail');
+const patternService = require('../services/absencePatternService');
 
 // =====================================================
 // Constants
@@ -167,6 +168,11 @@ async function reportSickLeave(req, res) {
       );
     }
 
+    // Trigger pattern detection for HR insights (async, non-blocking)
+    patternService.analyzeAfterAbsence(tenantId, userId).catch(err => {
+      console.error('Pattern detection error (non-blocking):', err);
+    });
+
     res.status(201).json({
       message: 'Sick leave reported successfully',
       leave_request: sickLeave,
@@ -256,6 +262,13 @@ async function updateSickLeave(req, res) {
       { end_date },
       { reason: 'Sick leave period updated' }
     );
+
+    // Trigger pattern detection when sick leave is closed
+    if (end_date) {
+      patternService.analyzeAfterAbsence(tenantId, sickLeave.employee_id).catch(err => {
+        console.error('Pattern detection error (non-blocking):', err);
+      });
+    }
 
     res.json({
       message: 'Sick leave updated',

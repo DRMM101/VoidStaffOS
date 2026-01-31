@@ -952,6 +952,155 @@ Get employee's SSP (Statutory Sick Pay) status.
 
 ---
 
+## Absence Insights Endpoints
+
+### GET /absence-insights
+Get insights for HR dashboard with filtering.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager, Manager (sees only direct reports)
+
+**Query Parameters:**
+- `status` - Filter by status (new, pending_review, reviewed, action_taken, dismissed)
+- `priority` - Filter by priority (low, medium, high)
+- `pattern_type` - Filter by pattern type
+- `employee_id` - Filter by employee
+- `limit` - Results limit (default 50)
+- `offset` - Pagination offset
+
+**Response (200):**
+```json
+{
+  "insights": [...],
+  "counts": {"new": 5, "pending_review": 3},
+  "pagination": {"limit": 50, "offset": 0, "total": 8}
+}
+```
+
+---
+
+### GET /absence-insights/dashboard
+Get dashboard summary for insights.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager, Manager
+
+**Response (200):**
+```json
+{
+  "overview": {
+    "pending_count": 8,
+    "new_count": 5,
+    "high_priority_count": 2,
+    "recent_count": 3
+  },
+  "pattern_breakdown": [
+    {"pattern_type": "frequency", "count": 3}
+  ],
+  "high_priority_insights": [...],
+  "top_bradford_scores": [...]
+}
+```
+
+---
+
+### GET /absence-insights/:id
+Get single insight with full details.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager, Manager
+
+**Response (200):**
+```json
+{
+  "insight": {
+    "id": 1,
+    "employee_id": 3,
+    "employee_name": "John Doe",
+    "pattern_type": "frequency",
+    "priority": "medium",
+    "status": "new",
+    "summary": "6 absences in the last 90 days",
+    "pattern_data": {...},
+    "related_absences": [...],
+    "review_history": [...],
+    "employee_summary": {...}
+  }
+}
+```
+
+---
+
+### PUT /absence-insights/:id/review
+Mark insight as reviewed with notes.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager, Manager
+
+**Request Body:**
+```json
+{
+  "notes": "Reviewed, no immediate concern"
+}
+```
+
+---
+
+### PUT /absence-insights/:id/action
+Record action taken on an insight.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager, Manager
+
+**Request Body:**
+```json
+{
+  "action_taken": "Wellbeing conversation scheduled",
+  "follow_up_date": "2026-02-15"
+}
+```
+
+---
+
+### PUT /absence-insights/:id/dismiss
+Dismiss an insight as not concerning.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager, Manager
+
+**Request Body:**
+```json
+{
+  "reason": "Known medical condition, already managed"
+}
+```
+
+---
+
+### GET /absence-insights/employee/:employeeId
+Get all insights for a specific employee.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager, Manager (for direct reports)
+
+---
+
+### POST /absence-insights/run-detection/:employeeId
+Manually trigger pattern detection for an employee.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager
+
+---
+
+### GET /absence-insights/follow-ups/pending
+Get insights with pending follow-up dates.
+
+**Auth Required:** Yes
+**Roles:** Admin, HR Manager, Manager
+
+---
+
 ## Error Responses
 
 All errors return JSON with an `error` field:

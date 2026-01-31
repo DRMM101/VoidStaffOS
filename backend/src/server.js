@@ -44,6 +44,7 @@ const complianceRoutes = require('./routes/compliance');
 const emergencyRoutes = require('./routes/emergency');
 const probationRoutes = require('./routes/probation');
 const sickLeaveRoutes = require('./routes/sickLeave');
+const absenceInsightsRoutes = require('./routes/absenceInsights');
 const devRoutes = require('./routes/dev');
 
 const app = express();
@@ -155,6 +156,7 @@ app.use('/api/compliance', complianceRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/probation', probationRoutes);
 app.use('/api/sick-leave', sickLeaveRoutes);
+app.use('/api/absence-insights', absenceInsightsRoutes);
 
 // Development routes (should be disabled in production)
 if (process.env.NODE_ENV !== 'production') {

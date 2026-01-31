@@ -1,6 +1,6 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-01-31 16:00 UTC
+**Last Updated:** 2026-01-31 18:00 UTC
 
 ## Current State
 
@@ -17,10 +17,55 @@ All core modules are **COMPLETE** and production-ready.
 > ✅ **Probation Management** - Complete
 > ✅ **Sick & Statutory Leave** - Complete
 > ✅ **Urgent Notifications** - Complete
+> ✅ **Absence Insights** - Complete
 
 ---
 
 ## Recent Updates (2026-01-31)
+
+### Chunk 8: Absence Insights - COMPLETE
+
+HR-focused absence pattern detection and reporting system for wellbeing review.
+
+**Features Implemented:**
+- Pattern detection engine with 6 pattern types:
+  - **Frequency**: High absence count in rolling period
+  - **Monday/Friday**: Weekend-adjacent absence patterns
+  - **Post-Holiday**: Absences immediately after annual leave
+  - **Duration Trend**: Increasing average absence duration
+  - **Short Notice**: Frequent same-day absence reporting
+  - **Recurring Reason**: Same reason cited repeatedly
+- Bradford Factor calculation (S² × D formula)
+- 12-month rolling employee absence summaries
+- HR dashboard with pattern breakdown
+- Insight review workflow (new → reviewed → actioned/dismissed)
+- Follow-up date scheduling for actioned insights
+- Full audit trail of insight reviews
+- Auto-detection triggered when sick leave is recorded
+
+**Backend Endpoints Added:**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/absence-insights` | GET | List insights with filtering |
+| `/api/absence-insights/dashboard` | GET | Dashboard summary stats |
+| `/api/absence-insights/:id` | GET | Full insight details |
+| `/api/absence-insights/:id/review` | PUT | Mark as reviewed |
+| `/api/absence-insights/:id/action` | PUT | Record action taken |
+| `/api/absence-insights/:id/dismiss` | PUT | Dismiss insight |
+| `/api/absence-insights/employee/:id` | GET | Employee's insights |
+| `/api/absence-insights/run-detection/:id` | POST | Manual detection |
+| `/api/absence-insights/follow-ups/pending` | GET | Pending follow-ups |
+
+**Database Migration:**
+- **Migration 031**: absence_insights, absence_summaries, insight_review_history tables
+
+**Frontend Components:**
+- `InsightsDashboard.jsx` - Main HR dashboard with stats and filtering
+- `InsightCard.jsx` - Individual insight display card
+- `InsightReviewModal.jsx` - Full insight review modal with actions
+
+---
 
 ### Chunk 7: Sick & Statutory Leave - COMPLETE
 
@@ -48,36 +93,6 @@ Full sick leave and statutory leave management with Return to Work interviews.
 - Fixed text contrast throughout (changed #666 to #424242/#111)
 - Urgent notification filter button
 
-### Backend Endpoints Added
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/sick-leave/categories` | GET | List 13 absence categories |
-| `/api/sick-leave/report` | POST | Employee reports sick |
-| `/api/sick-leave/:id` | PUT | Update/extend sick leave |
-| `/api/sick-leave/:id/fit-note` | POST | Attach fit note document |
-| `/api/sick-leave/statutory` | POST | Request statutory leave |
-| `/api/sick-leave/rtw/pending` | GET | Pending RTW interviews |
-| `/api/sick-leave/rtw/follow-ups` | GET | Pending follow-up interviews |
-| `/api/sick-leave/rtw` | POST | Create RTW interview |
-| `/api/sick-leave/rtw/:id` | GET | Get RTW by leave request |
-| `/api/sick-leave/rtw/:id/complete` | PUT | Complete RTW interview |
-| `/api/sick-leave/ssp/:employeeId` | GET | Get SSP status |
-
-### Database Migrations
-
-- **Migration 029**: Sick & statutory leave tables
-- **Migration 030**: Urgent notifications (`is_urgent` column)
-
-### Frontend Components
-
-- `AbsenceDashboard.jsx` - Main dashboard with 5 tabs
-- `SickLeaveReport.jsx` - Employee sick reporting form
-- `AbsenceRequest.jsx` - Statutory leave request form
-- `ReturnToWorkForm.jsx` - 4-step RTW interview wizard
-- Updated `Notifications.jsx` - Urgent styling, click-to-navigate
-- Updated `NotificationBell.jsx` - Urgent notifications at top
-
 ---
 
 ## Module Status
@@ -94,6 +109,7 @@ Full sick leave and statutory leave management with Return to Work interviews.
 | Emergency | ✅ Complete | 026 | Emergency contacts |
 | Probation | ✅ Complete | 027-028 | Probation tracking |
 | Sick/Statutory | ✅ Complete | 029-030 | Sick leave & RTW |
+| Insights | ✅ Complete | 031 | Absence pattern detection |
 
 ---
 
@@ -124,6 +140,7 @@ Full sick leave and statutory leave management with Return to Work interviews.
 - Maternity/adoption leave notice period validation
 - Email notifications for urgent absences
 - Manager dashboard absence calendar view
+- Seasonal pattern detection (same time each year)
 
 ---
 
@@ -150,6 +167,7 @@ npm run dev
 
 ## Git Commit History (Recent)
 
+- Absence Insights module (pattern detection, Bradford Factor)
 - Urgent notifications with click-to-navigate
 - Follow-ups tab for RTW interviews
 - UI polish (rounded corners, contrast fixes)

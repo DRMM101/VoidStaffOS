@@ -134,7 +134,7 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
         {(isAdmin || isManager) && (
           <div className="nav-dropdown">
             <button
-              className={`nav-link dropdown-trigger ${isDropdownActive(['compliance', 'probation', 'role-management']) ? 'active' : ''}`}
+              className={`nav-link dropdown-trigger ${isDropdownActive(['compliance', 'probation', 'insights', 'role-management']) ? 'active' : ''}`}
               onClick={() => toggleDropdown('admin')}
             >
               Admin
@@ -153,6 +153,12 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
                   onClick={() => handleNavigate('probation')}
                 >
                   Probation
+                </button>
+                <button
+                  className={`dropdown-item ${currentPage === 'insights' ? 'active' : ''}`}
+                  onClick={() => handleNavigate('insights')}
+                >
+                  Absence Insights
                 </button>
                 {isAdmin && (
                   <button
