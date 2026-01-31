@@ -204,6 +204,110 @@ router.get('/guidance/:caseType/:stage', (req, res) => {
 });
 
 // =====================================================
+// Employee Grievance Self-Service
+// IMPORTANT: These routes must come BEFORE /:id routes
+// =====================================================
+
+/**
+ * POST /api/hr-cases/grievance/submit
+ * Employee submits grievance (confidential)
+ */
+router.post('/grievance/submit', async (req, res) => {
+  try {
+    const { user } = req;
+    const tenantId = req.session?.tenantId || 1;
+    const { summary, background } = req.body;
+
+    if (!summary) {
+      return res.status(400).json({ error: 'Grievance summary is required' });
+    }
+
+    // Create grievance case
+    const result = await db.query(`
+      INSERT INTO hr_cases (
+        tenant_id, employee_id, case_type, summary, background,
+        opened_by, manager_id, status, confidential
+      )
+      VALUES ($1, $2, 'grievance', $3, $4, $5, $6, 'open', true)
+      RETURNING *
+    `, [tenantId, user.id, summary, background, user.id, user.manager_id]);
+
+    const newCase = result.rows[0];
+
+    // Add initial note
+    await db.query(`
+      INSERT INTO hr_case_notes (tenant_id, case_id, note_type, content, created_by, visible_to_employee)
+      VALUES ($1, $2, 'general', 'Grievance submitted by employee', $3, true)
+    `, [tenantId, newCase.id, user.id]);
+
+    // Notify HR (find HR users)
+    const hrUsers = await db.query(
+      `SELECT id FROM users WHERE tenant_id = $1 AND role_name = 'Admin'`,
+      [tenantId]
+    );
+
+    for (const hr of hrUsers.rows) {
+      await createNotification(
+        hr.id,
+        'grievance_submitted',
+        'Grievance Submitted',
+        `A new grievance (${newCase.case_reference}) has been submitted and requires review.`,
+        newCase.id,
+        'hr_case',
+        tenantId
+      );
+    }
+
+    // Log the action
+    await logAction(tenantId, user.id, 'grievance_submitted', {
+      case_id: newCase.id,
+      case_reference: newCase.case_reference
+    });
+
+    res.status(201).json({
+      message: 'Grievance submitted successfully',
+      case_reference: newCase.case_reference
+    });
+  } catch (error) {
+    console.error('Submit grievance error:', error);
+    res.status(500).json({ error: 'Failed to submit grievance' });
+  }
+});
+
+/**
+ * GET /api/hr-cases/grievance/my-grievances
+ * Employee views own grievances
+ */
+router.get('/grievance/my-grievances', async (req, res) => {
+  try {
+    const { user } = req;
+    const tenantId = req.session?.tenantId || 1;
+
+    const result = await db.query(`
+      SELECT
+        id,
+        case_reference,
+        status,
+        summary,
+        opened_date,
+        grievance_outcome,
+        outcome_date,
+        appeal_requested
+      FROM hr_cases
+      WHERE tenant_id = $1
+        AND employee_id = $2
+        AND case_type = 'grievance'
+      ORDER BY created_at DESC
+    `, [tenantId, user.id]);
+
+    res.json({ grievances: result.rows });
+  } catch (error) {
+    console.error('Get my grievances error:', error);
+    res.status(500).json({ error: 'Failed to load grievances' });
+  }
+});
+
+// =====================================================
 // Case CRUD
 // =====================================================
 
@@ -1364,109 +1468,6 @@ router.put('/:id/witnesses/:wId', canAccessCase, async (req, res) => {
   } catch (error) {
     console.error('Update witness error:', error);
     res.status(500).json({ error: 'Failed to update witness' });
-  }
-});
-
-// =====================================================
-// Employee Grievance Self-Service
-// =====================================================
-
-/**
- * POST /api/hr-cases/grievance/submit
- * Employee submits grievance (confidential)
- */
-router.post('/grievance/submit', async (req, res) => {
-  try {
-    const { user } = req;
-    const tenantId = req.session?.tenantId || 1;
-    const { summary, background } = req.body;
-
-    if (!summary) {
-      return res.status(400).json({ error: 'Grievance summary is required' });
-    }
-
-    // Create grievance case
-    const result = await db.query(`
-      INSERT INTO hr_cases (
-        tenant_id, employee_id, case_type, summary, background,
-        opened_by, manager_id, status, confidential
-      )
-      VALUES ($1, $2, 'grievance', $3, $4, $5, $6, 'open', true)
-      RETURNING *
-    `, [tenantId, user.id, summary, background, user.id, user.manager_id]);
-
-    const newCase = result.rows[0];
-
-    // Add initial note
-    await db.query(`
-      INSERT INTO hr_case_notes (tenant_id, case_id, note_type, content, created_by, visible_to_employee)
-      VALUES ($1, $2, 'general', 'Grievance submitted by employee', $3, true)
-    `, [tenantId, newCase.id, user.id]);
-
-    // Notify HR (find HR users)
-    const hrUsers = await db.query(
-      `SELECT id FROM users WHERE tenant_id = $1 AND role_name = 'Admin'`,
-      [tenantId]
-    );
-
-    for (const hr of hrUsers.rows) {
-      await createNotification(
-        hr.id,
-        'grievance_submitted',
-        'Grievance Submitted',
-        `A new grievance (${newCase.case_reference}) has been submitted and requires review.`,
-        newCase.id,
-        'hr_case',
-        tenantId
-      );
-    }
-
-    // Log the action
-    await logAction(tenantId, user.id, 'grievance_submitted', {
-      case_id: newCase.id,
-      case_reference: newCase.case_reference
-    });
-
-    res.status(201).json({
-      message: 'Grievance submitted successfully',
-      case_reference: newCase.case_reference
-    });
-  } catch (error) {
-    console.error('Submit grievance error:', error);
-    res.status(500).json({ error: 'Failed to submit grievance' });
-  }
-});
-
-/**
- * GET /api/hr-cases/grievance/my-grievances
- * Employee views own grievances
- */
-router.get('/grievance/my-grievances', async (req, res) => {
-  try {
-    const { user } = req;
-    const tenantId = req.session?.tenantId || 1;
-
-    const result = await db.query(`
-      SELECT
-        id,
-        case_reference,
-        status,
-        summary,
-        opened_date,
-        grievance_outcome,
-        outcome_date,
-        appeal_requested
-      FROM hr_cases
-      WHERE tenant_id = $1
-        AND employee_id = $2
-        AND case_type = 'grievance'
-      ORDER BY created_at DESC
-    `, [tenantId, user.id]);
-
-    res.json({ grievances: result.rows });
-  } catch (error) {
-    console.error('Get my grievances error:', error);
-    res.status(500).json({ error: 'Failed to load grievances' });
   }
 });
 
