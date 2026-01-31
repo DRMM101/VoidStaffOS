@@ -47,8 +47,10 @@ const DEFAULT_CHECKLIST = [
  */
 router.post('/', authorize('Admin', 'Manager'), async (req, res) => {
   try {
+    console.log('Offboarding POST - body:', req.body);
     const { user } = req;
     const tenantId = req.session?.tenantId || 1;
+    console.log('Offboarding POST - user:', user?.id, 'tenant:', tenantId);
     const {
       employee_id,
       termination_type,
@@ -153,6 +155,78 @@ router.post('/', authorize('Admin', 'Manager'), async (req, res) => {
 });
 
 /**
+ * GET /api/offboarding/stats
+ * Get offboarding statistics for dashboard
+ * IMPORTANT: Must be defined BEFORE /:id route
+ */
+router.get('/stats', authorize('Admin', 'Manager'), async (req, res) => {
+  try {
+    const { user } = req;
+    const tenantId = req.session?.tenantId || 1;
+
+    let managerFilter = '';
+    const params = [tenantId];
+
+    if (user.role_name === 'Manager') {
+      managerFilter = ' AND manager_id = $2';
+      params.push(user.id);
+    }
+
+    const result = await db.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE status = 'pending') as pending,
+        COUNT(*) FILTER (WHERE status = 'in_progress') as in_progress,
+        COUNT(*) FILTER (WHERE status = 'completed' AND completed_at >= NOW() - INTERVAL '30 days') as completed_this_month,
+        COUNT(*) FILTER (WHERE status IN ('pending', 'in_progress') AND last_working_day <= CURRENT_DATE + INTERVAL '7 days' AND last_working_day >= CURRENT_DATE) as leaving_this_week
+      FROM offboarding_workflows
+      WHERE tenant_id = $1 ${managerFilter}
+    `, params);
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Get stats error:', err);
+    res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
+/**
+ * GET /api/offboarding/upcoming
+ * Get list of employees with upcoming last working days
+ * IMPORTANT: Must be defined BEFORE /:id route
+ */
+router.get('/upcoming', authorize('Admin', 'Manager'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const { days = 30 } = req.query;
+
+    const result = await db.query(`
+      SELECT
+        ow.id,
+        ow.employee_id,
+        ow.termination_type,
+        ow.last_working_day,
+        ow.status,
+        u.full_name as employee_name,
+        u.email,
+        u.employee_number,
+        (ow.last_working_day::date - CURRENT_DATE) as days_until
+      FROM offboarding_workflows ow
+      JOIN users u ON ow.employee_id = u.id
+      WHERE ow.tenant_id = $1
+        AND ow.status IN ('pending', 'in_progress')
+        AND ow.last_working_day >= CURRENT_DATE
+        AND ow.last_working_day <= CURRENT_DATE + INTERVAL '1 day' * $2
+      ORDER BY ow.last_working_day ASC
+    `, [tenantId, parseInt(days)]);
+
+    res.json({ upcoming: result.rows });
+  } catch (err) {
+    console.error('Get upcoming error:', err);
+    res.status(500).json({ error: 'Failed to fetch upcoming offboardings' });
+  }
+});
+
+/**
  * GET /api/offboarding
  * List all offboarding workflows
  */
@@ -160,7 +234,7 @@ router.get('/', authorize('Admin', 'Manager'), async (req, res) => {
   try {
     const { user } = req;
     const tenantId = req.session?.tenantId || 1;
-    const { status, limit = 50, offset = 0 } = req.query;
+    let { status, limit = 50, offset = 0 } = req.query;
 
     let whereClause = 'WHERE ow.tenant_id = $1';
     const params = [tenantId];
@@ -173,10 +247,14 @@ router.get('/', authorize('Admin', 'Manager'), async (req, res) => {
       paramIndex++;
     }
 
+    // Handle status filter - can be single value or array
     if (status) {
-      whereClause += ` AND ow.status = $${paramIndex}`;
-      params.push(status);
-      paramIndex++;
+      // Convert to array if it's a string
+      const statusArray = Array.isArray(status) ? status : [status];
+      const placeholders = statusArray.map((_, i) => `$${paramIndex + i}`).join(', ');
+      whereClause += ` AND ow.status IN (${placeholders})`;
+      params.push(...statusArray);
+      paramIndex += statusArray.length;
     }
 
     const result = await db.query(`
@@ -1013,42 +1091,6 @@ router.post('/check-deadlines', authorize('Admin'), async (req, res) => {
   } catch (err) {
     console.error('Check deadlines error:', err);
     res.status(500).json({ error: 'Failed to check deadlines' });
-  }
-});
-
-/**
- * GET /api/offboarding/upcoming
- * Get list of employees with upcoming last working days
- */
-router.get('/upcoming', authorize('Admin', 'Manager'), async (req, res) => {
-  try {
-    const tenantId = req.session?.tenantId || 1;
-    const { days = 30 } = req.query;
-
-    const result = await db.query(`
-      SELECT
-        ow.id,
-        ow.employee_id,
-        ow.termination_type,
-        ow.last_working_day,
-        ow.status,
-        u.full_name as employee_name,
-        u.email,
-        u.employee_number,
-        (ow.last_working_day::date - CURRENT_DATE) as days_until
-      FROM offboarding_workflows ow
-      JOIN users u ON ow.employee_id = u.id
-      WHERE ow.tenant_id = $1
-        AND ow.status IN ('pending', 'in_progress')
-        AND ow.last_working_day >= CURRENT_DATE
-        AND ow.last_working_day <= CURRENT_DATE + INTERVAL '1 day' * $2
-      ORDER BY ow.last_working_day ASC
-    `, [tenantId, parseInt(days)]);
-
-    res.json({ upcoming: result.rows });
-  } catch (err) {
-    console.error('Get upcoming error:', err);
-    res.status(500).json({ error: 'Failed to fetch upcoming offboardings' });
   }
 });
 

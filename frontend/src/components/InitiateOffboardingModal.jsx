@@ -91,8 +91,14 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to initiate offboarding');
+        let errorMessage = 'Failed to initiate offboarding';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = `Server error (${response.status})`;
+        }
+        throw new Error(errorMessage);
       }
 
       onSuccess();
@@ -257,7 +263,8 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
                 fontSize: '14px',
                 color: '#111',
                 background: '#fff',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                colorScheme: 'light'
               }}
             />
           </div>
@@ -281,7 +288,8 @@ function InitiateOffboardingModal({ onClose, onSuccess }) {
                 fontSize: '14px',
                 color: '#111',
                 background: '#fff',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                colorScheme: 'light'
               }}
             />
           </div>
