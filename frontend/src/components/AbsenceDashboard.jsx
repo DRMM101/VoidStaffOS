@@ -16,13 +16,15 @@ import SickLeaveReport from './SickLeaveReport';
 import AbsenceRequest from './AbsenceRequest';
 import ReturnToWorkForm from './ReturnToWorkForm';
 
-function AbsenceDashboard({ user }) {
+function AbsenceDashboard({ user, navParams }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [myAbsences, setMyAbsences] = useState([]);
   const [pendingRTW, setPendingRTW] = useState([]);
+  const [pendingFollowUps, setPendingFollowUps] = useState([]);
   const [teamAbsences, setTeamAbsences] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [highlightedId, setHighlightedId] = useState(null);
 
   // Modal states
   const [showSickReport, setShowSickReport] = useState(false);
@@ -30,6 +32,20 @@ function AbsenceDashboard({ user }) {
   const [showRTW, setShowRTW] = useState(null); // { leaveRequestId, employeeName }
 
   const isManager = user?.role_name === 'Manager' || user?.role_name === 'Admin';
+
+  // Handle navigation params (e.g., from notification click)
+  useEffect(() => {
+    if (navParams) {
+      if (navParams.tab) {
+        setActiveTab(navParams.tab);
+      }
+      if (navParams.highlightId) {
+        setHighlightedId(navParams.highlightId);
+        // Clear highlight after 5 seconds
+        setTimeout(() => setHighlightedId(null), 5000);
+      }
+    }
+  }, [navParams]);
 
   useEffect(() => {
     fetchData();
@@ -51,7 +67,7 @@ function AbsenceDashboard({ user }) {
         setMyAbsences(filtered);
       }
 
-      // If manager, fetch pending RTW interviews
+      // If manager, fetch pending RTW interviews and follow-ups
       if (isManager) {
         const rtwResponse = await fetch('/api/sick-leave/rtw/pending', {
           credentials: 'include'
@@ -59,6 +75,15 @@ function AbsenceDashboard({ user }) {
         const rtwData = await rtwResponse.json();
         if (rtwResponse.ok) {
           setPendingRTW(rtwData.pending_rtw || []);
+        }
+
+        // Fetch pending follow-ups
+        const followUpResponse = await fetch('/api/sick-leave/rtw/follow-ups', {
+          credentials: 'include'
+        });
+        const followUpData = await followUpResponse.json();
+        if (followUpResponse.ok) {
+          setPendingFollowUps(followUpData.pending_follow_ups || []);
         }
 
         // Fetch team absences
@@ -135,13 +160,13 @@ function AbsenceDashboard({ user }) {
   };
 
   if (loading) {
-    return <div className="loading">Loading absence data...</div>;
+    return <div className="loading" style={{ color: '#333' }}>Loading absence data...</div>;
   }
 
   return (
-    <div className="absence-dashboard">
+    <div className="absence-dashboard" style={{ background: '#e3f2fd', padding: '24px', minHeight: '100%', borderRadius: '12px' }}>
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h2>Absence Management</h2>
+        <h2 style={{ color: '#000', margin: 0, fontWeight: '600' }}>Absence Management</h2>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button onClick={() => setShowSickReport(true)} className="btn-warning" style={{ background: '#f44336', color: '#fff' }}>
             Report Sick
@@ -154,8 +179,8 @@ function AbsenceDashboard({ user }) {
 
       {/* Tabs for managers */}
       {isManager && (
-        <div className="tabs" style={{ display: 'flex', gap: '0', marginBottom: '24px', borderBottom: '1px solid #e0e0e0' }}>
-          {['overview', 'my-absences', 'team', 'rtw'].map(tab => (
+        <div className="tabs" style={{ display: 'flex', gap: '0', marginBottom: '24px', borderBottom: '2px solid #bbdefb', background: '#bbdefb', borderRadius: '8px 8px 0 0' }}>
+          {['overview', 'my-absences', 'team', 'rtw', 'follow-ups'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -163,16 +188,17 @@ function AbsenceDashboard({ user }) {
                 padding: '12px 24px',
                 border: 'none',
                 background: activeTab === tab ? '#fff' : 'transparent',
-                borderBottom: activeTab === tab ? '2px solid #2196f3' : '2px solid transparent',
-                color: activeTab === tab ? '#2196f3' : '#666',
+                borderBottom: activeTab === tab ? '2px solid #1976d2' : '2px solid transparent',
+                color: activeTab === tab ? '#1976d2' : '#111',
                 cursor: 'pointer',
-                fontWeight: activeTab === tab ? '600' : '400'
+                fontWeight: activeTab === tab ? '600' : '500'
               }}
             >
               {tab === 'overview' && 'Overview'}
               {tab === 'my-absences' && 'My Absences'}
               {tab === 'team' && 'Team Absences'}
               {tab === 'rtw' && `RTW Interviews ${pendingRTW.length > 0 ? `(${pendingRTW.length})` : ''}`}
+              {tab === 'follow-ups' && `Follow-ups ${pendingFollowUps.length > 0 ? `(${pendingFollowUps.length})` : ''}`}
             </button>
           ))}
         </div>
@@ -185,24 +211,24 @@ function AbsenceDashboard({ user }) {
         <div className="overview-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           {/* Quick Actions Card */}
           <div className="card" style={{ background: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            <h4 style={{ marginTop: 0 }}>Quick Actions</h4>
+            <h4 style={{ marginTop: 0, color: '#212121' }}>Quick Actions</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <button onClick={() => setShowSickReport(true)} style={{ padding: '12px', background: '#ffebee', border: '1px solid #f44336', borderRadius: '8px', cursor: 'pointer', textAlign: 'left' }}>
                 <strong style={{ color: '#c62828' }}>🤒 Report Sick</strong>
-                <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#666' }}>Let your manager know you're unwell</p>
+                <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#424242' }}>Let your manager know you're unwell</p>
               </button>
               <button onClick={() => setShowAbsenceRequest(true)} style={{ padding: '12px', background: '#e3f2fd', border: '1px solid #2196f3', borderRadius: '8px', cursor: 'pointer', textAlign: 'left' }}>
                 <strong style={{ color: '#1565c0' }}>📅 Request Leave</strong>
-                <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#666' }}>Maternity, paternity, bereavement, etc.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#424242' }}>Maternity, paternity, bereavement, etc.</p>
               </button>
             </div>
           </div>
 
           {/* Recent Absences Card */}
           <div className="card" style={{ background: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            <h4 style={{ marginTop: 0 }}>My Recent Absences</h4>
+            <h4 style={{ marginTop: 0, color: '#212121' }}>My Recent Absences</h4>
             {myAbsences.length === 0 ? (
-              <p style={{ color: '#666' }}>No recent absences recorded.</p>
+              <p style={{ color: '#424242' }}>No recent absences recorded.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {myAbsences.slice(0, 3).map(absence => (
@@ -211,7 +237,7 @@ function AbsenceDashboard({ user }) {
                       {getCategoryBadge(absence.absence_category)}
                       {getStatusBadge(absence.status)}
                     </div>
-                    <div style={{ marginTop: '8px', fontSize: '14px' }}>
+                    <div style={{ marginTop: '8px', fontSize: '14px', color: '#333' }}>
                       {formatDate(absence.leave_start_date)}
                       {absence.leave_end_date && absence.leave_end_date !== absence.leave_start_date &&
                         ` - ${formatDate(absence.leave_end_date)}`
@@ -231,8 +257,8 @@ function AbsenceDashboard({ user }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {pendingRTW.slice(0, 3).map(rtw => (
                   <div key={rtw.id} style={{ padding: '12px', background: '#fff3e0', borderRadius: '8px' }}>
-                    <strong>{rtw.employee_name}</strong>
-                    <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
+                    <strong style={{ color: '#212121' }}>{rtw.employee_name}</strong>
+                    <div style={{ fontSize: '14px', color: '#424242', marginTop: '4px' }}>
                       Returned: {formatDate(rtw.leave_end_date)}
                     </div>
                     <button
@@ -253,35 +279,35 @@ function AbsenceDashboard({ user }) {
       {activeTab === 'my-absences' && (
         <div className="absences-list">
           {myAbsences.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#424242' }}>
               <p>No absences recorded.</p>
             </div>
           ) : (
             <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ background: '#f5f5f5' }}>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Type</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Dates</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Days</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Status</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>RTW</th>
+                <tr style={{ background: '#e0e0e0' }}>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Type</th>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Dates</th>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Days</th>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Status</th>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>RTW</th>
                 </tr>
               </thead>
               <tbody>
                 {myAbsences.map(absence => (
-                  <tr key={absence.id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                    <td style={{ padding: '12px' }}>{getCategoryBadge(absence.absence_category)}</td>
-                    <td style={{ padding: '12px' }}>
+                  <tr key={absence.id} style={{ borderBottom: '1px solid #e0e0e0', background: '#fff' }}>
+                    <td style={{ padding: '12px', color: '#111' }}>{getCategoryBadge(absence.absence_category)}</td>
+                    <td style={{ padding: '12px', color: '#111' }}>
                       {formatDate(absence.leave_start_date)}
                       {absence.leave_end_date ? ` - ${formatDate(absence.leave_end_date)}` : ' (ongoing)'}
                     </td>
-                    <td style={{ padding: '12px' }}>{absence.total_days || '-'}</td>
-                    <td style={{ padding: '12px' }}>{getStatusBadge(absence.status)}</td>
-                    <td style={{ padding: '12px' }}>
+                    <td style={{ padding: '12px', color: '#111' }}>{absence.total_days || '-'}</td>
+                    <td style={{ padding: '12px', color: '#111' }}>{getStatusBadge(absence.status)}</td>
+                    <td style={{ padding: '12px', color: '#111' }}>
                       {absence.rtw_required && (
                         absence.rtw_completed ?
-                          <span style={{ color: '#4caf50' }}>✓ Complete</span> :
-                          <span style={{ color: '#ff9800' }}>Pending</span>
+                          <span style={{ color: '#2e7d32' }}>✓ Complete</span> :
+                          <span style={{ color: '#e65100' }}>Pending</span>
                       )}
                     </td>
                   </tr>
@@ -296,33 +322,38 @@ function AbsenceDashboard({ user }) {
       {activeTab === 'team' && isManager && (
         <div className="team-absences">
           {teamAbsences.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#424242' }}>
               <p>No team absences recorded.</p>
             </div>
           ) : (
             <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ background: '#f5f5f5' }}>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Employee</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Type</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Dates</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Days</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Status</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Actions</th>
+                <tr style={{ background: '#e0e0e0' }}>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Employee</th>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Type</th>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Dates</th>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Days</th>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Status</th>
+                  <th style={{ padding: '12px', textAlign: 'left', color: '#212121', fontWeight: '600' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {teamAbsences.map(absence => (
-                  <tr key={absence.id} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                    <td style={{ padding: '12px' }}>{absence.employee_name}</td>
-                    <td style={{ padding: '12px' }}>{getCategoryBadge(absence.absence_category)}</td>
-                    <td style={{ padding: '12px' }}>
+                  <tr key={absence.id} style={{
+                    borderBottom: '1px solid #e0e0e0',
+                    background: highlightedId === absence.id ? '#fff3e0' : '#fff',
+                    transition: 'background 0.3s',
+                    boxShadow: highlightedId === absence.id ? 'inset 0 0 0 2px #ff9800' : 'none'
+                  }}>
+                    <td style={{ padding: '12px', color: '#111', fontWeight: '500' }}>{absence.employee_name}</td>
+                    <td style={{ padding: '12px', color: '#111' }}>{getCategoryBadge(absence.absence_category)}</td>
+                    <td style={{ padding: '12px', color: '#111' }}>
                       {formatDate(absence.leave_start_date)}
                       {absence.leave_end_date ? ` - ${formatDate(absence.leave_end_date)}` : ' (ongoing)'}
                     </td>
-                    <td style={{ padding: '12px' }}>{absence.total_days || '-'}</td>
-                    <td style={{ padding: '12px' }}>{getStatusBadge(absence.status)}</td>
-                    <td style={{ padding: '12px' }}>
+                    <td style={{ padding: '12px', color: '#111' }}>{absence.total_days || '-'}</td>
+                    <td style={{ padding: '12px', color: '#111' }}>{getStatusBadge(absence.status)}</td>
+                    <td style={{ padding: '12px', color: '#111' }}>
                       {absence.rtw_required && !absence.rtw_completed && (
                         <button
                           onClick={() => setShowRTW({ leaveRequestId: absence.id, employeeName: absence.employee_name })}
@@ -344,31 +375,31 @@ function AbsenceDashboard({ user }) {
       {activeTab === 'rtw' && isManager && (
         <div className="rtw-list">
           <div className="info-banner" style={{ background: '#e8f5e9', padding: '16px', borderRadius: '8px', marginBottom: '20px' }}>
-            <h4 style={{ margin: '0 0 8px' }}>Return to Work Conversations</h4>
-            <p style={{ margin: 0, fontSize: '14px' }}>
+            <h4 style={{ margin: '0 0 8px', color: '#1b5e20' }}>Return to Work Conversations</h4>
+            <p style={{ margin: 0, fontSize: '14px', color: '#2e7d32' }}>
               These are supportive wellbeing conversations to help employees transition back after sick leave.
               They are <strong>not</strong> disciplinary and should focus on support, adjustments, and wellbeing.
             </p>
           </div>
 
           {pendingRTW.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            <div style={{ textAlign: 'center', padding: '40px', color: '#424242' }}>
               <p>No pending RTW interviews.</p>
             </div>
           ) : (
             <div className="rtw-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
               {pendingRTW.map(rtw => (
                 <div key={rtw.id} className="rtw-card" style={{ background: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', border: '1px solid #e0e0e0' }}>
-                  <h4 style={{ margin: '0 0 12px' }}>{rtw.employee_name}</h4>
-                  <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-                    <strong>Sick leave:</strong> {formatDate(rtw.leave_start_date)} - {formatDate(rtw.leave_end_date)}
+                  <h4 style={{ margin: '0 0 12px', color: '#212121' }}>{rtw.employee_name}</h4>
+                  <div style={{ fontSize: '14px', color: '#333', marginBottom: '8px' }}>
+                    <strong style={{ color: '#212121' }}>Sick leave:</strong> {formatDate(rtw.leave_start_date)} - {formatDate(rtw.leave_end_date)}
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-                    <strong>Duration:</strong> {rtw.total_days} day{rtw.total_days !== 1 ? 's' : ''}
+                  <div style={{ fontSize: '14px', color: '#333', marginBottom: '8px' }}>
+                    <strong style={{ color: '#212121' }}>Duration:</strong> {rtw.total_days} day{rtw.total_days !== 1 ? 's' : ''}
                   </div>
                   {rtw.sick_reason && (
-                    <div style={{ fontSize: '14px', color: '#666', marginBottom: '12px' }}>
-                      <strong>Reason:</strong> {rtw.sick_reason.replace('_', ' ')}
+                    <div style={{ fontSize: '14px', color: '#333', marginBottom: '12px' }}>
+                      <strong style={{ color: '#212121' }}>Reason:</strong> {rtw.sick_reason.replace('_', ' ')}
                     </div>
                   )}
                   <button
@@ -378,6 +409,67 @@ function AbsenceDashboard({ user }) {
                   >
                     Conduct RTW Interview
                   </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Follow-ups Tab (Manager only) */}
+      {activeTab === 'follow-ups' && isManager && (
+        <div className="follow-ups-list">
+          <div className="info-banner" style={{ background: '#e3f2fd', padding: '16px', borderRadius: '8px', marginBottom: '20px' }}>
+            <h4 style={{ margin: '0 0 8px', color: '#0d47a1' }}>Scheduled Follow-ups</h4>
+            <p style={{ margin: 0, fontSize: '14px', color: '#1565c0' }}>
+              These are follow-up conversations scheduled after RTW interviews.
+              Check in with employees to ensure their return to work is going smoothly.
+            </p>
+          </div>
+
+          {pendingFollowUps.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#424242' }}>
+              <p>No pending follow-ups scheduled.</p>
+            </div>
+          ) : (
+            <div className="follow-up-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+              {pendingFollowUps.map(followUp => (
+                <div key={followUp.id} className="follow-up-card" style={{
+                  background: '#fff',
+                  padding: '20px',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  border: new Date(followUp.follow_up_date) <= new Date() ? '2px solid #ff9800' : '1px solid #e0e0e0'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <h4 style={{ margin: 0, color: '#212121' }}>{followUp.employee_name}</h4>
+                    {new Date(followUp.follow_up_date) <= new Date() && (
+                      <span style={{ background: '#ff9800', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>
+                        Due
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#333', marginBottom: '8px' }}>
+                    <strong style={{ color: '#212121' }}>Follow-up date:</strong> {formatDate(followUp.follow_up_date)}
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#333', marginBottom: '8px' }}>
+                    <strong style={{ color: '#212121' }}>Original sick leave:</strong> {formatDate(followUp.leave_start_date)} - {formatDate(followUp.leave_end_date)}
+                  </div>
+                  {followUp.follow_up_notes && (
+                    <div style={{ fontSize: '14px', color: '#333', marginBottom: '12px' }}>
+                      <strong style={{ color: '#212121' }}>Focus areas:</strong> {followUp.follow_up_notes}
+                    </div>
+                  )}
+                  {followUp.oh_referral_recommended && (
+                    <div style={{ fontSize: '14px', color: '#e65100', marginBottom: '12px' }}>
+                      <strong>OH Referral recommended</strong>
+                    </div>
+                  )}
+                  {followUp.workplace_adjustments && (
+                    <div style={{ fontSize: '14px', color: '#333', marginBottom: '12px' }}>
+                      <strong style={{ color: '#212121' }}>Adjustments:</strong> {followUp.workplace_adjustments}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

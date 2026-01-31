@@ -36,6 +36,15 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [navParams, setNavParams] = useState(null);
+
+  // Enhanced navigation that supports parameters
+  const handleNavigate = (page, params = null) => {
+    if (typeof page === 'string') {
+      setCurrentPage(page);
+      setNavParams(params);
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -87,21 +96,21 @@ function App() {
     <div className="app-container">
       <Navigation
         currentPage={currentPage}
-        onNavigate={setCurrentPage}
+        onNavigate={handleNavigate}
         onLogout={handleLogout}
         isAdmin={isAdmin}
         isManager={isManager}
       />
       <main className="main-content">
-        {currentPage === 'dashboard' && <Dashboard user={user} onNavigate={setCurrentPage} />}
-        {currentPage === 'employees' && <Employees user={user} />}
+        {currentPage === 'dashboard' && <Dashboard user={user} onNavigate={handleNavigate} />}
+        {currentPage === 'employees' && <Employees user={user} navParams={navParams} />}
         {currentPage === 'reviews' && <Reviews user={user} canCreate={canCreateReviews} />}
         {currentPage === 'review-detail' && <Reviews user={user} canCreate={canCreateReviews} viewMode="detail" />}
         {currentPage === 'my-reports' && <EmployeeQuarterlyReport user={user} />}
         {currentPage === 'policies' && <Policies user={user} />}
         {currentPage === 'documents' && <Documents user={user} />}
         {currentPage === 'emergency' && <Emergency user={user} />}
-        {currentPage === 'absence' && <AbsenceDashboard user={user} />}
+        {currentPage === 'absence' && <AbsenceDashboard user={user} navParams={navParams} />}
         {currentPage === 'compliance' && (isAdmin || isManager) && <Compliance user={user} />}
         {currentPage === 'probation' && (isAdmin || isManager) && <Probation user={user} />}
         {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}

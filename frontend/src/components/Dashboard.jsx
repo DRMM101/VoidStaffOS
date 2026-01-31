@@ -868,6 +868,7 @@ function Dashboard({ user, onNavigate }) {
             setShowNotifications(false);
             fetchUnreadNotifications();
           }}
+          onNavigate={onNavigate}
         />
       )}
 

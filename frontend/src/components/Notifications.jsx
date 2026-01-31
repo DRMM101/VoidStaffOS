@@ -18,7 +18,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../utils/api';
 
-function Notifications({ onClose }) {
+function Notifications({ onClose, onNavigate }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -81,7 +81,8 @@ function Notifications({ onClose }) {
     }
   };
 
-  const getNotificationIcon = (type) => {
+  const getNotificationIcon = (type, isUrgent) => {
+    if (isUrgent) return '🚨';
     const icons = {
       'manager_snapshot_committed': '📊',
       'snapshot_overdue': '⚠️',
@@ -91,7 +92,12 @@ function Notifications({ onClose }) {
       'leave_request_rejected': '❌',
       'employee_transferred': '👥',
       'new_direct_report': '👥',
-      'kpi_revealed': '📊'
+      'kpi_revealed': '📊',
+      'sick_leave_reported': '🤒',
+      'rtw_required': '🏥',
+      'rtw_follow_up': '📋',
+      'urgent_sick_leave': '🚨',
+      'urgent_absence_request': '🚨'
     };
     return icons[type] || '🔔';
   };
@@ -100,7 +106,7 @@ function Notifications({ onClose }) {
     if (['manager_snapshot_committed', 'snapshot_overdue', 'self_reflection_overdue', 'kpi_revealed'].includes(type)) {
       return 'performance';
     }
-    if (['leave_request_pending', 'leave_request_approved', 'leave_request_rejected'].includes(type)) {
+    if (['leave_request_pending', 'leave_request_approved', 'leave_request_rejected', 'sick_leave_reported', 'rtw_required', 'rtw_follow_up', 'urgent_sick_leave', 'urgent_absence_request'].includes(type)) {
       return 'leave';
     }
     if (['employee_transferred', 'new_direct_report'].includes(type)) {
@@ -130,13 +136,73 @@ function Notifications({ onClose }) {
     });
   };
 
-  const filteredNotifications = notifications.filter(n => {
-    if (filter === 'all') return true;
-    if (filter === 'unread') return !n.is_read;
-    return getNotificationCategory(n.type) === filter;
-  });
+  const handleNotificationClick = async (notification) => {
+    // Mark as read if unread
+    if (!notification.is_read) {
+      await markAsRead(notification.id);
+    }
+
+    // Navigate based on notification type
+    if (onNavigate) {
+      const type = notification.type;
+      const relatedType = notification.related_type;
+
+      // Close modal first
+      onClose();
+
+      // Sick leave and absence notifications -> Absence dashboard
+      if (['sick_leave_reported', 'rtw_required', 'rtw_follow_up', 'urgent_sick_leave', 'urgent_absence_request'].includes(type) ||
+          relatedType === 'leave_request' || relatedType === 'rtw_interview') {
+        onNavigate('absence', { highlightId: notification.related_id, tab: type.includes('rtw') ? 'rtw' : 'team' });
+        return;
+      }
+
+      // Leave requests -> Absence
+      if (['leave_request_pending', 'leave_request_approved', 'leave_request_rejected'].includes(type)) {
+        onNavigate('absence', { highlightId: notification.related_id, tab: 'team' });
+        return;
+      }
+
+      // Policy notifications -> Policies
+      if (type === 'policy_requires_acknowledgment' || relatedType === 'policy') {
+        onNavigate('policies');
+        return;
+      }
+
+      // Performance notifications -> My reports
+      if (['manager_snapshot_committed', 'kpi_revealed', 'snapshot_overdue', 'self_reflection_overdue'].includes(type)) {
+        onNavigate('my-reports');
+        return;
+      }
+
+      // Team/employee notifications -> Employees
+      if (['employee_transferred', 'new_direct_report'].includes(type) || relatedType === 'user') {
+        onNavigate('employees', { selectedEmployee: notification.related_id });
+        return;
+      }
+    }
+  };
+
+  const filteredNotifications = notifications
+    .filter(n => {
+      if (filter === 'all') return true;
+      if (filter === 'unread') return !n.is_read;
+      if (filter === 'urgent') return n.is_urgent;
+      return getNotificationCategory(n.type) === filter;
+    })
+    .sort((a, b) => {
+      // Urgent unread notifications first
+      if (a.is_urgent && !a.is_read && (!b.is_urgent || b.is_read)) return -1;
+      if (b.is_urgent && !b.is_read && (!a.is_urgent || a.is_read)) return 1;
+      // Then other unread
+      if (!a.is_read && b.is_read) return -1;
+      if (a.is_read && !b.is_read) return 1;
+      // Then by date
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
+  const urgentCount = notifications.filter(n => n.is_urgent && !n.is_read).length;
 
   if (loading) {
     return (
@@ -170,6 +236,14 @@ function Notifications({ onClose }) {
             >
               Unread
             </button>
+            {urgentCount > 0 && (
+              <button
+                className={`filter-btn urgent ${filter === 'urgent' ? 'active' : ''}`}
+                onClick={() => setFilter('urgent')}
+              >
+                🚨 Urgent ({urgentCount})
+              </button>
+            )}
             <button
               className={`filter-btn ${filter === 'performance' ? 'active' : ''}`}
               onClick={() => setFilter('performance')}
@@ -209,10 +283,12 @@ function Notifications({ onClose }) {
             filteredNotifications.map(notification => (
               <div
                 key={notification.id}
-                className={`notification-card ${!notification.is_read ? 'unread' : ''}`}
+                className={`notification-card ${!notification.is_read ? 'unread' : ''} ${notification.is_urgent ? 'urgent' : ''}`}
+                onClick={() => handleNotificationClick(notification)}
+                style={{ cursor: 'pointer' }}
               >
                 <div className="notification-card-icon">
-                  {getNotificationIcon(notification.type)}
+                  {getNotificationIcon(notification.type, notification.is_urgent)}
                 </div>
                 <div className="notification-card-content">
                   <div className="notification-card-header">

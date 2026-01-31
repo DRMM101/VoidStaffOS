@@ -144,16 +144,26 @@ async function reportSickLeave(req, res) {
       { start_date, end_date: endDate, sick_reason, is_ongoing }
     );
 
-    // Notify manager
+    // Notify manager - mark as urgent if same-day or very short notice
     if (manager_id) {
+      const startDateObj = new Date(start_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      startDateObj.setHours(0, 0, 0, 0);
+
+      // Urgent if sick leave starts today or in the past (same-day/retrospective reporting)
+      const isUrgent = startDateObj <= today;
+      const urgentPrefix = isUrgent ? '🚨 URGENT: ' : '';
+
       await createNotification(
         manager_id,
         'sick_leave_reported',
-        `${full_name} has reported sick`,
-        `${full_name} has reported sick leave starting ${formatDate(start_date)}${endDate ? ` to ${formatDate(endDate)}` : ' (ongoing)'}.`,
+        `${urgentPrefix}${full_name} has reported sick`,
+        `${full_name} has reported sick leave starting ${formatDate(start_date)}${endDate ? ` to ${formatDate(endDate)}` : ' (ongoing)'}. ${isUrgent ? 'This is short-notice absence.' : ''}`,
         sickLeave.id,
         'leave_request',
-        tenantId
+        tenantId,
+        isUrgent
       );
     }
 
@@ -428,16 +438,26 @@ async function requestStatutoryLeave(req, res) {
       { absence_category, start_date, end_date, weeks_requested }
     );
 
-    // Notify appropriate person
+    // Notify appropriate person - mark as urgent if short notice (within 3 days)
     if (status === 'pending' && manager_id) {
+      const startDateObj = new Date(start_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      startDateObj.setHours(0, 0, 0, 0);
+
+      const daysUntilStart = Math.floor((startDateObj - today) / (1000 * 60 * 60 * 24));
+      const isUrgent = daysUntilStart <= 3; // Urgent if starts within 3 days
+      const urgentPrefix = isUrgent ? '🚨 URGENT: ' : '';
+
       await createNotification(
         manager_id,
         'leave_request_pending',
-        `${absence_category} leave request from ${full_name}`,
-        `${full_name} has requested ${absence_category} leave from ${formatDate(start_date)} to ${formatDate(end_date)}.`,
+        `${urgentPrefix}${absence_category} leave request from ${full_name}`,
+        `${full_name} has requested ${absence_category} leave from ${formatDate(start_date)} to ${formatDate(end_date)}. ${isUrgent ? 'Short notice - requires immediate attention.' : ''}`,
         leaveRequest.id,
         'leave_request',
-        tenantId
+        tenantId,
+        isUrgent
       );
     }
 
@@ -567,19 +587,25 @@ async function createRTWInterview(req, res) {
 
     // Check if RTW already exists
     const existingRTW = await pool.query(
-      'SELECT * FROM return_to_work_interviews WHERE leave_request_id = $1',
-      [leave_request_id]
+      'SELECT * FROM return_to_work_interviews WHERE leave_request_id = $1 AND tenant_id = $2',
+      [leave_request_id, tenantId]
     );
 
     if (existingRTW.rows.length > 0) {
-      return res.json({ rtw_interview: existingRTW.rows[0], existing: true });
+      return res.json({
+        message: 'RTW interview already exists',
+        rtw_interview: existingRTW.rows[0],
+        existing: true,
+        employee_name: leave.employee_name
+      });
     }
 
-    // Create new RTW interview
+    // Create new RTW interview (with conflict handling for race conditions)
     const result = await pool.query(
       `INSERT INTO return_to_work_interviews (
         tenant_id, leave_request_id, employee_id, interviewer_id, interview_date
       ) VALUES ($1, $2, $3, $4, CURRENT_DATE)
+      ON CONFLICT (leave_request_id) DO UPDATE SET updated_at = NOW()
       RETURNING *`,
       [tenantId, leave_request_id, leave.employee_id, userId]
     );
@@ -591,6 +617,22 @@ async function createRTWInterview(req, res) {
     });
   } catch (error) {
     console.error('Create RTW interview error:', error);
+
+    // Handle duplicate key error gracefully
+    if (error.code === '23505') {
+      const existingRTW = await pool.query(
+        'SELECT * FROM return_to_work_interviews WHERE leave_request_id = $1 AND tenant_id = $2',
+        [req.body.leave_request_id, req.session?.tenantId || 1]
+      );
+      if (existingRTW.rows.length > 0) {
+        return res.json({
+          message: 'RTW interview already exists',
+          rtw_interview: existingRTW.rows[0],
+          existing: true
+        });
+      }
+    }
+
     res.status(500).json({ error: 'Failed to create RTW interview' });
   }
 }
@@ -932,6 +974,52 @@ async function createRTWTask(tenantId, leaveRequestId, employeeId, managerId) {
   }
 }
 
+/**
+ * Get pending follow-up interviews
+ * Returns RTW interviews where follow_up_required = true and not yet addressed
+ */
+async function getPendingFollowUps(req, res) {
+  try {
+    const { id: userId, role_name } = req.user;
+    const tenantId = req.session?.tenantId || 1;
+
+    let query = `
+      SELECT
+        rtw.*,
+        lr.leave_start_date,
+        lr.leave_end_date,
+        lr.total_days,
+        lr.sick_reason,
+        u.full_name as employee_name,
+        m.full_name as interviewer_name
+      FROM return_to_work_interviews rtw
+      JOIN leave_requests lr ON rtw.leave_request_id = lr.id
+      JOIN users u ON rtw.employee_id = u.id
+      JOIN users m ON rtw.interviewer_id = m.id
+      WHERE rtw.tenant_id = $1
+        AND rtw.follow_up_required = true
+        AND rtw.interview_completed = true
+    `;
+
+    const params = [tenantId];
+
+    // Managers see their own follow-ups, Admins see all
+    if (role_name !== 'Admin') {
+      query += ` AND rtw.interviewer_id = $2`;
+      params.push(userId);
+    }
+
+    query += ` ORDER BY rtw.follow_up_date ASC NULLS LAST`;
+
+    const result = await pool.query(query, params);
+
+    res.json({ pending_follow_ups: result.rows });
+  } catch (error) {
+    console.error('Get pending follow-ups error:', error);
+    res.status(500).json({ error: 'Failed to get pending follow-ups' });
+  }
+}
+
 // =====================================================
 // Exports
 // =====================================================
@@ -951,6 +1039,7 @@ module.exports = {
   createRTWInterview,
   completeRTWInterview,
   getRTWInterview,
+  getPendingFollowUps,
 
   // SSP
   getSSPStatus

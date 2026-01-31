@@ -27,15 +27,16 @@ const pool = require('../config/database');
  * @param {number} [relatedId] - ID of related entity (review, user, etc.)
  * @param {string} [relatedType] - Type of related entity ('review', 'leave_request', 'user')
  * @param {number} [tenantId] - Tenant ID (defaults to 1)
+ * @param {boolean} [isUrgent] - Whether this is an urgent notification (short-notice sick/absence)
  * @returns {Object|null} Created notification or null on error
  */
-const createNotification = async (userId, type, title, message, relatedId = null, relatedType = null, tenantId = 1) => {
+const createNotification = async (userId, type, title, message, relatedId = null, relatedType = null, tenantId = 1, isUrgent = false) => {
   try {
     const result = await pool.query(
-      `INSERT INTO notifications (tenant_id, user_id, type, title, message, related_id, related_type)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO notifications (tenant_id, user_id, type, title, message, related_id, related_type, is_urgent)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
-      [tenantId, userId, type, title, message, relatedId, relatedType]
+      [tenantId, userId, type, title, message, relatedId, relatedType, isUrgent]
     );
     return result.rows[0];
   } catch (error) {
@@ -51,7 +52,7 @@ const getNotifications = async (req, res) => {
     const { limit = 50, offset = 0, unread_only = false } = req.query;
 
     let query = `
-      SELECT id, type, title, message, related_id, related_type, is_read, created_at, read_at
+      SELECT id, type, title, message, related_id, related_type, is_read, is_urgent, created_at, read_at
       FROM notifications
       WHERE user_id = $1
     `;

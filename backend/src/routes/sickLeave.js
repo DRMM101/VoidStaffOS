@@ -29,6 +29,7 @@ const {
   createRTWInterview,
   completeRTWInterview,
   getRTWInterview,
+  getPendingFollowUps,
 
   // SSP
   getSSPStatus
@@ -70,6 +71,9 @@ router.post('/statutory', validateStatutoryLeave, requestStatutoryLeave);
 
 // GET /api/sick-leave/rtw/pending - Get pending RTW interviews (manager/admin)
 router.get('/rtw/pending', authorize('Admin', 'Manager'), getPendingRTWInterviews);
+
+// GET /api/sick-leave/rtw/follow-ups - Get pending follow-up interviews (manager/admin)
+router.get('/rtw/follow-ups', authorize('Admin', 'Manager'), getPendingFollowUps);
 
 // POST /api/sick-leave/rtw - Create RTW interview
 router.post('/rtw', authorize('Admin', 'Manager'), createRTWInterview);

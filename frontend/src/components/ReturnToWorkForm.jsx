@@ -136,11 +136,11 @@ function ReturnToWorkForm({ leaveRequestId, employeeName, onClose, onComplete })
           <button onClick={onClose} className="close-btn">&times;</button>
         </div>
 
-        <div className="rtw-intro" style={{ background: '#e8f5e9', padding: '16px', borderRadius: '8px', marginBottom: '20px' }}>
+        <div className="rtw-intro" style={{ background: '#e8f5e9', padding: '16px', borderRadius: '8px', marginBottom: '20px', color: '#1b5e20' }}>
           <p style={{ margin: 0 }}>
             <strong>Employee:</strong> {employeeName || 'Employee'}
           </p>
-          <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#666' }}>
+          <p style={{ margin: '8px 0 0', fontSize: '14px', color: '#2e7d32' }}>
             This is a supportive wellbeing conversation to help ensure a smooth return to work.
             It is <strong>not</strong> a disciplinary process.
           </p>
@@ -342,7 +342,7 @@ function ReturnToWorkForm({ leaveRequestId, employeeName, onClose, onComplete })
             <div className="rtw-step">
               <h4>Summary & Manager Notes</h4>
 
-              <div className="rtw-summary" style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
+              <div className="rtw-summary" style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px', marginBottom: '16px', color: '#212121' }}>
                 <div className="summary-row" style={{ marginBottom: '12px' }}>
                   <strong>Feeling Ready:</strong>{' '}
                   {formData.feeling_ready === true ? '✓ Yes' : formData.feeling_ready === false ? '⚠️ Has concerns' : 'Not recorded'}

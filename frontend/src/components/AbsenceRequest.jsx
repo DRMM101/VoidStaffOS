@@ -215,7 +215,7 @@ function AbsenceRequest({ onClose, onSubmit, initialCategory = null }) {
                   <strong style={{ display: 'block', marginBottom: '4px' }}>
                     {cat.display_name}
                   </strong>
-                  <small style={{ color: '#666' }}>
+                  <small style={{ color: '#424242' }}>
                     {info?.description?.substring(0, 80)}...
                   </small>
                 </button>
@@ -227,7 +227,7 @@ function AbsenceRequest({ onClose, onSubmit, initialCategory = null }) {
         {/* Step 2: Leave Details Form */}
         {step === 2 && selectedType && (
           <form onSubmit={handleSubmit}>
-            <div className="info-box" style={{ background: '#e3f2fd', padding: '16px', borderRadius: '8px', marginBottom: '20px' }}>
+            <div className="info-box" style={{ background: '#e3f2fd', padding: '16px', borderRadius: '8px', marginBottom: '20px', color: '#0d47a1' }}>
               <p style={{ margin: 0 }}>{selectedType.description}</p>
               {selectedType.notice !== 'None required' && (
                 <p style={{ margin: '8px 0 0', fontSize: '14px' }}>
@@ -310,13 +310,13 @@ function AbsenceRequest({ onClose, onSubmit, initialCategory = null }) {
             </div>
 
             {formData.start_date && formData.end_date && (
-              <div className="leave-summary" style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
+              <div className="leave-summary" style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px', marginBottom: '16px', color: '#212121' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Working days requested:</span>
                   <strong>{calculateDays()} days</strong>
                 </div>
                 {categoryConfig?.requires_approval && (
-                  <div style={{ marginTop: '8px', fontSize: '14px', color: '#666' }}>
+                  <div style={{ marginTop: '8px', fontSize: '14px', color: '#424242' }}>
                     This request requires manager/HR approval
                   </div>
                 )}

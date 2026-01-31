@@ -95,12 +95,12 @@ function SickLeaveReport({ onClose, onSubmit }) {
           <div className="success-message" style={{ padding: '20px', textAlign: 'center' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>✓</div>
             <h4>Your sick leave has been recorded</h4>
-            <p style={{ color: '#666', marginTop: '12px' }}>
+            <p style={{ color: '#424242', marginTop: '12px' }}>
               Your manager has been notified. Focus on getting better.
             </p>
 
             {success.fit_note_required && (
-              <div className="warning-box" style={{ marginTop: '20px', padding: '16px', background: '#fff3cd', borderRadius: '8px' }}>
+              <div className="warning-box" style={{ marginTop: '20px', padding: '16px', background: '#fff3cd', borderRadius: '8px', color: '#5d4200' }}>
                 <strong>Fit Note Required</strong>
                 <p style={{ margin: '8px 0 0' }}>
                   {success.fit_note_message}
@@ -109,7 +109,7 @@ function SickLeaveReport({ onClose, onSubmit }) {
             )}
 
             {formData.is_ongoing && (
-              <p style={{ color: '#666', marginTop: '16px', fontSize: '14px' }}>
+              <p style={{ color: '#424242', marginTop: '16px', fontSize: '14px' }}>
                 Remember to update your sick leave when you're ready to return.
               </p>
             )}
@@ -132,7 +132,7 @@ function SickLeaveReport({ onClose, onSubmit }) {
         </div>
 
         <div className="info-banner" style={{ background: '#e3f2fd', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px' }}>
-          <p style={{ margin: 0, fontSize: '14px' }}>
+          <p style={{ margin: 0, fontSize: '14px', color: '#0d47a1' }}>
             <strong>No approval needed</strong> — your manager will be notified automatically.
             Focus on your recovery.
           </p>
@@ -210,14 +210,14 @@ function SickLeaveReport({ onClose, onSubmit }) {
           </div>
 
           {days && (
-            <div className="leave-preview" style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
+            <div className="leave-preview" style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px', marginBottom: '16px', color: '#212121' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Duration:</span>
                 <strong>{days} day{days !== 1 ? 's' : ''}</strong>
               </div>
 
               {fitNoteRequired && (
-                <div className="warning-box" style={{ marginTop: '12px', padding: '12px', background: '#fff3cd', borderRadius: '4px' }}>
+                <div className="warning-box" style={{ marginTop: '12px', padding: '12px', background: '#fff3cd', borderRadius: '4px', color: '#5d4200' }}>
                   <strong>⚠️ Fit Note Required</strong>
                   <p style={{ margin: '8px 0 0', fontSize: '14px' }}>
                     UK law requires a GP fit note for absences over 7 days.

@@ -8,7 +8,7 @@
 
 # VoidStaffOS API Reference
 
-Last Updated: 2026-01-27
+Last Updated: 2026-01-31
 
 Base URL: `http://localhost:3001/api`
 
@@ -862,6 +862,29 @@ Get pending Return to Work interviews.
 
 **Auth Required:** Yes
 **Roles:** Admin, Manager
+
+---
+
+### GET /sick-leave/rtw/follow-ups
+Get pending follow-up interviews scheduled after RTW completion.
+
+**Auth Required:** Yes
+**Roles:** Admin, Manager
+
+**Response:**
+```json
+{
+  "pending_follow_ups": [
+    {
+      "id": 1,
+      "employee_id": 3,
+      "employee_name": "John Doe",
+      "follow_up_date": "2026-02-07",
+      "follow_up_notes": "Check on phased return progress"
+    }
+  ]
+}
+```
 
 ---
 

@@ -4081,6 +4081,16 @@ button[type="submit"]:disabled {
   background: rgba(127, 90, 240, 0.1);
 }
 
+.notification-item.urgent {
+  background: rgba(244, 67, 54, 0.15);
+  border-left: 3px solid #f44336;
+}
+
+.notification-item.urgent .notification-title {
+  color: #ff8a80;
+  font-weight: 700;
+}
+
 .notification-item.unread .notification-title {
   font-weight: 600;
 }
@@ -4226,6 +4236,28 @@ button[type="submit"]:disabled {
 
 .notification-card.unread .notification-card-title {
   font-weight: 600;
+}
+
+.notification-card.urgent {
+  background: rgba(244, 67, 54, 0.15);
+  border-color: #f44336;
+  border-width: 2px;
+}
+
+.notification-card.urgent .notification-card-title {
+  color: #ff8a80;
+  font-weight: 700;
+}
+
+.filter-btn.urgent {
+  background: rgba(244, 67, 54, 0.2);
+  color: #ff8a80;
+  border-color: #f44336;
+}
+
+.filter-btn.urgent.active {
+  background: #f44336;
+  color: white;
 }
 
 .notification-card-icon {

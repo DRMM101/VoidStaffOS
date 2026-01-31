@@ -79,9 +79,9 @@ npm install
 cp .env.example .env
 # Edit .env with your database credentials and SESSION_SECRET
 
-# Run migrations
+# Run migrations (001 through 030)
 psql -U your_user -d your_db -f migrations/001_initial_schema.sql
-# ... through 025b_compliance_settings_tasks.sql
+# ... through 030_urgent_notifications.sql
 
 # Start backend
 npm run dev
@@ -155,17 +155,19 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full details.
 
 | Module | Status | Description |
 |--------|--------|-------------|
-| Core | Active | Employee management, reviews |
-| LeaveOS | Active | Leave request management |
-| Sick & Statutory | Active | Sick leave, maternity/paternity, RTW interviews |
-| FeedbackOS | Active | 360 feedback system |
-| PolicyOS | Active | Policy management with acknowledgment tracking |
-| Document Storage | Active | Secure employee document management |
-| ComplianceOS | Active | RTW/DBS verification tracking (CQC-ready) |
-| LearnOS | Planned | Learning management |
-| AssetOS | Planned | Asset tracking |
-| TimeOS | Planned | Time tracking |
-| ExpenseOS | Planned | Expense management |
+| Core | ✅ Active | Employee management, roles, tenants |
+| LeaveOS | ✅ Active | Leave request management with approvals |
+| Sick & Statutory | ✅ Active | Sick leave, RTW interviews, urgent notifications |
+| FeedbackOS | ✅ Active | 360 quarterly feedback system |
+| PolicyOS | ✅ Active | Policy management with acknowledgment tracking |
+| Document Storage | ✅ Active | Secure employee document management |
+| ComplianceOS | ✅ Active | RTW/DBS verification tracking (CQC-ready) |
+| EmergencyOS | ✅ Active | Emergency contacts and medical info |
+| ProbationOS | ✅ Active | Probation period tracking and reviews |
+| LearnOS | 📋 Planned | Learning management |
+| AssetOS | 📋 Planned | Asset tracking |
+| TimeOS | 📋 Planned | Time tracking |
+| ExpenseOS | 📋 Planned | Expense management |
 
 ---
 

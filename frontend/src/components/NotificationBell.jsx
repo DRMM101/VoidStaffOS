@@ -127,7 +127,8 @@ function NotificationBell({ onViewAll, onNavigate }) {
     }
   };
 
-  const getNotificationIcon = (type) => {
+  const getNotificationIcon = (type, isUrgent) => {
+    if (isUrgent) return '🚨';
     const icons = {
       'manager_snapshot_committed': '📊',
       'snapshot_overdue': '⚠️',
@@ -139,9 +140,61 @@ function NotificationBell({ onViewAll, onNavigate }) {
       'new_direct_report': '👥',
       'kpi_revealed': '📊',
       'policy_requires_acknowledgment': '📋',
-      'pending_policies': '📋'
+      'pending_policies': '📋',
+      'sick_leave_reported': '🤒',
+      'rtw_required': '🏥',
+      'rtw_follow_up': '📋',
+      'urgent_sick_leave': '🚨',
+      'urgent_absence_request': '🚨'
     };
     return icons[type] || '🔔';
+  };
+
+  const handleNotificationClick = async (notification) => {
+    // Mark as read if unread
+    if (!notification.is_read) {
+      await markAsRead(notification.id);
+    }
+
+    // Close dropdown
+    setIsOpen(false);
+
+    // Navigate based on notification type
+    if (onNavigate) {
+      const type = notification.type;
+      const relatedType = notification.related_type;
+
+      // Sick leave and absence notifications -> Absence dashboard
+      if (['sick_leave_reported', 'rtw_required', 'rtw_follow_up', 'urgent_sick_leave', 'urgent_absence_request'].includes(type) ||
+          relatedType === 'leave_request' || relatedType === 'rtw_interview') {
+        onNavigate('absence', { highlightId: notification.related_id, tab: type.includes('rtw') ? 'rtw' : 'team' });
+        return;
+      }
+
+      // Leave requests -> Leave approvals or absence
+      if (['leave_request_pending', 'leave_request_approved', 'leave_request_rejected'].includes(type)) {
+        onNavigate('absence', { highlightId: notification.related_id, tab: 'team' });
+        return;
+      }
+
+      // Policy notifications -> Policies
+      if (type === 'policy_requires_acknowledgment' || relatedType === 'policy') {
+        onNavigate('policies');
+        return;
+      }
+
+      // Performance notifications -> My reports
+      if (['manager_snapshot_committed', 'kpi_revealed', 'snapshot_overdue', 'self_reflection_overdue'].includes(type)) {
+        onNavigate('my-reports');
+        return;
+      }
+
+      // Team/employee notifications -> Employees
+      if (['employee_transferred', 'new_direct_report'].includes(type) || relatedType === 'user') {
+        onNavigate('employees', { selectedEmployee: notification.related_id });
+        return;
+      }
+    }
   };
 
   const formatTime = (dateStr) => {
@@ -205,14 +258,22 @@ function NotificationBell({ onViewAll, onNavigate }) {
             ) : notifications.length === 0 && pendingPolicies === 0 ? (
               <div className="notification-empty">No notifications</div>
             ) : (
-              notifications.map(notification => (
+              notifications
+                .sort((a, b) => {
+                  // Urgent unread first
+                  if (a.is_urgent && !a.is_read && (!b.is_urgent || b.is_read)) return -1;
+                  if (b.is_urgent && !b.is_read && (!a.is_urgent || a.is_read)) return 1;
+                  return 0;
+                })
+                .map(notification => (
                 <div
                   key={notification.id}
-                  className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
-                  onClick={() => !notification.is_read && markAsRead(notification.id)}
+                  className={`notification-item ${!notification.is_read ? 'unread' : ''} ${notification.is_urgent ? 'urgent' : ''}`}
+                  onClick={() => handleNotificationClick(notification)}
+                  style={{ cursor: 'pointer' }}
                 >
                   <span className="notification-icon">
-                    {getNotificationIcon(notification.type)}
+                    {getNotificationIcon(notification.type, notification.is_urgent)}
                   </span>
                   <div className="notification-content">
                     <div className="notification-title">{notification.title}</div>
