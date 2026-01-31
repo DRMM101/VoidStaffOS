@@ -1,6 +1,6 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-01-31 20:00 UTC
+**Last Updated:** 2026-01-31 22:00 UTC
 
 ## Current State
 
@@ -30,42 +30,63 @@ Structured offboarding workflow with compliance tracking, knowledge transfer, an
 
 **Features Implemented:**
 - 7 termination types: resignation, termination, redundancy, retirement, end_of_contract, tupe_transfer, death_in_service
-- Default checklist with 13 compliance items auto-created
-- Exit interview scheduling and feedback capture
-- Knowledge transfer/handover tracking with priorities
+- Default checklist with 13 compliance items auto-created on initiation
+- Exit interview scheduling and feedback capture (5-star rating, open feedback)
+- Knowledge transfer/handover tracking with priorities (high/medium/low)
 - Workflow status tracking (pending → in_progress → completed/cancelled)
 - Progress tracking with checklist completion percentage
-- Days-until-last-day countdown with urgency highlighting
-- Stats dashboard (pending, in progress, leaving this week, completed)
+- Days-until-last-day countdown with urgency highlighting (orange ≤7 days, red if past)
+- Stats dashboard (pending, in progress, leaving this week, completed this month)
+- **Deadline notifications**: Automatic reminders at 2 weeks, 1 week, 2 days, 1 day, and last day
+- Notifications marked urgent at 2 days or less
 
 **Backend Endpoints Added:**
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/offboarding` | GET | List workflows with filtering |
+| `/api/offboarding` | GET | List workflows with status filtering |
 | `/api/offboarding` | POST | Initiate new offboarding |
 | `/api/offboarding/stats` | GET | Dashboard statistics |
+| `/api/offboarding/upcoming` | GET | Employees leaving in next N days |
+| `/api/offboarding/check-deadlines` | POST | Create deadline notifications (run daily) |
+| `/api/offboarding/my-tasks/pending` | GET | User's assigned checklist/handover tasks |
 | `/api/offboarding/:id` | GET | Full workflow details |
-| `/api/offboarding/:id` | PUT | Update workflow |
+| `/api/offboarding/:id` | PUT | Update workflow status |
+| `/api/offboarding/:id/complete` | POST | Mark workflow complete, update employee status |
 | `/api/offboarding/:id/checklist` | GET | Get checklist items |
-| `/api/offboarding/:id/checklist` | POST | Add checklist item |
-| `/api/offboarding/:id/checklist/:itemId` | PUT | Update checklist item |
+| `/api/offboarding/:id/checklist` | POST | Add custom checklist item |
+| `/api/offboarding/:id/checklist/:itemId` | PUT | Toggle/update checklist item |
 | `/api/offboarding/:id/exit-interview` | GET | Get exit interview |
 | `/api/offboarding/:id/exit-interview` | POST | Create exit interview |
-| `/api/offboarding/:id/exit-interview` | PUT | Update exit interview |
+| `/api/offboarding/:id/exit-interview` | PUT | Update/complete exit interview |
 | `/api/offboarding/:id/handovers` | GET | List handover items |
 | `/api/offboarding/:id/handovers` | POST | Add handover item |
-| `/api/offboarding/:id/handovers/:handoverId` | PUT | Update handover |
+| `/api/offboarding/:id/handovers/:handoverId` | PUT | Update handover status |
 
 **Database Migration:**
 - **Migration 032**: offboarding_workflows, offboarding_checklist_items, exit_interviews, offboarding_handovers tables
 - 3 enums: termination_type, offboarding_status, checklist_item_type
-- 5 notification types added
+- 6 notification types: offboarding_initiated, offboarding_task_assigned, exit_interview_scheduled, handover_assigned, offboarding_completed, offboarding_reminder
 
 **Frontend Components:**
-- `OffboardingDashboard.jsx` - Main dashboard with active/completed tabs
-- `InitiateOffboardingModal.jsx` - Form to start offboarding workflow
-- `OffboardingDetail.jsx` - Full workflow view with checklist, exit interview, handovers
+- `OffboardingDashboard.jsx` - Main dashboard with stats cards, active/completed/cancelled tabs
+- `InitiateOffboardingModal.jsx` - Form to start offboarding (employee, type, dates, reason)
+- `OffboardingDetail.jsx` - Full workflow view with 4 tabs: checklist, exit interview, handovers, details
+
+**Default Checklist Items (13):**
+1. Return laptop/computer (IT)
+2. Return mobile phone (IT)
+3. Revoke system access (IT)
+4. Disable email account (IT)
+5. Collect ID badge (HR)
+6. Return office keys (Manager)
+7. Complete handover documentation (Employee)
+8. Conduct exit interview (HR)
+9. Process final pay (Payroll)
+10. Issue P45 (Payroll)
+11. Flag records for GDPR retention (HR)
+12. Manager sign-off (Manager)
+13. HR sign-off (HR)
 
 ---
 
@@ -177,6 +198,10 @@ Full sick leave and statutory leave management with Return to Work interviews.
 3. ✅ Notification tenant_id null - Using imported createNotification
 4. ✅ Route ordering for /rtw/follow-ups - Fixed parameter parsing
 5. ✅ Missing notification types - Added to enum
+6. ✅ Offboarding route ordering - Moved /stats, /upcoming before /:id
+7. ✅ Offboarding status filter - Fixed array handling for multiple status values
+8. ✅ Date picker visibility - Added colorScheme: 'light' for calendar popups
+9. ✅ apiFetch response handling - Added .json() parsing in offboarding components
 
 ---
 
@@ -215,6 +240,8 @@ npm run dev
 
 ## Git Commit History (Recent)
 
+- Fix offboarding route ordering and add missing stats endpoint
+- Fix offboarding modal and add deadline notifications
 - Offboarding module (workflow, checklist, exit interviews, handovers)
 - Absence Insights module (pattern detection, Bradford Factor)
 - Urgent notifications with click-to-navigate
