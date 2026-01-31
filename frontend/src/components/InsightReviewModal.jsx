@@ -150,7 +150,7 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
               <span className="value">{data.occurrences?.length || 0}</span>
             </div>
             {data.occurrences?.map((occ, i) => (
-              <div key={i} className="detail-row" style={{ fontSize: '13px', color: '#424242' }}>
+              <div key={i} className="detail-row" style={{ fontSize: '13px', color: '#111' }}>
                 Holiday ended {formatDate(occ.holiday_end)} → Absent {formatDate(occ.absence_start)}
               </div>
             ))}
@@ -228,7 +228,7 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
         </div>
 
         {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#424242' }}>
+          <div style={{ padding: '40px', textAlign: 'center', color: '#111' }}>
             Loading insight details...
           </div>
         ) : fullInsight ? (
@@ -243,9 +243,9 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                   <h4 style={{ margin: '0 0 4px', color: '#111' }}>{fullInsight.employee_name}</h4>
-                  <div style={{ fontSize: '14px', color: '#424242' }}>{fullInsight.employee_number}</div>
+                  <div style={{ fontSize: '14px', color: '#111' }}>{fullInsight.employee_number}</div>
                   {fullInsight.employee_email && (
-                    <div style={{ fontSize: '14px', color: '#424242' }}>{fullInsight.employee_email}</div>
+                    <div style={{ fontSize: '14px', color: '#111' }}>{fullInsight.employee_email}</div>
                   )}
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -277,10 +277,10 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
               }}>
                 {getPatternLabel(fullInsight.pattern_type)}
               </div>
-              <p style={{ margin: '0', color: '#424242', fontSize: '15px', lineHeight: 1.6 }}>
+              <p style={{ margin: '0', color: '#111', fontSize: '15px', lineHeight: 1.6 }}>
                 {fullInsight.summary}
               </p>
-              <div style={{ marginTop: '8px', fontSize: '13px', color: '#424242' }}>
+              <div style={{ marginTop: '8px', fontSize: '13px', color: '#111' }}>
                 Period: {formatDate(fullInsight.period_start)} - {formatDate(fullInsight.period_end)}
               </div>
             </div>
@@ -293,7 +293,7 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
               padding: '16px',
               marginBottom: '20px'
             }}>
-              <h4 style={{ margin: '0 0 12px', fontSize: '14px', color: '#424242' }}>Pattern Details</h4>
+              <h4 style={{ margin: '0 0 12px', fontSize: '14px', color: '#111' }}>Pattern Details</h4>
               <style>{`
                 .pattern-details .detail-row {
                   display: flex;
@@ -305,7 +305,7 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                   border-bottom: none;
                 }
                 .pattern-details .label {
-                  color: #424242;
+                  color: #111;
                 }
                 .pattern-details .value {
                   color: #111;
@@ -324,16 +324,16 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                 padding: '16px',
                 marginBottom: '20px'
               }}>
-                <h4 style={{ margin: '0 0 12px', fontSize: '14px', color: '#424242' }}>
+                <h4 style={{ margin: '0 0 12px', fontSize: '14px', color: '#111' }}>
                   Related Absences ({fullInsight.related_absences.length})
                 </h4>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #e0e0e0' }}>
-                      <th style={{ textAlign: 'left', padding: '8px', color: '#424242' }}>Date</th>
-                      <th style={{ textAlign: 'left', padding: '8px', color: '#424242' }}>Category</th>
-                      <th style={{ textAlign: 'left', padding: '8px', color: '#424242' }}>Reason</th>
-                      <th style={{ textAlign: 'center', padding: '8px', color: '#424242' }}>Notice</th>
+                      <th style={{ textAlign: 'left', padding: '8px', color: '#111' }}>Date</th>
+                      <th style={{ textAlign: 'left', padding: '8px', color: '#111' }}>Category</th>
+                      <th style={{ textAlign: 'left', padding: '8px', color: '#111' }}>Reason</th>
+                      <th style={{ textAlign: 'center', padding: '8px', color: '#111' }}>Notice</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -345,13 +345,13 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                             <> - {formatDate(absence.leave_end_date)}</>
                           )}
                         </td>
-                        <td style={{ padding: '8px', color: '#424242', textTransform: 'capitalize' }}>
+                        <td style={{ padding: '8px', color: '#111', textTransform: 'capitalize' }}>
                           {absence.absence_category?.replace('_', ' ')}
                         </td>
-                        <td style={{ padding: '8px', color: '#424242', textTransform: 'capitalize' }}>
+                        <td style={{ padding: '8px', color: '#111', textTransform: 'capitalize' }}>
                           {absence.sick_reason?.replace('_', ' ') || '-'}
                         </td>
-                        <td style={{ padding: '8px', textAlign: 'center', color: '#424242' }}>
+                        <td style={{ padding: '8px', textAlign: 'center', color: '#111' }}>
                           {absence.notice_days != null ? `${absence.notice_days}d` : '-'}
                         </td>
                       </tr>
@@ -410,7 +410,7 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                 padding: '16px',
                 marginBottom: '20px'
               }}>
-                <h4 style={{ margin: '0 0 12px', fontSize: '14px', color: '#424242' }}>Review History</h4>
+                <h4 style={{ margin: '0 0 12px', fontSize: '14px', color: '#111' }}>Review History</h4>
                 {fullInsight.review_history.map((entry, i) => (
                   <div key={i} style={{
                     padding: '8px 0',
@@ -422,9 +422,9 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                       <em>{entry.previous_status}</em> to <em>{entry.new_status}</em>
                     </div>
                     {entry.notes && (
-                      <div style={{ color: '#424242', marginTop: '4px' }}>{entry.notes}</div>
+                      <div style={{ color: '#111', marginTop: '4px' }}>{entry.notes}</div>
                     )}
-                    <div style={{ color: '#9e9e9e', marginTop: '4px', fontSize: '12px' }}>
+                    <div style={{ color: '#555', marginTop: '4px', fontSize: '12px' }}>
                       {formatDate(entry.created_at)}
                     </div>
                   </div>
@@ -440,7 +440,7 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                 borderRadius: '12px',
                 padding: '16px'
               }}>
-                <h4 style={{ margin: '0 0 16px', fontSize: '14px', color: '#424242' }}>Take Action</h4>
+                <h4 style={{ margin: '0 0 16px', fontSize: '14px', color: '#111' }}>Take Action</h4>
 
                 {error && (
                   <div style={{
@@ -456,7 +456,7 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                 )}
 
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#424242' }}>
+                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#111' }}>
                     Notes / Action Taken
                   </label>
                   <textarea
@@ -479,7 +479,7 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#424242' }}>
+                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', color: '#111' }}>
                     Follow-up Date (optional)
                   </label>
                   <input
@@ -538,7 +538,7 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                       borderRadius: '8px',
                       border: '1px solid #e0e0e0',
                       background: '#fff',
-                      color: '#424242',
+                      color: '#111',
                       fontSize: '14px',
                       fontWeight: '500',
                       cursor: submitting ? 'not-allowed' : 'pointer',
@@ -559,11 +559,11 @@ function InsightReviewModal({ insight, onClose, getPatternLabel, getPatternIcon,
                 padding: '16px',
                 textAlign: 'center'
               }}>
-                <div style={{ fontSize: '14px', color: '#424242' }}>
+                <div style={{ fontSize: '14px', color: '#111' }}>
                   This insight has been {fullInsight.status === 'action_taken' ? 'actioned' : 'dismissed'}.
                 </div>
                 {fullInsight.action_taken && (
-                  <div style={{ marginTop: '8px', color: '#424242' }}>
+                  <div style={{ marginTop: '8px', color: '#111' }}>
                     <strong>Action:</strong> {fullInsight.action_taken}
                   </div>
                 )}

@@ -117,7 +117,7 @@ function InsightsDashboard({ user }) {
       case 'high': return '#f44336';
       case 'medium': return '#ff9800';
       case 'low': return '#4caf50';
-      default: return '#9e9e9e';
+      default: return '#555';
     }
   };
 
@@ -148,7 +148,7 @@ function InsightsDashboard({ user }) {
             <div style={{ fontSize: '32px', fontWeight: '600', color: '#2196f3' }}>
               {dashboardData.overview?.pending_count || 0}
             </div>
-            <div style={{ color: '#424242', fontSize: '14px', marginTop: '4px' }}>
+            <div style={{ color: '#111', fontSize: '14px', marginTop: '4px' }}>
               Pending Review
             </div>
           </div>
@@ -163,7 +163,7 @@ function InsightsDashboard({ user }) {
             <div style={{ fontSize: '32px', fontWeight: '600', color: '#f44336' }}>
               {dashboardData.overview?.high_priority_count || 0}
             </div>
-            <div style={{ color: '#424242', fontSize: '14px', marginTop: '4px' }}>
+            <div style={{ color: '#111', fontSize: '14px', marginTop: '4px' }}>
               High Priority
             </div>
           </div>
@@ -178,7 +178,7 @@ function InsightsDashboard({ user }) {
             <div style={{ fontSize: '32px', fontWeight: '600', color: '#4caf50' }}>
               {dashboardData.overview?.new_count || 0}
             </div>
-            <div style={{ color: '#424242', fontSize: '14px', marginTop: '4px' }}>
+            <div style={{ color: '#111', fontSize: '14px', marginTop: '4px' }}>
               New This Week
             </div>
           </div>
@@ -193,7 +193,7 @@ function InsightsDashboard({ user }) {
             <div style={{ fontSize: '32px', fontWeight: '600', color: '#9c27b0' }}>
               {dashboardData.overview?.recent_count || 0}
             </div>
-            <div style={{ color: '#424242', fontSize: '14px', marginTop: '4px' }}>
+            <div style={{ color: '#111', fontSize: '14px', marginTop: '4px' }}>
               Last 7 Days
             </div>
           </div>
@@ -291,7 +291,7 @@ function InsightsDashboard({ user }) {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#424242' }}>
+        <div style={{ textAlign: 'center', padding: '40px', color: '#111' }}>
           Loading insights...
         </div>
       ) : insights.length === 0 ? (
@@ -300,10 +300,10 @@ function InsightsDashboard({ user }) {
           padding: '60px 20px',
           background: '#f5f5f5',
           borderRadius: '12px',
-          color: '#424242'
+          color: '#111'
         }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>✓</div>
-          <h3 style={{ margin: '0 0 8px', color: '#424242' }}>
+          <h3 style={{ margin: '0 0 8px', color: '#111' }}>
             {activeTab === 'pending' ? 'All caught up!' : `No ${activeTab} insights`}
           </h3>
           <p style={{ margin: 0, fontSize: '14px' }}>
@@ -343,16 +343,16 @@ function InsightsDashboard({ user }) {
           <h3 style={{ margin: '0 0 16px', fontSize: '16px', color: '#111' }}>
             Bradford Factor Scores
           </h3>
-          <p style={{ fontSize: '13px', color: '#424242', marginBottom: '16px' }}>
+          <p style={{ fontSize: '13px', color: '#111', marginBottom: '16px' }}>
             Bradford Factor = S² × D (Spells squared × Days). Higher scores indicate more frequent short absences.
           </p>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #e0e0e0' }}>
-                <th style={{ textAlign: 'left', padding: '8px 12px', color: '#424242', fontSize: '13px' }}>Employee</th>
-                <th style={{ textAlign: 'center', padding: '8px 12px', color: '#424242', fontSize: '13px' }}>Bradford</th>
-                <th style={{ textAlign: 'center', padding: '8px 12px', color: '#424242', fontSize: '13px' }}>Absences (12m)</th>
-                <th style={{ textAlign: 'center', padding: '8px 12px', color: '#424242', fontSize: '13px' }}>Days (12m)</th>
+                <th style={{ textAlign: 'left', padding: '8px 12px', color: '#111', fontSize: '13px' }}>Employee</th>
+                <th style={{ textAlign: 'center', padding: '8px 12px', color: '#111', fontSize: '13px' }}>Bradford</th>
+                <th style={{ textAlign: 'center', padding: '8px 12px', color: '#111', fontSize: '13px' }}>Absences (12m)</th>
+                <th style={{ textAlign: 'center', padding: '8px 12px', color: '#111', fontSize: '13px' }}>Days (12m)</th>
               </tr>
             </thead>
             <tbody>
@@ -365,7 +365,7 @@ function InsightsDashboard({ user }) {
                   <tr key={emp.employee_id} style={{ borderBottom: '1px solid #e0e0e0' }}>
                     <td style={{ padding: '12px', color: '#111' }}>
                       <div style={{ fontWeight: '500' }}>{emp.employee_name}</div>
-                      <div style={{ fontSize: '12px', color: '#424242' }}>{emp.employee_number}</div>
+                      <div style={{ fontSize: '12px', color: '#111' }}>{emp.employee_number}</div>
                     </td>
                     <td style={{ textAlign: 'center', padding: '12px' }}>
                       <span style={{
@@ -380,10 +380,10 @@ function InsightsDashboard({ user }) {
                         {emp.bradford_factor}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'center', padding: '12px', color: '#424242' }}>
+                    <td style={{ textAlign: 'center', padding: '12px', color: '#111' }}>
                       {emp.total_absences_12m}
                     </td>
-                    <td style={{ textAlign: 'center', padding: '12px', color: '#424242' }}>
+                    <td style={{ textAlign: 'center', padding: '12px', color: '#111' }}>
                       {emp.total_sick_days_12m}
                     </td>
                   </tr>
