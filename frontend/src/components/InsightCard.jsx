@@ -99,7 +99,7 @@ function InsightCard({ insight, onClick, getPatternLabel, getPatternIcon, getPri
             {insight.employee_name}
           </span>
           <span style={{
-            color: '#666',
+            color: '#424242',
             fontSize: '13px'
           }}>
             {insight.employee_number}
@@ -134,7 +134,7 @@ function InsightCard({ insight, onClick, getPatternLabel, getPatternIcon, getPri
           }}>
             {getPatternLabel(insight.pattern_type)}
           </span>
-          <span style={{ color: '#666', fontSize: '13px' }}>
+          <span style={{ color: '#424242', fontSize: '13px' }}>
             Detected {formatDate(insight.detection_date)}
           </span>
         </div>
@@ -155,7 +155,7 @@ function InsightCard({ insight, onClick, getPatternLabel, getPatternIcon, getPri
             background: '#f5f5f5',
             borderRadius: '6px',
             fontSize: '13px',
-            color: '#666'
+            color: '#424242'
           }}>
             <strong>Review note:</strong> {insight.review_notes}
           </div>

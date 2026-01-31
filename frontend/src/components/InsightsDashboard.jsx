@@ -125,7 +125,7 @@ function InsightsDashboard({ user }) {
     <div className="insights-dashboard" style={{ padding: '20px' }}>
       <div className="page-header" style={{ marginBottom: '24px' }}>
         <h2 style={{ margin: 0, color: '#111' }}>Absence Insights</h2>
-        <p style={{ margin: '8px 0 0', color: '#424242', fontSize: '14px' }}>
+        <p style={{ margin: '8px 0 0', color: '#111', fontSize: '14px' }}>
           Wellbeing-focused absence pattern detection for HR review
         </p>
       </div>
@@ -265,10 +265,10 @@ function InsightsDashboard({ user }) {
               borderRadius: '8px',
               border: 'none',
               background: activeTab === tab ? '#1976d2' : 'transparent',
-              color: activeTab === tab ? '#fff' : '#424242',
+              color: activeTab === tab ? '#fff' : '#111',
               cursor: 'pointer',
               fontSize: '14px',
-              fontWeight: activeTab === tab ? '600' : '400',
+              fontWeight: activeTab === tab ? '600' : '500',
               textTransform: 'capitalize'
             }}
           >
@@ -291,7 +291,7 @@ function InsightsDashboard({ user }) {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+        <div style={{ textAlign: 'center', padding: '40px', color: '#424242' }}>
           Loading insights...
         </div>
       ) : insights.length === 0 ? (
@@ -300,7 +300,7 @@ function InsightsDashboard({ user }) {
           padding: '60px 20px',
           background: '#f5f5f5',
           borderRadius: '12px',
-          color: '#666'
+          color: '#424242'
         }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>✓</div>
           <h3 style={{ margin: '0 0 8px', color: '#424242' }}>
@@ -343,7 +343,7 @@ function InsightsDashboard({ user }) {
           <h3 style={{ margin: '0 0 16px', fontSize: '16px', color: '#111' }}>
             Bradford Factor Scores
           </h3>
-          <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
+          <p style={{ fontSize: '13px', color: '#424242', marginBottom: '16px' }}>
             Bradford Factor = S² × D (Spells squared × Days). Higher scores indicate more frequent short absences.
           </p>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -365,7 +365,7 @@ function InsightsDashboard({ user }) {
                   <tr key={emp.employee_id} style={{ borderBottom: '1px solid #e0e0e0' }}>
                     <td style={{ padding: '12px', color: '#111' }}>
                       <div style={{ fontWeight: '500' }}>{emp.employee_name}</div>
-                      <div style={{ fontSize: '12px', color: '#666' }}>{emp.employee_number}</div>
+                      <div style={{ fontSize: '12px', color: '#424242' }}>{emp.employee_number}</div>
                     </td>
                     <td style={{ textAlign: 'center', padding: '12px' }}>
                       <span style={{
