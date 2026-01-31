@@ -124,8 +124,8 @@ function InsightsDashboard({ user }) {
   return (
     <div className="insights-dashboard" style={{ padding: '20px' }}>
       <div className="page-header" style={{ marginBottom: '24px' }}>
-        <h2 style={{ margin: 0, color: '#111' }}>Absence Insights</h2>
-        <p style={{ margin: '8px 0 0', color: '#111', fontSize: '14px' }}>
+        <h2 style={{ margin: 0, color: '#fff' }}>Absence Insights</h2>
+        <p style={{ margin: '8px 0 0', color: '#fff', fontSize: '14px' }}>
           Wellbeing-focused absence pattern detection for HR review
         </p>
       </div>
@@ -265,7 +265,7 @@ function InsightsDashboard({ user }) {
               borderRadius: '8px',
               border: 'none',
               background: activeTab === tab ? '#1976d2' : 'transparent',
-              color: activeTab === tab ? '#fff' : '#111',
+              color: '#fff',
               cursor: 'pointer',
               fontSize: '14px',
               fontWeight: activeTab === tab ? '600' : '500',

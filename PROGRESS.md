@@ -135,6 +135,7 @@ Full sick leave and statutory leave management with Return to Work interviews.
 
 ## Future Enhancements
 
+- **UX Pass Required**: Full review of font colours, contrast, layout and styling across all modules
 - Fit note document upload UI (currently accepts document_id)
 - SSP calculation refinement (earnings check)
 - Maternity/adoption leave notice period validation
