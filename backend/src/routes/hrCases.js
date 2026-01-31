@@ -16,7 +16,7 @@ const router = express.Router();
 const db = require('../config/database');
 const { authenticate, authorize } = require('../middleware/auth');
 const { createNotification } = require('../controllers/notificationController');
-const { logAction } = require('../utils/auditLog');
+const { auditLog } = require('../utils/auditLog');
 
 // All routes require authentication
 router.use(authenticate);
@@ -266,10 +266,9 @@ router.post('/grievance/submit', async (req, res) => {
     }
 
     // Log the action
-    await logAction(tenantId, user.id, 'grievance_submitted', {
-      case_id: newCase.id,
+    await auditLog.log(tenantId, user.id, 'GRIEVANCE_SUBMITTED', 'hr_case', newCase.id, {
       case_reference: newCase.case_reference
-    });
+    }, req);
 
     res.status(201).json({
       message: 'Grievance submitted successfully',
@@ -481,12 +480,11 @@ router.post('/', authorize('Admin', 'Manager'), async (req, res) => {
     const newCase = result.rows[0];
 
     // Log the action
-    await logAction(tenantId, user.id, 'hr_case_created', {
-      case_id: newCase.id,
+    await auditLog.log(tenantId, user.id, 'HR_CASE_CREATED', 'hr_case', newCase.id, {
       case_reference: newCase.case_reference,
       case_type,
       employee_id
-    });
+    }, req);
 
     // Add initial note
     await db.query(`
@@ -622,10 +620,9 @@ router.put('/:id', canAccessCase, async (req, res) => {
     ]);
 
     // Log the update
-    await logAction(tenantId, user.id, 'hr_case_updated', {
-      case_id: hrCase.id,
+    await auditLog.log(tenantId, user.id, 'HR_CASE_UPDATED', 'hr_case', hrCase.id, {
       case_reference: hrCase.case_reference
-    });
+    }, req);
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -657,10 +654,9 @@ router.delete('/:id', authorize('Admin'), canAccessCase, async (req, res) => {
     await db.query('DELETE FROM hr_cases WHERE id = $1 AND tenant_id = $2', [hrCase.id, tenantId]);
 
     // Log deletion
-    await logAction(tenantId, user.id, 'hr_case_deleted', {
-      case_id: hrCase.id,
+    await auditLog.log(tenantId, user.id, 'HR_CASE_DELETED', 'hr_case', hrCase.id, {
       case_reference: hrCase.case_reference
-    });
+    }, req);
 
     res.json({ message: 'Case deleted successfully' });
   } catch (error) {
@@ -716,10 +712,9 @@ router.post('/:id/open', canAccessCase, async (req, res) => {
     }
 
     // Log the action
-    await logAction(tenantId, user.id, 'hr_case_opened', {
-      case_id: hrCase.id,
+    await auditLog.log(tenantId, user.id, 'HR_CASE_OPENED', 'hr_case', hrCase.id, {
       case_reference: hrCase.case_reference
-    });
+    }, req);
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -766,12 +761,11 @@ router.post('/:id/status', canAccessCase, async (req, res) => {
     }
 
     // Log the action
-    await logAction(tenantId, user.id, 'hr_case_status_changed', {
-      case_id: hrCase.id,
+    await auditLog.log(tenantId, user.id, 'HR_CASE_STATUS_CHANGED', 'hr_case', hrCase.id, {
       case_reference: hrCase.case_reference,
       old_status: hrCase.status,
       new_status: status
-    });
+    }, req);
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -849,11 +843,10 @@ router.post('/:id/close', canAccessCase, async (req, res) => {
     );
 
     // Log the action
-    await logAction(tenantId, user.id, 'hr_case_closed', {
-      case_id: hrCase.id,
+    await auditLog.log(tenantId, user.id, 'HR_CASE_CLOSED', 'hr_case', hrCase.id, {
       case_reference: hrCase.case_reference,
       outcome
-    });
+    }, req);
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -909,10 +902,9 @@ router.post('/:id/appeal', canAccessCase, async (req, res) => {
     }
 
     // Log the action
-    await logAction(tenantId, user.id, 'hr_case_appeal_submitted', {
-      case_id: hrCase.id,
+    await auditLog.log(tenantId, user.id, 'HR_CASE_APPEAL_SUBMITTED', 'hr_case', hrCase.id, {
       case_reference: hrCase.case_reference
-    });
+    }, req);
 
     res.json(result.rows[0]);
   } catch (error) {

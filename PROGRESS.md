@@ -19,15 +19,17 @@ All core modules are **COMPLETE** and production-ready.
 > ✅ **Urgent Notifications** - Complete
 > ✅ **Absence Insights** - Complete
 > ✅ **Offboarding** - Complete
-> ✅ **HR Cases (PIP/Disciplinary/Grievance)** - Complete
+> ⚠️ **HR Cases (PIP/Disciplinary/Grievance)** - In Progress (case creation issue)
 
 ---
 
 ## Recent Updates (2026-01-31)
 
-### Chunk 10: HR Cases (PIP/Disciplinary/Grievance) - COMPLETE
+### Chunk 10: HR Cases (PIP/Disciplinary/Grievance) - IN PROGRESS
 
 ACAS-compliant HR case management for Performance Improvement Plans, Disciplinary procedures, and Grievances with full audit trails.
+
+**Known Issue:** Case creation not displaying in dashboard - requires debugging.
 
 **Features Implemented:**
 - Three case types: PIP, Disciplinary, Grievance
@@ -256,7 +258,7 @@ Full sick leave and statutory leave management with Return to Work interviews.
 | Sick/Statutory | ✅ Complete | 029-030 | Sick leave & RTW |
 | Insights | ✅ Complete | 031 | Absence pattern detection |
 | Offboarding | ✅ Complete | 032 | Exit workflow & compliance |
-| HR Cases | ✅ Complete | 033 | PIP, Disciplinary, Grievance |
+| HR Cases | ⚠️ In Progress | 033 | PIP, Disciplinary, Grievance |
 
 ---
 
