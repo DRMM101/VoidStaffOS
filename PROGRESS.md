@@ -331,6 +331,12 @@ Full sick leave and statutory leave management with Return to Work interviews.
 
 ---
 
+## Known Issues (Open)
+
+1. **Employees table "Reports To" column clipped** — Right-hand side of the employee list table is cut off on screen, "Reports To" column not fully visible. Needs CSS/layout fix.
+
+---
+
 ## Future Enhancements
 
 - ~~**UX Pass Required**: Full review of font colours, contrast, layout and styling across all modules~~ ✅ Done (PropertyOS theme migration)
