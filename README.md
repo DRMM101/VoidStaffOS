@@ -9,7 +9,7 @@
 
 **Proprietary Employee Performance Management System**
 
-VoidStaffOS is a comprehensive employee management platform featuring blind performance reviews, leave management, 360 feedback, and multi-tenant support with enterprise-grade security.
+VoidStaffOS is a comprehensive employee management platform featuring blind performance reviews, leave management, 360 feedback, ACAS-compliant HR case management, and multi-tenant support with enterprise-grade security. Built on the PropertyOS design system for a warm, professional aesthetic with white-label support.
 
 ---
 
@@ -50,7 +50,8 @@ VoidStaffOS is a comprehensive employee management platform featuring blind perf
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | React 18, Vite |
+| Frontend | React 18, Vite, Inter (Google Fonts) |
+| Design System | PropertyOS — CSS custom properties, white-label ready |
 | Backend | Node.js, Express.js |
 | Database | PostgreSQL |
 | Auth | Session cookies (HttpOnly) |
@@ -79,9 +80,9 @@ npm install
 cp .env.example .env
 # Edit .env with your database credentials and SESSION_SECRET
 
-# Run migrations (001 through 030)
+# Run migrations (001 through 033)
 psql -U your_user -d your_db -f migrations/001_initial_schema.sql
-# ... through 030_urgent_notifications.sql
+# ... through 033_hr_cases.sql
 
 # Start backend
 npm run dev
@@ -117,6 +118,12 @@ VoidStaffOS/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/      # React components
+│   │   ├── theme/           # PropertyOS design system
+│   │   │   ├── variables.css    # Design tokens (CSS custom properties)
+│   │   │   ├── base.css         # Reset, typography, body defaults
+│   │   │   ├── components.css   # All component styles
+│   │   │   └── themes/
+│   │   │       └── default.css  # StaffOS product accent (Dusty Blue)
 │   │   ├── utils/           # API utilities
 │   │   ├── App.jsx          # Root component
 │   │   └── main.jsx         # Entry point
@@ -164,6 +171,9 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full details.
 | ComplianceOS | ✅ Active | RTW/DBS verification tracking (CQC-ready) |
 | EmergencyOS | ✅ Active | Emergency contacts and medical info |
 | ProbationOS | ✅ Active | Probation period tracking and reviews |
+| InsightsOS | ✅ Active | Absence pattern detection & Bradford Factor |
+| OffboardingOS | ✅ Active | Exit workflow, checklists, handovers |
+| HR Cases | ✅ Active | ACAS-compliant PIP, Disciplinary, Grievance |
 | LearnOS | 📋 Planned | Learning management |
 | AssetOS | 📋 Planned | Asset tracking |
 | TimeOS | 📋 Planned | Time tracking |

@@ -17,7 +17,11 @@
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+// Theme imports (order matters: tokens -> base -> components -> theme overrides)
+import './theme/variables.css'
+import './theme/base.css'
+import './theme/components.css'
+import './theme/themes/default.css'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(

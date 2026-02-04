@@ -1,0 +1,183 @@
+/**
+ * VoidStaffOS — Design Tokens (variables.css)
+ * ============================================
+ * Product: StaffOS / HeadofficeOS
+ * Design System: PropertyOS Design System
+ *
+ * TO WHITE-LABEL FOR A CLIENT:
+ * 1. Copy themes/default.css -> themes/client-name.css
+ * 2. Override any CSS variables
+ * 3. Switch import in main.jsx
+ *
+ * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
+ */
+
+:root {
+  /* ============================================
+     PRIMARY — Brand anchors
+     ============================================ */
+  --color-primary: #134e4a;
+  --color-primary-hover: #0f3d3a;
+  --color-primary-light: rgba(19, 78, 74, 0.08);
+  --color-secondary: #4338ca;
+  --color-secondary-hover: #3730a3;
+  --color-secondary-light: rgba(67, 56, 202, 0.08);
+
+  /* ============================================
+     PRODUCT ACCENT — StaffOS = Dusty Blue
+     ============================================ */
+  --color-product-accent: #b8c4d4;
+  --color-product-accent-hover: #a8b8c9;
+  --color-accent: #b8c4d4;
+  --color-accent-hover: #a8b8c9;
+  --color-accent-light: rgba(184, 196, 212, 0.2);
+  --color-accent-text: #4a5568;
+
+  /* ============================================
+     NEUTRALS — Surfaces & text
+     ============================================ */
+  --color-bg: #f9f6f2;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-border: #e8e2d9;
+  --color-border-strong: #d4cec5;
+  --color-text: #5c6b63;
+  --color-text-heading: #134e4a;
+  --color-text-muted: #8a9490;
+  --color-text-inverse: #ffffff;
+
+  /* ============================================
+     SEMANTIC — Status colours with text variants
+     ============================================ */
+  --color-success: #b5ccc4;
+  --color-success-text: #2d6a4f;
+  --color-success-bg: rgba(181, 204, 196, 0.2);
+  --color-success-border: rgba(45, 106, 79, 0.25);
+
+  --color-warning: #d4c4b5;
+  --color-warning-text: #92400e;
+  --color-warning-bg: rgba(212, 196, 181, 0.2);
+  --color-warning-border: rgba(146, 64, 14, 0.25);
+
+  --color-error: #d4a5a5;
+  --color-error-text: #991b1b;
+  --color-error-bg: rgba(212, 165, 165, 0.2);
+  --color-error-border: rgba(153, 27, 27, 0.25);
+
+  --color-info: #b8c4d4;
+  --color-info-text: #1e40af;
+  --color-info-bg: rgba(184, 196, 212, 0.2);
+  --color-info-border: rgba(30, 64, 175, 0.25);
+
+  /* ============================================
+     DUSTY ACCENTS — Decorative palette
+     ============================================ */
+  --color-taupe: #d4c4b5;
+  --color-dusty-blue: #b8c4d4;
+  --color-sage: #b5ccc4;
+  --color-lavender: #c4b8d4;
+  --color-rose: #d4a5a5;
+
+  /* ============================================
+     TYPOGRAPHY
+     ============================================ */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Scale */
+  --text-display: 4.5rem;    /* 72px */
+  --text-h1: 3rem;           /* 48px */
+  --text-h2: 2.5rem;         /* 40px */
+  --text-h3: 1.5rem;         /* 24px */
+  --text-h4: 1.25rem;        /* 20px */
+  --text-body-lg: 1.25rem;   /* 20px */
+  --text-body: 1rem;         /* 16px */
+  --text-body-sm: 0.875rem;  /* 14px */
+  --text-label: 0.875rem;    /* 14px */
+  --text-caption: 0.75rem;   /* 12px */
+
+  /* Legacy font-size aliases (for existing code compatibility) */
+  --font-size-display: 3rem;
+  --font-size-h1: 2rem;
+  --font-size-h2: 1.5rem;
+  --font-size-h3: 1.25rem;
+  --font-size-h4: 1.125rem;
+  --font-size-body-lg: 1.125rem;
+  --font-size-body: 1rem;
+  --font-size-body-sm: 0.875rem;
+  --font-size-caption: 0.75rem;
+
+  /* Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line heights */
+  --leading-tight: 1.1;
+  --leading-normal: 1.4;
+  --leading-relaxed: 1.6;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+
+  /* Letter spacing */
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.01em;
+
+  /* ============================================
+     SPACING — 4px base unit
+     ============================================ */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ============================================
+     BORDER RADIUS
+     ============================================ */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* ============================================
+     SHADOWS — Teal-tinted, never pure black
+     ============================================ */
+  --shadow-sm: 0 2px 8px rgba(19, 78, 74, 0.04);
+  --shadow-md: 0 4px 20px rgba(19, 78, 74, 0.06);
+  --shadow-lg: 0 12px 40px rgba(19, 78, 74, 0.10);
+  --shadow-xl: 0 24px 64px rgba(19, 78, 74, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(67, 56, 202, 0.15);
+  --shadow-input-focus: 0 8px 32px rgba(67, 56, 202, 0.12);
+
+  /* ============================================
+     MOTION
+     ============================================ */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 800ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ============================================
+     LAYOUT
+     ============================================ */
+  --container-max: 1152px;
+  --container-padding: 24px;
+  --sidebar-width: 0px;
+  --nav-height: 60px;
+}

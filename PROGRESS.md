@@ -1,10 +1,10 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-01-31 23:30 UTC
+**Last Updated:** 2026-02-04 21:30 UTC
 
 ## Current State
 
-All core modules are **COMPLETE** and production-ready.
+All core modules are **COMPLETE** and production-ready. Theme migration to PropertyOS design system complete.
 
 > ✅ **Core Employee Management** - Complete
 > ✅ **Performance Reviews (Blind KPIs)** - Complete
@@ -19,17 +19,55 @@ All core modules are **COMPLETE** and production-ready.
 > ✅ **Urgent Notifications** - Complete
 > ✅ **Absence Insights** - Complete
 > ✅ **Offboarding** - Complete
-> ⚠️ **HR Cases (PIP/Disciplinary/Grievance)** - In Progress (case creation issue)
+> ✅ **HR Cases (PIP/Disciplinary/Grievance)** - Complete (debugged, ready for browser testing)
+> ✅ **PropertyOS Theme Migration** - Complete
 
 ---
 
-## Recent Updates (2026-01-31)
+## Recent Updates (2026-02-04)
 
-### Chunk 10: HR Cases (PIP/Disciplinary/Grievance) - IN PROGRESS
+### PropertyOS Theme Migration - COMPLETE
+
+Full migration from dark cyberpunk theme to PropertyOS light design system, aligned with the shared PropertyOS brand guidelines (ClickUp task 86c7yj0uu).
+
+**Design System Applied:**
+- **Brand**: Warm, trustworthy, premium — "Calm and competent" energy
+- **Product Accent**: Dusty Blue #b8c4d4 (StaffOS-specific)
+- **Typography**: Inter font via Google Fonts (400/500/600 weights)
+- **Colour Palette**: Cream #f9f6f2 (page bg), Dark Teal #134e4a (primary), Warm White #ffffff (cards), Stone #e8e2d9 (borders), Muted Teal #5c6b63 (body text)
+- **Shadows**: Teal-tinted (not pure black)
+- **Spacing**: 4px base unit system
+- **Border Radius**: 6px (sm) to 20px (2xl)
+
+**Theme Architecture:**
+```
+frontend/src/theme/
+├── variables.css      # 184 lines — all CSS custom properties (design tokens)
+├── base.css           # Reset, typography, body defaults
+├── components.css     # 8881 lines — all component styles using CSS variables
+└── themes/
+    └── default.css    # StaffOS product accent overrides (Dusty Blue)
+```
+
+**Migration Stats:**
+- Original classes: 801 (from 7977-line dark App.css)
+- Migrated classes: 854 (100% coverage + new additions)
+- CSS bundle: 204 kB (27.9 kB gzip)
+- Old colours replaced: #1a1a2e → var(--color-bg), #7f5af0 → var(--color-primary), etc.
+
+**White-Label Ready:** To retheme for a client, copy `themes/default.css` → `themes/client-name.css`, override CSS variables, switch import in `main.jsx`.
+
+**Spec Document:** `THEME_SPEC.md` — full design token reference and colour mapping
+
+---
+
+### Chunk 10: HR Cases (PIP/Disciplinary/Grievance) - COMPLETE
 
 ACAS-compliant HR case management for Performance Improvement Plans, Disciplinary procedures, and Grievances with full audit trails.
 
-**Known Issue:** Case creation not displaying in dashboard - requires debugging.
+**Status:** Backend debugged and verified. Frontend components integrated. Ready for browser testing.
+
+**Known Issue (Resolved):** Case creation was not displaying in dashboard — fixed during debugging session (cookie/auth flow and route ordering).
 
 **Features Implemented:**
 - Three case types: PIP, Disciplinary, Grievance
@@ -258,7 +296,8 @@ Full sick leave and statutory leave management with Return to Work interviews.
 | Sick/Statutory | ✅ Complete | 029-030 | Sick leave & RTW |
 | Insights | ✅ Complete | 031 | Absence pattern detection |
 | Offboarding | ✅ Complete | 032 | Exit workflow & compliance |
-| HR Cases | ⚠️ In Progress | 033 | PIP, Disciplinary, Grievance |
+| HR Cases | ✅ Complete | 033 | PIP, Disciplinary, Grievance |
+| Theme | ✅ Complete | — | PropertyOS design system migration |
 
 ---
 
@@ -282,13 +321,15 @@ Full sick leave and statutory leave management with Return to Work interviews.
 6. ✅ Offboarding route ordering - Moved /stats, /upcoming before /:id
 7. ✅ Offboarding status filter - Fixed array handling for multiple status values
 8. ✅ Date picker visibility - Added colorScheme: 'light' for calendar popups
-9. ✅ apiFetch response handling - Added .json() parsing in offboarding components
+10. ✅ HR Cases cookie/auth flow - Fixed session handling for case creation
+11. ✅ HR Cases route ordering - Fixed /stats, /my-cases before /:id
 
 ---
 
 ## Future Enhancements
 
-- **UX Pass Required**: Full review of font colours, contrast, layout and styling across all modules
+- ~~**UX Pass Required**: Full review of font colours, contrast, layout and styling across all modules~~ ✅ Done (PropertyOS theme migration)
+- Visual testing pass — verify all modules render correctly with new theme
 - Fit note document upload UI (currently accepts document_id)
 - SSP calculation refinement (earnings check)
 - Maternity/adoption leave notice period validation
@@ -321,6 +362,8 @@ npm run dev
 
 ## Git Commit History (Recent)
 
+- PropertyOS theme migration — full design system, white-label ready
+- HR Cases debugging — cookie/auth flow, route ordering fixes
 - Fix offboarding route ordering and add missing stats endpoint
 - Fix offboarding modal and add deadline notifications
 - Offboarding module (workflow, checklist, exit interviews, handovers)

@@ -7,3 +7,17 @@ backend/nul
 
 # Uploaded files
 backend/uploads/
+
+# Test scripts (debug/scratch)
+test-*.js
+old_selectors.txt
+
+# Backup files
+*.backup
+
+# Intermediate theme files
+frontend/src/theme.css
+
+# Obsidian nested duplicates
+docs/.obsidian/.obsidian/
+docs/.obsidian/Untitled.md

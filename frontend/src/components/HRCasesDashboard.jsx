@@ -87,7 +87,7 @@ function HRCasesDashboard({ user }) {
 
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
-    fetchCases();
+    setActiveTab('draft');
     fetchStats();
   };
 
@@ -358,7 +358,7 @@ function HRCasesDashboard({ user }) {
                     </span>
                   </td>
                   <td style={{ padding: '12px 16px', color: '#424242' }}>
-                    {new Date(hrCase.opened_date).toLocaleDateString('en-GB')}
+                    {hrCase.opened_date ? new Date(hrCase.opened_date).toLocaleDateString('en-GB') : '—'}
                   </td>
                   <td style={{ padding: '12px 16px', color: '#424242' }}>
                     {hrCase.case_owner_name || '-'}
