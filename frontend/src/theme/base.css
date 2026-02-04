@@ -94,6 +94,7 @@ button {
   font-family: var(--font-family);
   cursor: pointer;
   border: none;
+  border-radius: var(--radius-md);
   transition: all var(--duration-fast) var(--ease-default);
 }
 

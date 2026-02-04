@@ -168,7 +168,7 @@ function AbsenceDashboard({ user, navParams }) {
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h2 style={{ color: '#000', margin: 0, fontWeight: '600' }}>Absence Management</h2>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => setShowSickReport(true)} className="btn-warning" style={{ background: '#f44336', color: '#fff' }}>
+          <button onClick={() => setShowSickReport(true)} className="btn-warning" style={{ background: '#f44336', color: '#fff', borderRadius: '8px' }}>
             Report Sick
           </button>
           <button onClick={() => setShowAbsenceRequest(true)} className="primary-btn">

@@ -56,8 +56,8 @@
 }
 
 .progress-step.current .step-dot {
-  background: #6366f1;
-  border-color: #6366f1;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: white;
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
   transform: scale(1.15);
@@ -78,7 +78,7 @@
 }
 
 .progress-step.current .step-label {
-  color: #6366f1;
+  color: var(--color-primary);
   font-weight: 700;
 }
 

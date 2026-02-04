@@ -2555,6 +2555,20 @@ button[type="submit"]:disabled {
   font-size: var(--font-size-body);
 }
 
+.btn-warning {
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-error);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  font-size: var(--font-size-body);
+}
+
+.btn-warning:hover {
+  opacity: 0.9;
+}
+
 .leave-requests-list {
   max-height: 400px;
   overflow-y: auto;

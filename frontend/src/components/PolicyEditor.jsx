@@ -437,7 +437,7 @@ function PolicyEditor({ policy, onSave, onCancel }) {
 
       <style>{`
         .policy-editor {
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           max-width: 900px;
           margin: 0 auto;
@@ -450,10 +450,10 @@ function PolicyEditor({ policy, onSave, onCancel }) {
           justify-content: space-between;
           align-items: center;
           padding: 20px 25px;
-          border-bottom: 1px solid #2a2a4a;
+          border-bottom: 1px solid #e8e2d9;
           position: sticky;
           top: 0;
-          background: #16213e;
+          background: #ffffff;
           z-index: 10;
         }
 
@@ -465,7 +465,7 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         .btn-close {
           background: none;
           border: none;
-          color: #808080;
+          color: #5c6b63;
           font-size: 1.5rem;
           cursor: pointer;
           padding: 5px 10px;
@@ -482,7 +482,7 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         .form-section {
           margin-top: 30px;
           padding-top: 20px;
-          border-top: 1px solid #2a2a4a;
+          border-top: 1px solid #e8e2d9;
         }
 
         .form-section h3 {
@@ -515,8 +515,8 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         .form-group textarea {
           width: 100%;
           padding: 12px 15px;
-          background: #1a1a2e;
-          border: 1px solid #2a2a4a;
+          background: #f9f6f2;
+          border: 1px solid #e8e2d9;
           border-radius: 8px;
           color: #e0e0e0;
           font-size: 0.95rem;
@@ -532,12 +532,12 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         .form-group select:focus,
         .form-group textarea:focus {
           outline: none;
-          border-color: #7f5af0;
+          border-color: #134e4a;
         }
 
         .help-text {
           display: block;
-          color: #606060;
+          color: #5c6b63;
           font-size: 0.8rem;
           margin-top: 5px;
         }
@@ -565,8 +565,8 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         .assignment-row select {
           flex: 1;
           padding: 10px 12px;
-          background: #1a1a2e;
-          border: 1px solid #2a2a4a;
+          background: #f9f6f2;
+          border: 1px solid #e8e2d9;
           border-radius: 8px;
           color: #e0e0e0;
         }
@@ -574,14 +574,14 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         .assignment-row input {
           flex: 1;
           padding: 10px 12px;
-          background: #1a1a2e;
-          border: 1px solid #2a2a4a;
+          background: #f9f6f2;
+          border: 1px solid #e8e2d9;
           border-radius: 8px;
           color: #e0e0e0;
         }
 
         .btn-remove-assignment {
-          background: #2a2a4a;
+          background: #e8e2d9;
           border: none;
           color: #ff6b6b;
           width: 36px;
@@ -592,8 +592,8 @@ function PolicyEditor({ policy, onSave, onCancel }) {
 
         .btn-add-assignment {
           background: none;
-          border: 1px dashed #2a2a4a;
-          color: #7f5af0;
+          border: 1px dashed #e8e2d9;
+          color: #134e4a;
           padding: 10px 15px;
           border-radius: 8px;
           cursor: pointer;
@@ -602,13 +602,13 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         }
 
         .btn-add-assignment:hover {
-          border-color: #7f5af0;
-          background: rgba(127, 90, 240, 0.1);
+          border-color: #134e4a;
+          background: rgba(19, 78, 74, 0.08);
         }
 
         .pdf-upload-area {
-          background: #1a1a2e;
-          border: 2px dashed #2a2a4a;
+          background: #f9f6f2;
+          border: 2px dashed #e8e2d9;
           border-radius: 8px;
           padding: 20px;
         }
@@ -619,11 +619,11 @@ function PolicyEditor({ policy, onSave, onCancel }) {
           align-items: center;
           gap: 10px;
           cursor: pointer;
-          color: #808080;
+          color: #5c6b63;
         }
 
         .upload-prompt:hover {
-          color: #7f5af0;
+          color: #134e4a;
         }
 
         .upload-icon {
@@ -647,12 +647,12 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         }
 
         .pdf-size {
-          color: #808080;
+          color: #5c6b63;
           font-size: 0.9rem;
         }
 
         .btn-remove {
-          background: #2a2a4a;
+          background: #e8e2d9;
           border: none;
           color: #ff6b6b;
           padding: 6px 12px;
@@ -671,7 +671,7 @@ function PolicyEditor({ policy, onSave, onCancel }) {
           gap: 15px;
           margin-top: 30px;
           padding-top: 20px;
-          border-top: 1px solid #2a2a4a;
+          border-top: 1px solid #e8e2d9;
         }
 
         .btn {
@@ -685,12 +685,12 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         }
 
         .btn-primary {
-          background: #7f5af0;
+          background: #134e4a;
           color: #fff;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background: #6b4ad1;
+          background: #0f3d38;
         }
 
         .btn-primary:disabled {
@@ -699,7 +699,7 @@ function PolicyEditor({ policy, onSave, onCancel }) {
         }
 
         .btn-secondary {
-          background: #2a2a4a;
+          background: #e8e2d9;
           color: #e0e0e0;
         }
 

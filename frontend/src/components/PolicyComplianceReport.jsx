@@ -19,7 +19,7 @@ import { useState, useEffect } from 'react';
 import api from '../utils/api';
 
 const CATEGORY_COLORS = {
-  'HR': '#7f5af0',
+  'HR': '#134e4a',
   'Health & Safety': '#2cb67d',
   'Safeguarding': '#ff6b6b',
   'Compliance': '#4ecdc4',
@@ -282,11 +282,11 @@ function PolicyComplianceReport({ onClose }) {
         }
 
         .summary-card {
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           padding: 25px;
           text-align: center;
-          border: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
         }
 
         .summary-card.warning {
@@ -296,7 +296,7 @@ function PolicyComplianceReport({ onClose }) {
         .card-value {
           font-size: 2.5rem;
           font-weight: 700;
-          color: #7f5af0;
+          color: #134e4a;
           margin-bottom: 5px;
         }
 
@@ -331,7 +331,7 @@ function PolicyComplianceReport({ onClose }) {
         .ack-table {
           width: 100%;
           border-collapse: collapse;
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           overflow: hidden;
         }
@@ -339,7 +339,7 @@ function PolicyComplianceReport({ onClose }) {
         th {
           text-align: left;
           padding: 15px;
-          background: #1a1a2e;
+          background: #f9f6f2;
           color: #a0a0a0;
           font-weight: 600;
           font-size: 0.85rem;
@@ -348,12 +348,12 @@ function PolicyComplianceReport({ onClose }) {
 
         td {
           padding: 15px;
-          border-top: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
           color: #e0e0e0;
         }
 
         tr:hover {
-          background: #1a1a2e;
+          background: #f9f6f2;
         }
 
         .policy-name {
@@ -384,7 +384,7 @@ function PolicyComplianceReport({ onClose }) {
 
         .compliance-bar {
           position: relative;
-          background: #1a1a2e;
+          background: #f9f6f2;
           border-radius: 10px;
           height: 24px;
           min-width: 120px;
@@ -409,9 +409,9 @@ function PolicyComplianceReport({ onClose }) {
         }
 
         .btn-view {
-          background: #2a2a4a;
+          background: #e8e2d9;
           border: none;
-          color: #7f5af0;
+          color: #134e4a;
           padding: 6px 12px;
           border-radius: 6px;
           cursor: pointer;
@@ -450,7 +450,7 @@ function PolicyComplianceReport({ onClose }) {
         }
 
         .modal {
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           width: 600px;
           max-width: 90vw;
@@ -458,7 +458,7 @@ function PolicyComplianceReport({ onClose }) {
           display: flex;
           flex-direction: column;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-          border: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
         }
 
         .modal-header {
@@ -466,8 +466,8 @@ function PolicyComplianceReport({ onClose }) {
           justify-content: space-between;
           align-items: center;
           padding: 20px 25px;
-          border-bottom: 1px solid #2a2a4a;
-          background: #1a1a2e;
+          border: 1px solid #e8e2d9;
+          background: #f9f6f2;
           border-radius: 12px 12px 0 0;
         }
 
@@ -533,7 +533,7 @@ function PolicyComplianceReport({ onClose }) {
         }
 
         .btn-secondary {
-          background: #2a2a4a;
+          background: #e8e2d9;
           color: #e0e0e0;
         }
 

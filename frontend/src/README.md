@@ -108,8 +108,9 @@ const response = await fetch('/api/endpoint', {
 
 ## Styling
 
-- Dark theme (#1a1a2e background)
-- Purple accent (#7f5af0)
+- PropertyOS light design system (cream #f9f6f2 background)
+- Dark Teal primary (#134e4a), Dusty Blue product accent (#b8c4d4)
+- CSS custom properties in `theme/variables.css` — white-label ready
 - Traffic light colors: green (#2ed573), amber (#ffa500), red (#ff4757)
 - Tier badges color-coded by level
 

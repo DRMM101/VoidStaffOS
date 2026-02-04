@@ -57,7 +57,7 @@
 
 .card-email {
   font-size: 11px;
-  color: #9ca3af;
+  color: #8a9490;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -70,5 +70,5 @@
 
 .card-date {
   font-size: 11px;
-  color: #9ca3af;
+  color: #8a9490;
 }

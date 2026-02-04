@@ -19,7 +19,7 @@ import { useState, useEffect } from 'react';
 import api from '../utils/api';
 
 const CATEGORY_COLORS = {
-  'HR': '#7f5af0',
+  'HR': '#134e4a',
   'Health & Safety': '#2cb67d',
   'Safeguarding': '#ff6b6b',
   'Compliance': '#4ecdc4',
@@ -177,7 +177,7 @@ function PolicyDashboard({ user, onViewPolicy }) {
 
         .badge-warning {
           background: #f7b731;
-          color: #1a1a2e;
+          color: #134e4a;
         }
 
         .badge-danger {
@@ -188,7 +188,7 @@ function PolicyDashboard({ user, onViewPolicy }) {
         .empty-state {
           text-align: center;
           padding: 60px 20px;
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
         }
 
@@ -214,20 +214,20 @@ function PolicyDashboard({ user, onViewPolicy }) {
         }
 
         .policy-card {
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           padding: 20px;
-          border: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
           transition: border-color 0.2s;
         }
 
         .policy-card:hover {
-          border-color: #7f5af0;
+          border-color: #134e4a;
         }
 
         .policy-card.overdue {
           border-color: #ff6b6b;
-          background: linear-gradient(135deg, #16213e 0%, #2a1a1a 100%);
+          background: linear-gradient(135deg, #f9f6f2 0%, #e8e2d9 100%);
         }
 
         .policy-card.urgent {
@@ -271,7 +271,7 @@ function PolicyDashboard({ user, onViewPolicy }) {
         }
 
         .deadline-info {
-          background: #1a1a2e;
+          background: #f9f6f2;
           padding: 10px 15px;
           border-radius: 8px;
           font-size: 0.9rem;
@@ -305,12 +305,12 @@ function PolicyDashboard({ user, onViewPolicy }) {
         }
 
         .btn-primary {
-          background: #7f5af0;
+          background: #134e4a;
           color: #fff;
         }
 
         .btn-primary:hover {
-          background: #6b4ad1;
+          background: #0f3d38;
           transform: translateY(-1px);
         }
       `}</style>

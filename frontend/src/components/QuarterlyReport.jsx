@@ -360,15 +360,15 @@ function QuarterlyReport({ employeeId, onClose, user }) {
             max-width: 900px;
             margin: 0 auto;
           }
-          h1, h2, h3 { color: #1a1a2e; }
-          .report-header { margin-bottom: 30px; border-bottom: 2px solid #7f5af0; padding-bottom: 20px; }
+          h1, h2, h3 { color: #f9f6f2; }
+          .report-header { margin-bottom: 30px; border-bottom: 2px solid #134e4a; padding-bottom: 20px; }
           .employee-info { display: flex; gap: 40px; margin-top: 10px; }
           .info-item { }
           .info-label { color: #666; font-size: 12px; }
           .info-value { font-weight: 600; }
           .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0; }
           .metric-card { background: #f5f5f5; padding: 20px; border-radius: 8px; text-align: center; }
-          .metric-value { font-size: 32px; font-weight: 700; color: #7f5af0; }
+          .metric-value { font-size: 32px; font-weight: 700; color: #134e4a; }
           .metric-label { color: #666; font-size: 14px; margin-bottom: 8px; }
           .trend { font-size: 14px; margin-top: 8px; }
           .trend.improving { color: #2ed573; }
@@ -588,7 +588,7 @@ function QuarterlyReport({ employeeId, onClose, user }) {
                 <LineChart
                   data={report.weekly_trends}
                   dataKeys={['velocity']}
-                  colors={['#7f5af0']}
+                  colors={['#134e4a']}
                 />
               </div>
               <div className="chart-card">
@@ -617,11 +617,11 @@ function QuarterlyReport({ employeeId, onClose, user }) {
               <LineChart
                 data={report.weekly_trends}
                 dataKeys={['velocity', 'friction', 'cohesion']}
-                colors={['#7f5af0', '#3498db', '#2ed573']}
+                colors={['#134e4a', '#3498db', '#2ed573']}
                 height={250}
               />
               <div className="chart-legend">
-                <span className="legend-item"><span className="legend-color" style={{background: '#7f5af0'}}></span> Velocity</span>
+                <span className="legend-item"><span className="legend-color" style={{background: '#134e4a'}}></span> Velocity</span>
                 <span className="legend-item"><span className="legend-color" style={{background: '#3498db'}}></span> Friction</span>
                 <span className="legend-item"><span className="legend-color" style={{background: '#2ed573'}}></span> Cohesion</span>
               </div>

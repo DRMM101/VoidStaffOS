@@ -434,11 +434,11 @@ function EmployeeQuarterlyReport({ user }) {
               <LineChart
                 data={report.weekly_trends}
                 dataKeys={['velocity', 'friction', 'cohesion']}
-                colors={['#7f5af0', '#3498db', '#2ed573']}
+                colors={['#134e4a', '#3498db', '#2ed573']}
                 height={250}
               />
               <div className="chart-legend">
-                <span className="legend-item"><span className="legend-color" style={{background: '#7f5af0'}}></span> Velocity</span>
+                <span className="legend-item"><span className="legend-color" style={{background: '#134e4a'}}></span> Velocity</span>
                 <span className="legend-item"><span className="legend-color" style={{background: '#3498db'}}></span> Friction</span>
                 <span className="legend-item"><span className="legend-color" style={{background: '#2ed573'}}></span> Cohesion</span>
               </div>

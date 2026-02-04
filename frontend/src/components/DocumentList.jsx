@@ -30,7 +30,7 @@ const CATEGORIES = [
 ];
 
 const CATEGORY_COLORS = {
-  cv: '#7f5af0',
+  cv: '#134e4a',
   certificate: '#2cb67d',
   contract: '#4ecdc4',
   reference: '#f7b731',
@@ -290,12 +290,12 @@ function DocumentList({ user, employeeId, onUpload, isManager = false }) {
         }
 
         .btn-primary {
-          background: #7f5af0;
+          background: #134e4a;
           color: #fff;
         }
 
         .btn-primary:hover {
-          background: #6b4ad1;
+          background: #0f3d38;
         }
 
         .filters {
@@ -306,8 +306,8 @@ function DocumentList({ user, employeeId, onUpload, isManager = false }) {
 
         .filter-select {
           padding: 10px 15px;
-          background: #16213e;
-          border: 1px solid #2a2a4a;
+          background: #ffffff;
+          border: 1px solid #e8e2d9;
           border-radius: 8px;
           color: #e0e0e0;
           font-size: 0.95rem;
@@ -317,7 +317,7 @@ function DocumentList({ user, employeeId, onUpload, isManager = false }) {
         .empty-state {
           text-align: center;
           padding: 60px 20px;
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
         }
 
@@ -337,15 +337,15 @@ function DocumentList({ user, employeeId, onUpload, isManager = false }) {
         }
 
         .document-card {
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           padding: 20px;
-          border: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
           transition: all 0.2s;
         }
 
         .document-card:hover {
-          border-color: #7f5af0;
+          border-color: #134e4a;
         }
 
         .document-card.expired {
@@ -407,7 +407,7 @@ function DocumentList({ user, employeeId, onUpload, isManager = false }) {
           display: flex;
           justify-content: space-between;
           padding: 4px 0;
-          border-bottom: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
         }
 
         .meta-row:last-child {
@@ -447,7 +447,7 @@ function DocumentList({ user, employeeId, onUpload, isManager = false }) {
 
         .warning-tag {
           background: #f7b731;
-          color: #1a1a2e;
+          color: #134e4a;
         }
 
         .doc-actions {
@@ -457,7 +457,7 @@ function DocumentList({ user, employeeId, onUpload, isManager = false }) {
         }
 
         .btn-icon {
-          background: #2a2a4a;
+          background: #e8e2d9;
           border: none;
           color: #e0e0e0;
           width: 36px;
@@ -469,7 +469,7 @@ function DocumentList({ user, employeeId, onUpload, isManager = false }) {
         }
 
         .btn-icon:hover {
-          background: #7f5af0;
+          background: #134e4a;
         }
 
         .error-message {

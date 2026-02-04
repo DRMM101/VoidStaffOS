@@ -1,5 +1,5 @@
 .feedback-dashboard-modal {
-  background: #1a1a2e;
+  background: var(--color-bg);
   border-radius: 12px;
   width: 90%;
   max-width: 900px;
@@ -16,13 +16,13 @@
   border-bottom: 1px solid #2a2a4e;
   position: sticky;
   top: 0;
-  background: #1a1a2e;
+  background: var(--color-bg);
   z-index: 1;
 }
 
 .feedback-dashboard-modal .modal-header h2 {
   margin: 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1.3rem;
 }
 
@@ -35,7 +35,7 @@
 }
 
 .feedback-dashboard-modal .close-btn:hover {
-  color: #fff;
+  color: var(--color-text-heading);
 }
 
 .error-banner {
@@ -52,7 +52,7 @@
 
 .btn-start-cycle {
   padding: 10px 20px;
-  background: #7f5af0;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -63,7 +63,7 @@
 }
 
 .btn-start-cycle:hover {
-  background: #6b46e5;
+  background: var(--color-primary-hover);
 }
 
 .no-cycles {
@@ -91,10 +91,10 @@
 
 .cycle-tab {
   padding: 8px 16px;
-  background: #16213e;
+  background: var(--color-surface);
   border: 1px solid #2a2a4e;
   border-radius: 6px;
-  color: #aaa;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
   cursor: pointer;
   display: flex;
@@ -105,12 +105,12 @@
 }
 
 .cycle-tab:hover {
-  border-color: #7f5af0;
+  border-color: var(--color-primary);
 }
 
 .cycle-tab.active {
-  background: #7f5af0;
-  border-color: #7f5af0;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: white;
 }
 
@@ -126,7 +126,7 @@
 }
 
 .progress-section {
-  background: #16213e;
+  background: var(--color-surface);
   padding: 20px;
   border-radius: 10px;
   margin-bottom: 20px;
@@ -141,12 +141,12 @@
 
 .progress-header h3 {
   margin: 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1rem;
 }
 
 .progress-percentage {
-  color: #7f5af0;
+  color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -160,7 +160,7 @@
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #7f5af0, #a78bfa);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -179,7 +179,7 @@
 .stat-value {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-text-heading);
 }
 
 .stat-label {
@@ -190,7 +190,7 @@
 
 .deadline-info {
   padding: 12px;
-  background: #16213e;
+  background: var(--color-surface);
   border-radius: 8px;
   margin-bottom: 20px;
   text-align: center;
@@ -198,7 +198,7 @@
 
 .deadline-info p {
   margin: 0;
-  color: #aaa;
+  color: var(--color-text-secondary);
 }
 
 .deadline-info strong {
@@ -207,7 +207,7 @@
 
 .employees-section h3 {
   margin: 0 0 15px 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1rem;
 }
 
@@ -226,7 +226,7 @@
 .employees-table th {
   text-align: left;
   padding: 10px 12px;
-  background: #16213e;
+  background: var(--color-surface);
   color: #888;
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -238,12 +238,12 @@
 .employees-table td {
   padding: 10px 12px;
   border-top: 1px solid #2a2a4e;
-  color: #ccc;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
 .employees-table .emp-name {
-  color: #fff;
+  color: var(--color-text-heading);
   font-weight: 500;
 }
 
@@ -259,7 +259,7 @@
 
 .mini-progress-fill {
   height: 100%;
-  background: #7f5af0;
+  background: var(--color-primary);
   border-radius: 2px;
 }
 
@@ -326,7 +326,7 @@
 }
 
 .sub-modal {
-  background: #1a1a2e;
+  background: var(--color-bg);
   border-radius: 12px;
   padding: 24px;
   width: 90%;
@@ -336,7 +336,7 @@
 
 .sub-modal h3 {
   margin: 0 0 20px 0;
-  color: #fff;
+  color: var(--color-text-heading);
 }
 
 .form-group {
@@ -345,7 +345,7 @@
 
 .form-group label {
   display: block;
-  color: #aaa;
+  color: var(--color-text-secondary);
   font-size: 0.85rem;
   margin-bottom: 6px;
 }
@@ -354,17 +354,17 @@
 .form-group input[type="date"] {
   width: 100%;
   padding: 10px 12px;
-  background: #16213e;
+  background: var(--color-surface);
   border: 1px solid #2a2a4e;
   border-radius: 6px;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 0.9rem;
 }
 
 .form-group select:focus,
 .form-group input:focus {
   outline: none;
-  border-color: #7f5af0;
+  border-color: var(--color-primary);
 }
 
 .sub-modal-actions {
@@ -377,7 +377,7 @@
 .btn-cancel {
   padding: 10px 20px;
   background: #2a2a4e;
-  color: #aaa;
+  color: var(--color-text-secondary);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -385,12 +385,12 @@
 
 .btn-cancel:hover {
   background: #3a3a5e;
-  color: #fff;
+  color: var(--color-text-heading);
 }
 
 .btn-confirm {
   padding: 10px 20px;
-  background: #7f5af0;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -399,7 +399,7 @@
 }
 
 .btn-confirm:hover:not(:disabled) {
-  background: #6b46e5;
+  background: var(--color-primary-hover);
 }
 
 .btn-confirm:disabled {

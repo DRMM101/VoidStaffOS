@@ -1,6 +1,6 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-02-04 21:30 UTC
+**Last Updated:** 2026-02-04 22:00 UTC
 
 ## Current State
 
@@ -54,6 +54,9 @@ frontend/src/theme/
 - Migrated classes: 854 (100% coverage + new additions)
 - CSS bundle: 204 kB (27.9 kB gzip)
 - Old colours replaced: #1a1a2e → var(--color-bg), #7f5af0 → var(--color-primary), etc.
+- Component CSS files migrated: 8 standalone .css files (TeamPerformance, Feedback, Quarterly, Recruitment pipeline)
+- Inline JSX styles migrated: 12 .jsx files (Policy, Document, Compliance, Expiry, Audit)
+- Grey text contrast fix: #9ca3af → #8a9490 across 7 recruitment/candidate CSS files
 
 **White-Label Ready:** To retheme for a client, copy `themes/default.css` → `themes/client-name.css`, override CSS variables, switch import in `main.jsx`.
 
@@ -321,8 +324,10 @@ Full sick leave and statutory leave management with Return to Work interviews.
 6. ✅ Offboarding route ordering - Moved /stats, /upcoming before /:id
 7. ✅ Offboarding status filter - Fixed array handling for multiple status values
 8. ✅ Date picker visibility - Added colorScheme: 'light' for calendar popups
-10. ✅ HR Cases cookie/auth flow - Fixed session handling for case creation
-11. ✅ HR Cases route ordering - Fixed /stats, /my-cases before /:id
+11. ✅ HR Cases cookie/auth flow - Fixed session handling for case creation
+12. ✅ HR Cases route ordering - Fixed /stats, /my-cases before /:id
+13. ✅ Component CSS dark purple remnants - 8 standalone CSS files + 12 JSX inline styles migrated
+14. ✅ Grey text contrast (#9ca3af) - Fixed across recruitment/candidate pipeline CSS
 
 ---
 
@@ -363,6 +368,7 @@ npm run dev
 ## Git Commit History (Recent)
 
 - PropertyOS theme migration — full design system, white-label ready
+- Fix component CSS and JSX inline styles — purple remnants and grey text contrast
 - HR Cases debugging — cookie/auth flow, route ordering fixes
 - Fix offboarding route ordering and add missing stats endpoint
 - Fix offboarding modal and add deadline notifications

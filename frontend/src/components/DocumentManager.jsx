@@ -116,7 +116,7 @@ function DocumentManager({ user }) {
           }
 
           .btn-back {
-            background: #2a2a4a;
+            background: #e8e2d9;
             color: #e0e0e0;
             padding: 10px 20px;
             border: none;
@@ -129,7 +129,7 @@ function DocumentManager({ user }) {
           }
 
           .btn-primary {
-            background: #7f5af0;
+            background: #134e4a;
             color: #fff;
             padding: 10px 20px;
             border: none;
@@ -268,7 +268,7 @@ function DocumentManager({ user }) {
 
         .tab-btn {
           padding: 10px 20px;
-          background: #2a2a4a;
+          background: #e8e2d9;
           border: none;
           border-radius: 8px;
           color: #a0a0a0;
@@ -282,7 +282,7 @@ function DocumentManager({ user }) {
         }
 
         .tab-btn.active {
-          background: #7f5af0;
+          background: #134e4a;
           color: #fff;
         }
 
@@ -294,8 +294,8 @@ function DocumentManager({ user }) {
           width: 100%;
           max-width: 400px;
           padding: 12px 15px;
-          background: #16213e;
-          border: 1px solid #2a2a4a;
+          background: #ffffff;
+          border: 1px solid #e8e2d9;
           border-radius: 8px;
           color: #e0e0e0;
           font-size: 0.95rem;
@@ -303,7 +303,7 @@ function DocumentManager({ user }) {
 
         .search-bar input:focus {
           outline: none;
-          border-color: #7f5af0;
+          border-color: #134e4a;
         }
 
         .employees-table-container {
@@ -313,7 +313,7 @@ function DocumentManager({ user }) {
         .employees-table {
           width: 100%;
           border-collapse: collapse;
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           overflow: hidden;
         }
@@ -321,7 +321,7 @@ function DocumentManager({ user }) {
         .employees-table th {
           text-align: left;
           padding: 15px;
-          background: #1a1a2e;
+          background: #f9f6f2;
           color: #a0a0a0;
           font-weight: 600;
           font-size: 0.85rem;
@@ -330,12 +330,12 @@ function DocumentManager({ user }) {
 
         .employees-table td {
           padding: 15px;
-          border-top: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
           color: #e0e0e0;
         }
 
         .employees-table tr:hover {
-          background: #1a1a2e;
+          background: #f9f6f2;
         }
 
         .employee-info {
@@ -365,7 +365,7 @@ function DocumentManager({ user }) {
           display: inline-block;
           min-width: 28px;
           padding: 4px 10px;
-          background: #2a2a4a;
+          background: #e8e2d9;
           border-radius: 12px;
           font-weight: 600;
         }
@@ -377,7 +377,7 @@ function DocumentManager({ user }) {
 
         .count-badge.warning {
           background: #f7b731;
-          color: #1a1a2e;
+          color: #134e4a;
         }
 
         .count-none {
@@ -391,10 +391,10 @@ function DocumentManager({ user }) {
 
         .btn-view {
           padding: 8px 15px;
-          background: #2a2a4a;
+          background: #e8e2d9;
           border: none;
           border-radius: 6px;
-          color: #7f5af0;
+          color: #134e4a;
           cursor: pointer;
           font-size: 0.9rem;
         }

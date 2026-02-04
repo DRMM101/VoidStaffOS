@@ -19,7 +19,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../utils/api';
 
 const CATEGORY_COLORS = {
-  'HR': '#7f5af0',
+  'HR': '#134e4a',
   'Health & Safety': '#2cb67d',
   'Safeguarding': '#ff6b6b',
   'Compliance': '#4ecdc4',
@@ -320,7 +320,7 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
         }
 
         .policy-viewer {
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           width: 100%;
           max-width: 900px;
@@ -335,8 +335,8 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
           justify-content: space-between;
           align-items: center;
           padding: 15px 20px;
-          border-bottom: 1px solid #2a2a4a;
-          background: #1a1a2e;
+          border: 1px solid #e8e2d9;
+          background: #f9f6f2;
         }
 
         .header-info {
@@ -353,7 +353,7 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
         }
 
         .version-badge {
-          background: #2a2a4a;
+          background: #e8e2d9;
           padding: 4px 10px;
           border-radius: 12px;
           font-size: 0.8rem;
@@ -376,7 +376,7 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
 
         .viewer-title {
           padding: 20px 25px;
-          border-bottom: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
         }
 
         .viewer-title h1 {
@@ -402,7 +402,7 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
           flex: 1;
           overflow-y: auto;
           padding: 25px;
-          background: #1a1a2e;
+          background: #f9f6f2;
           min-height: 300px;
           max-height: 400px;
         }
@@ -447,7 +447,7 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
           display: flex;
           justify-content: space-between;
           padding: 10px 15px;
-          background: #2a2a4a;
+          background: #e8e2d9;
           border-radius: 8px 8px 0 0;
           color: #a0a0a0;
           font-size: 0.9rem;
@@ -470,15 +470,15 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
         .pdf-scroll-notice {
           text-align: center;
           padding: 10px;
-          background: #1a1a2e;
+          background: #f9f6f2;
           border-radius: 0 0 8px 8px;
         }
 
         .scroll-indicator {
           padding: 12px 25px;
           text-align: center;
-          background: #16213e;
-          border-top: 1px solid #2a2a4a;
+          background: #ffffff;
+          border: 1px solid #e8e2d9;
         }
 
         .scroll-complete {
@@ -491,8 +491,8 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
 
         .acknowledgment-section {
           padding: 20px 25px;
-          border-top: 1px solid #2a2a4a;
-          background: #16213e;
+          border: 1px solid #e8e2d9;
+          background: #ffffff;
         }
 
         .acknowledgment-section h3 {
@@ -544,8 +544,8 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
         .signature-group input {
           width: 100%;
           padding: 12px 15px;
-          background: #1a1a2e;
-          border: 1px solid #2a2a4a;
+          background: #f9f6f2;
+          border: 1px solid #e8e2d9;
           border-radius: 8px;
           color: #e0e0e0;
           font-size: 1rem;
@@ -553,7 +553,7 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
 
         .signature-group input:focus {
           outline: none;
-          border-color: #7f5af0;
+          border-color: #134e4a;
         }
 
         .signature-group input:disabled {
@@ -570,7 +570,7 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
 
         .read-only-actions {
           padding: 20px 25px;
-          border-top: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
         }
 
         .btn {
@@ -584,12 +584,12 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
         }
 
         .btn-primary {
-          background: #7f5af0;
+          background: #134e4a;
           color: #fff;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background: #6b4ad1;
+          background: #0f3d38;
         }
 
         .btn-primary:disabled {
@@ -598,7 +598,7 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
         }
 
         .btn-secondary {
-          background: #2a2a4a;
+          background: #e8e2d9;
           color: #e0e0e0;
         }
 
@@ -609,7 +609,7 @@ function PolicyViewer({ policy, user, onAcknowledge, onClose, readOnly = false }
         .legal-notice {
           margin-top: 20px;
           padding: 15px;
-          background: #1a1a2e;
+          background: #f9f6f2;
           border-radius: 8px;
           font-size: 0.85rem;
           color: #808080;

@@ -50,8 +50,8 @@ const ESCALATION_CONFIG = {
   },
   notice: {
     label: '61-90 Days',
-    color: '#7f5af0',
-    bgColor: 'rgba(127, 90, 240, 0.15)',
+    color: '#134e4a',
+    bgColor: 'rgba(19, 78, 74, 0.08)',
     description: 'Notice - notifies employee only'
   }
 };
@@ -261,7 +261,7 @@ function ExpiryDashboard({ user }) {
         }
 
         .summary-card {
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           padding: 20px;
           text-align: center;
@@ -291,7 +291,7 @@ function ExpiryDashboard({ user }) {
         }
 
         .category-breakdown {
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           padding: 20px;
           margin-bottom: 20px;
@@ -314,7 +314,7 @@ function ExpiryDashboard({ user }) {
           justify-content: space-between;
           align-items: center;
           padding: 10px;
-          background: #1a1a2e;
+          background: #f9f6f2;
           border-radius: 8px;
         }
 
@@ -336,9 +336,9 @@ function ExpiryDashboard({ user }) {
         }
 
         .cat-count.expired { background: #ff6b6b; color: #fff; }
-        .cat-count.critical { background: #f7b731; color: #1a1a2e; }
-        .cat-count.warning { background: #4ecdc4; color: #1a1a2e; }
-        .cat-count.notice { background: #7f5af0; color: #fff; }
+        .cat-count.critical { background: #f7b731; color: #134e4a; }
+        .cat-count.warning { background: #4ecdc4; color: #134e4a; }
+        .cat-count.notice { background: #134e4a; color: #fff; }
 
         .notifications-action {
           display: flex;
@@ -346,7 +346,7 @@ function ExpiryDashboard({ user }) {
           gap: 15px;
           margin-bottom: 25px;
           padding: 15px;
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
         }
 
@@ -365,7 +365,7 @@ function ExpiryDashboard({ user }) {
         }
 
         .btn-secondary {
-          background: #2a2a4a;
+          background: #e8e2d9;
           color: #e0e0e0;
         }
 
@@ -429,7 +429,7 @@ function ExpiryDashboard({ user }) {
 
         .documents-table-container {
           overflow-x: auto;
-          background: #16213e;
+          background: #ffffff;
         }
 
         .documents-table {
@@ -440,7 +440,7 @@ function ExpiryDashboard({ user }) {
         .documents-table th {
           text-align: left;
           padding: 12px 15px;
-          background: #1a1a2e;
+          background: #f9f6f2;
           color: #a0a0a0;
           font-weight: 600;
           font-size: 0.8rem;
@@ -449,7 +449,7 @@ function ExpiryDashboard({ user }) {
 
         .documents-table td {
           padding: 12px 15px;
-          border-top: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
           color: #e0e0e0;
         }
 
@@ -473,7 +473,7 @@ function ExpiryDashboard({ user }) {
         }
 
         .category-badge {
-          background: #2a2a4a;
+          background: #e8e2d9;
           padding: 4px 10px;
           border-radius: 8px;
           font-size: 0.8rem;
@@ -495,9 +495,9 @@ function ExpiryDashboard({ user }) {
         }
 
         .days-badge.expired { background: #ff6b6b; color: #fff; }
-        .days-badge.critical { background: #f7b731; color: #1a1a2e; }
-        .days-badge.warning { background: #4ecdc4; color: #1a1a2e; }
-        .days-badge.notice { background: #7f5af0; color: #fff; }
+        .days-badge.critical { background: #f7b731; color: #134e4a; }
+        .days-badge.warning { background: #4ecdc4; color: #134e4a; }
+        .days-badge.notice { background: #134e4a; color: #fff; }
 
         .manager-cell {
           color: #a0a0a0;
@@ -512,7 +512,7 @@ function ExpiryDashboard({ user }) {
           padding: 30px;
           text-align: center;
           color: #808080;
-          background: #16213e;
+          background: #ffffff;
         }
 
         .loading, .error-message {

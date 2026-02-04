@@ -151,8 +151,8 @@ function Policies({ user }) {
           display: flex;
           gap: 0;
           padding: 0 20px;
-          background: #1a1a2e;
-          border-bottom: 1px solid #2a2a4a;
+          background: #f9f6f2;
+          border: 1px solid #e8e2d9;
         }
 
         .tab {
@@ -172,8 +172,8 @@ function Policies({ user }) {
         }
 
         .tab.active {
-          color: #7f5af0;
-          border-bottom-color: #7f5af0;
+          color: #134e4a;
+          border-bottom-color: #134e4a;
         }
       `}</style>
     </div>

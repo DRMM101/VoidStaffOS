@@ -84,7 +84,7 @@ function Documents({ user }) {
           display: flex;
           gap: 10px;
           padding: 20px 20px 0 20px;
-          border-bottom: 1px solid #2a2a4a;
+          border: 1px solid #e8e2d9;
           margin-bottom: 0;
         }
 
@@ -105,8 +105,8 @@ function Documents({ user }) {
         }
 
         .tab-btn.active {
-          color: #7f5af0;
-          border-bottom-color: #7f5af0;
+          color: #134e4a;
+          border-bottom-color: #134e4a;
         }
 
         .modal-overlay {

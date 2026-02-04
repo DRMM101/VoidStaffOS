@@ -1,5 +1,5 @@
 .team-performance {
-  background: #16213e;
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -13,13 +13,13 @@
 }
 
 .team-performance .card-header h3 {
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1.2rem;
   margin: 0;
 }
 
 .team-count {
-  background: #7f5af0;
+  background: var(--color-primary);
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
@@ -29,7 +29,7 @@
 
 /* Team Summary Card */
 .team-summary-card {
-  background: #1a1a2e;
+  background: var(--color-bg);
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 20px;
@@ -197,7 +197,7 @@
 }
 
 .member-name .name {
-  color: #fff;
+  color: var(--color-text-heading);
   font-weight: 500;
 }
 
@@ -209,7 +209,7 @@
 .tier-badge {
   display: inline-block;
   background: #2a2a4e;
-  color: #aaa;
+  color: var(--color-text-secondary);
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -222,7 +222,7 @@
 }
 
 .review-date .date {
-  color: #aaa;
+  color: var(--color-text-secondary);
   font-size: 0.85rem;
 }
 
@@ -243,21 +243,21 @@
 
 .btn-view {
   background: #2a2a4e;
-  color: #aaa;
+  color: var(--color-text-secondary);
 }
 
 .btn-view:hover {
   background: #3a3a5e;
-  color: #fff;
+  color: var(--color-text-heading);
 }
 
 .btn-snapshot {
-  background: #7f5af0;
+  background: var(--color-primary);
   color: white;
 }
 
 .btn-snapshot:hover {
-  background: #6b46e5;
+  background: var(--color-primary-hover);
 }
 
 /* KPI Legend */

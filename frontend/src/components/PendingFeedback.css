@@ -1,5 +1,5 @@
 .pending-feedback-modal {
-  background: #1a1a2e;
+  background: var(--color-bg);
   border-radius: 12px;
   width: 90%;
   max-width: 700px;
@@ -16,13 +16,13 @@
   border-bottom: 1px solid #2a2a4e;
   position: sticky;
   top: 0;
-  background: #1a1a2e;
+  background: var(--color-bg);
   z-index: 1;
 }
 
 .pending-feedback-modal .modal-header h2 {
   margin: 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1.3rem;
 }
 
@@ -35,7 +35,7 @@
 }
 
 .pending-feedback-modal .close-btn:hover {
-  color: #fff;
+  color: var(--color-text-heading);
 }
 
 .no-pending {
@@ -51,7 +51,7 @@
 
 .no-pending p {
   margin: 0 0 8px 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1.1rem;
 }
 
@@ -65,20 +65,20 @@
 }
 
 .requests-count {
-  color: #aaa;
+  color: var(--color-text-secondary);
   margin: 0 0 20px 0;
   font-size: 0.95rem;
 }
 
 .requests-count strong {
-  color: #7f5af0;
+  color: var(--color-primary);
 }
 
 .request-card {
   display: flex;
   align-items: center;
   gap: 15px;
-  background: #16213e;
+  background: var(--color-surface);
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 12px;
@@ -87,7 +87,7 @@
 }
 
 .request-card:hover {
-  border-color: #7f5af0;
+  border-color: var(--color-primary);
 }
 
 .request-icon {
@@ -113,7 +113,7 @@
 }
 
 .employee-name {
-  color: #fff;
+  color: var(--color-text-heading);
   font-weight: 500;
   font-size: 1rem;
 }
@@ -181,7 +181,7 @@
 
 .btn-provide-feedback {
   padding: 10px 16px;
-  background: #7f5af0;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -193,7 +193,7 @@
 }
 
 .btn-provide-feedback:hover {
-  background: #6b46e5;
+  background: var(--color-primary-hover);
 }
 
 .loading {

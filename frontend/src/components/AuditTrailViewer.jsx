@@ -715,7 +715,7 @@ const styles = `
   .stat-value {
     font-size: 32px;
     font-weight: bold;
-    color: #7f5af0;
+    color: #134e4a;
   }
 
   .stat-breakdown {
@@ -762,7 +762,7 @@ const styles = `
   .filter-group input {
     width: 100%;
     padding: 8px 12px;
-    background: #1a1a2e;
+    background: #f9f6f2;
     border: 1px solid #333;
     border-radius: 4px;
     color: #fff;
@@ -790,7 +790,7 @@ const styles = `
 
   .btn-primary {
     padding: 12px 24px;
-    background: #7f5af0;
+    background: #134e4a;
     border: none;
     border-radius: 4px;
     color: #fff;
@@ -835,7 +835,7 @@ const styles = `
   }
 
   .audit-table th {
-    background: #1a1a2e;
+    background: #f9f6f2;
     color: #888;
     font-size: 12px;
     text-transform: uppercase;
@@ -848,7 +848,7 @@ const styles = `
   }
 
   .audit-table tbody tr:hover {
-    background: #2a2a4a;
+    background: #e8e2d9;
   }
 
   .timestamp {
@@ -884,7 +884,7 @@ const styles = `
   }
 
   .resource-id {
-    color: #7f5af0;
+    color: #134e4a;
     font-size: 12px;
   }
 
@@ -909,7 +909,7 @@ const styles = `
   }
 
   .changes-preview {
-    color: #7f5af0;
+    color: #134e4a;
     font-size: 12px;
   }
 
@@ -968,7 +968,7 @@ const styles = `
   }
 
   .modal-content {
-    background: #1a1a2e;
+    background: #f9f6f2;
     border-radius: 8px;
     width: 90%;
     max-width: 700px;
@@ -1056,7 +1056,7 @@ const styles = `
 
   .form-group input:focus {
     outline: none;
-    border-color: #7f5af0;
+    border-color: #134e4a;
   }
 
   .verify-error {
@@ -1116,7 +1116,7 @@ const styles = `
   }
 
   .change-field {
-    color: #7f5af0;
+    color: #134e4a;
     font-weight: 600;
   }
 

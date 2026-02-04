@@ -119,10 +119,10 @@ function ComplianceSettings({ user }) {
             placeholder="e.g., CQC Report, Compliance Report"
             style={{
               padding: '10px 14px',
-              border: '2px solid #2a2a4a',
+              border: '1px solid #e8e2d9',
               borderRadius: '6px',
-              background: '#1a1a2e',
-              color: '#fff',
+              background: '#f9f6f2',
+              color: '#5c6b63',
               fontSize: '0.95rem',
               width: '300px'
             }}

@@ -59,7 +59,10 @@
       "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\n-- First clear all related tables\nTRUNCATE day_one_items CASCADE;\nTRUNCATE onboarding_tasks CASCADE;\nTRUNCATE policy_acknowledgments CASCADE;\nTRUNCATE candidate_references CASCADE;\nTRUNCATE background_checks CASCADE;\nTRUNCATE candidate_notes CASCADE;\nTRUNCATE candidate_interviews CASCADE;\nTRUNCATE candidate_stage_history CASCADE;\nTRUNCATE candidates CASCADE;\nTRUNCATE recruitment_requests CASCADE;\n\nSELECT ''Tables cleared'' AS result;\n\")",
       "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql.exe\" -U void_admin -d void_staff_os -c \"\nSELECT ''Recruitment Requests'' AS table_name, COUNT\\(*\\) AS count FROM recruitment_requests\nUNION ALL\nSELECT ''Candidates'', COUNT\\(*\\) FROM candidates\nUNION ALL\nSELECT ''Interviews'', COUNT\\(*\\) FROM candidate_interviews\nUNION ALL\nSELECT ''Notes'', COUNT\\(*\\) FROM candidate_notes\nUNION ALL\nSELECT ''Background Checks'', COUNT\\(*\\) FROM background_checks\nUNION ALL\nSELECT ''References'', COUNT\\(*\\) FROM candidate_references\nUNION ALL\nSELECT ''Onboarding Tasks'', COUNT\\(*\\) FROM onboarding_tasks\nUNION ALL\nSELECT ''Day One Items'', COUNT\\(*\\) FROM day_one_items;\n\")",
       "Bash(cmd //c \"taskkill /PID 42040 /F && taskkill /PID 40320 /F\")",
-      "Bash(tr:*)"
+      "Bash(tr:*)",
+      "Bash(node test-cookies.js:*)",
+      "Bash(echo:*)",
+      "Bash(__NEW_LINE_86c54168f1bbd383__ echo \"\")"
     ]
   }
 }

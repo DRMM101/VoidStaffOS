@@ -36,7 +36,7 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 20px 28px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
   color: white;
   flex-shrink: 0;
 }
@@ -136,8 +136,8 @@
 }
 
 .modal-tabs button.active {
-  color: #6366f1;
-  border-bottom-color: #6366f1;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
   background: white;
 }
 
@@ -172,7 +172,7 @@
 .info-section h4 {
   margin: 0 0 16px 0;
   font-size: 13px;
-  color: #6366f1;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   font-weight: 600;
@@ -185,7 +185,7 @@
   content: '';
   width: 4px;
   height: 16px;
-  background: #6366f1;
+  background: var(--color-primary);
   border-radius: 2px;
 }
 
@@ -221,7 +221,7 @@
   border-radius: 8px;
   font-size: 13px;
   align-items: center;
-  border-left: 3px solid #6366f1;
+  border-left: 3px solid var(--color-primary);
 }
 
 .history-stages {
@@ -230,7 +230,7 @@
 }
 
 .history-stages .arrow {
-  color: #9ca3af;
+  color: #8a9490;
   margin: 0 6px;
 }
 
@@ -240,7 +240,7 @@
 }
 
 .history-date {
-  color: #9ca3af;
+  color: #8a9490;
   font-size: 12px;
   text-align: right;
 }
@@ -425,7 +425,7 @@
 
 .no-interviews {
   text-align: center;
-  color: #9ca3af;
+  color: #8a9490;
   padding: 40px 20px;
   background: white;
   border-radius: 12px;
@@ -477,7 +477,7 @@
 }
 
 .btn-action.primary {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: white;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }

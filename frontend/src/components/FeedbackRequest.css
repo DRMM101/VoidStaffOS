@@ -1,5 +1,5 @@
 .feedback-request-modal {
-  background: #1a1a2e;
+  background: var(--color-bg);
   border-radius: 12px;
   width: 90%;
   max-width: 600px;
@@ -16,19 +16,19 @@
   border-bottom: 1px solid #2a2a4e;
   position: sticky;
   top: 0;
-  background: #1a1a2e;
+  background: var(--color-bg);
   z-index: 1;
 }
 
 .feedback-request-modal .modal-header h2 {
   flex: 1;
   margin: 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1.3rem;
 }
 
 .quarter-badge {
-  background: #7f5af0;
+  background: var(--color-primary);
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
@@ -46,12 +46,12 @@
 }
 
 .feedback-request-modal .close-btn:hover {
-  color: #fff;
+  color: var(--color-text-heading);
 }
 
 .feedback-context {
   padding: 15px 20px;
-  background: #16213e;
+  background: var(--color-surface);
   border-bottom: 1px solid #2a2a4e;
 }
 
@@ -87,7 +87,7 @@
 
 .feedback-context p {
   margin: 0;
-  color: #aaa;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -122,7 +122,7 @@
 }
 
 .rating-slider-group {
-  background: #16213e;
+  background: var(--color-surface);
   padding: 15px;
   border-radius: 8px;
 }
@@ -135,12 +135,12 @@
 }
 
 .rating-header label {
-  color: #fff;
+  color: var(--color-text-heading);
   font-weight: 500;
 }
 
 .rating-value {
-  color: #7f5af0;
+  color: var(--color-primary);
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -165,9 +165,9 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #7f5af0;
+  background: var(--color-primary);
   cursor: pointer;
-  border: 2px solid #1a1a2e;
+  border: 2px solid var(--color-bg);
   box-shadow: 0 2px 6px rgba(127, 90, 240, 0.4);
 }
 
@@ -175,9 +175,9 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #7f5af0;
+  background: var(--color-primary);
   cursor: pointer;
-  border: 2px solid #1a1a2e;
+  border: 2px solid var(--color-bg);
   box-shadow: 0 2px 6px rgba(127, 90, 240, 0.4);
 }
 
@@ -195,7 +195,7 @@
 
 .comments-section label {
   display: block;
-  color: #fff;
+  color: var(--color-text-heading);
   font-weight: 500;
   margin-bottom: 8px;
 }
@@ -203,10 +203,10 @@
 .comments-section textarea {
   width: 100%;
   padding: 12px;
-  background: #16213e;
+  background: var(--color-surface);
   border: 1px solid #2a2a4e;
   border-radius: 8px;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 0.9rem;
   resize: vertical;
   font-family: inherit;
@@ -214,7 +214,7 @@
 
 .comments-section textarea:focus {
   outline: none;
-  border-color: #7f5af0;
+  border-color: var(--color-primary);
 }
 
 .comments-section textarea::placeholder {
@@ -232,7 +232,7 @@
 .btn-cancel {
   padding: 10px 20px;
   background: #2a2a4e;
-  color: #aaa;
+  color: var(--color-text-secondary);
   border: none;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -242,12 +242,12 @@
 
 .btn-cancel:hover {
   background: #3a3a5e;
-  color: #fff;
+  color: var(--color-text-heading);
 }
 
 .btn-submit {
   padding: 10px 24px;
-  background: #7f5af0;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -258,7 +258,7 @@
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #6b46e5;
+  background: var(--color-primary-hover);
 }
 
 .btn-submit:disabled {

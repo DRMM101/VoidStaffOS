@@ -357,7 +357,7 @@ function DocumentUpload({ user, employeeId, onClose, onSuccess }) {
 
       <style>{`
         .document-upload {
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           padding: 25px;
           max-width: 600px;
@@ -405,8 +405,8 @@ function DocumentUpload({ user, employeeId, onClose, onSuccess }) {
 
         .drop-zone:hover,
         .drop-zone.active {
-          border-color: #7f5af0;
-          background: rgba(127, 90, 240, 0.1);
+          border-color: #134e4a;
+          background: rgba(19, 78, 74, 0.08);
         }
 
         .drop-zone.has-file {
@@ -485,8 +485,8 @@ function DocumentUpload({ user, employeeId, onClose, onSuccess }) {
         .form-group textarea {
           width: 100%;
           padding: 12px 15px;
-          background: #1a1a2e;
-          border: 1px solid #2a2a4a;
+          background: #f9f6f2;
+          border: 1px solid #e8e2d9;
           border-radius: 8px;
           color: #e0e0e0;
           font-size: 0.95rem;
@@ -496,7 +496,7 @@ function DocumentUpload({ user, employeeId, onClose, onSuccess }) {
         .form-group select:focus,
         .form-group textarea:focus {
           outline: none;
-          border-color: #7f5af0;
+          border-color: #134e4a;
         }
 
         .form-hint {
@@ -507,7 +507,7 @@ function DocumentUpload({ user, employeeId, onClose, onSuccess }) {
         }
 
         .visibility-controls {
-          background: #1a1a2e;
+          background: #f9f6f2;
           border-radius: 8px;
           padding: 15px;
           margin-bottom: 20px;
@@ -555,16 +555,16 @@ function DocumentUpload({ user, employeeId, onClose, onSuccess }) {
         }
 
         .btn-primary {
-          background: #7f5af0;
+          background: #134e4a;
           color: #fff;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background: #6b4ad1;
+          background: #0f3d38;
         }
 
         .btn-secondary {
-          background: #2a2a4a;
+          background: #e8e2d9;
           color: #e0e0e0;
         }
 

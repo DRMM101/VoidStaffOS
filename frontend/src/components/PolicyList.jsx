@@ -22,7 +22,7 @@ const CATEGORIES = ['HR', 'Health & Safety', 'Safeguarding', 'Compliance', 'IT',
 const STATUSES = ['draft', 'published', 'archived'];
 
 const CATEGORY_COLORS = {
-  'HR': '#7f5af0',
+  'HR': '#134e4a',
   'Health & Safety': '#2cb67d',
   'Safeguarding': '#ff6b6b',
   'Compliance': '#4ecdc4',
@@ -368,16 +368,16 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
         }
 
         .btn-primary {
-          background: #7f5af0;
+          background: #134e4a;
           color: #fff;
         }
 
         .btn-primary:hover {
-          background: #6b4ad1;
+          background: #0f3d38;
         }
 
         .btn-secondary {
-          background: #2a2a4a;
+          background: #e8e2d9;
           color: #e0e0e0;
         }
 
@@ -393,8 +393,8 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
 
         .filter-select {
           padding: 10px 15px;
-          background: #16213e;
-          border: 1px solid #2a2a4a;
+          background: #ffffff;
+          border: 1px solid #e8e2d9;
           border-radius: 8px;
           color: #e0e0e0;
           font-size: 0.95rem;
@@ -403,13 +403,13 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
 
         .filter-select:focus {
           outline: none;
-          border-color: #7f5af0;
+          border-color: #134e4a;
         }
 
         .empty-state {
           text-align: center;
           padding: 60px 20px;
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
         }
 
@@ -430,7 +430,7 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
         .policies-table {
           width: 100%;
           border-collapse: collapse;
-          background: #16213e;
+          background: #ffffff;
           border-radius: 12px;
           overflow: hidden;
         }
@@ -438,7 +438,7 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
         .policies-table th {
           text-align: left;
           padding: 15px;
-          background: #1a1a2e;
+          background: #f9f6f2;
           color: #a0a0a0;
           font-weight: 600;
           font-size: 0.85rem;
@@ -447,12 +447,12 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
 
         .policies-table td {
           padding: 15px;
-          border-top: 1px solid #2a2a4a;
+          border-top: 1px solid #e8e2d9;
           color: #e0e0e0;
         }
 
         .policies-table tr:hover {
-          background: #1a1a2e;
+          background: #f9f6f2;
         }
 
         .policies-table tr.status-archived {
@@ -497,7 +497,7 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
 
         .version-cell {
           font-family: monospace;
-          color: #808080;
+          color: #5c6b63;
         }
 
         .frequency-cell {
@@ -509,7 +509,7 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
           border-radius: 12px;
           font-size: 0.8rem;
           font-weight: 500;
-          background: #2a2a4a;
+          background: #e8e2d9;
           color: #a0a0a0;
         }
 
@@ -546,7 +546,7 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
 
         .due-badge {
           background: #f7b731;
-          color: #1a1a2e;
+          color: #f9f6f2;
           padding: 2px 6px;
           border-radius: 4px;
           font-size: 0.7rem;
@@ -562,7 +562,7 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
         }
 
         .ack-count {
-          background: #2a2a4a;
+          background: #e8e2d9;
           padding: 4px 12px;
           border-radius: 12px;
           font-size: 0.9rem;
@@ -573,7 +573,7 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
         }
 
         .date-cell {
-          color: #808080;
+          color: #5c6b63;
           font-size: 0.9rem;
         }
 
@@ -583,7 +583,7 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
         }
 
         .btn-icon {
-          background: #2a2a4a;
+          background: #e8e2d9;
           border: none;
           color: #e0e0e0;
           width: 32px;
@@ -604,7 +604,7 @@ function PolicyList({ user, onCreateNew, onEdit, onView, onViewCompliance }) {
 
         .btn-archive:hover {
           background: #f7b731;
-          color: #1a1a2e;
+          color: #f9f6f2;
         }
 
         .btn-delete:hover {

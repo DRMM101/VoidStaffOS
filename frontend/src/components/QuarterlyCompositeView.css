@@ -1,5 +1,5 @@
 .composite-view-modal {
-  background: #1a1a2e;
+  background: var(--color-bg);
   border-radius: 12px;
   width: 90%;
   max-width: 700px;
@@ -16,19 +16,19 @@
   border-bottom: 1px solid #2a2a4e;
   position: sticky;
   top: 0;
-  background: #1a1a2e;
+  background: var(--color-bg);
   z-index: 1;
 }
 
 .header-info h2 {
   margin: 0 0 8px 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1.3rem;
 }
 
 .header-info .quarter-badge {
   display: inline-block;
-  background: #7f5af0;
+  background: var(--color-primary);
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
@@ -46,7 +46,7 @@
 }
 
 .composite-view-modal .close-btn:hover {
-  color: #fff;
+  color: var(--color-text-heading);
 }
 
 .composite-content {
@@ -55,7 +55,7 @@
 
 .composite-summary h3 {
   margin: 0 0 8px 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1.1rem;
 }
 
@@ -72,7 +72,7 @@
 }
 
 .kpi-bar-container {
-  background: #16213e;
+  background: var(--color-surface);
   border-radius: 10px;
   padding: 15px;
 }
@@ -85,7 +85,7 @@
 }
 
 .kpi-label {
-  color: #fff;
+  color: var(--color-text-heading);
   font-weight: 500;
 }
 
@@ -129,7 +129,7 @@
 }
 
 .source-item strong {
-  color: #aaa;
+  color: var(--color-text-secondary);
 }
 
 .source-item.self {
@@ -149,7 +149,7 @@
 
 .perception-gaps-section h3 {
   margin: 0 0 15px 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1rem;
 }
 
@@ -194,7 +194,7 @@
 
 .signoff-section h3 {
   margin: 0 0 15px 0;
-  color: #fff;
+  color: var(--color-text-heading);
   font-size: 1rem;
 }
 
@@ -209,7 +209,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: #16213e;
+  background: var(--color-surface);
   border-radius: 8px;
   color: #888;
   font-size: 0.9rem;
@@ -232,7 +232,7 @@
 
 .btn-sign {
   padding: 10px 24px;
-  background: #7f5af0;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -243,7 +243,7 @@
 }
 
 .btn-sign:hover:not(:disabled) {
-  background: #6b46e5;
+  background: var(--color-primary-hover);
 }
 
 .btn-sign:disabled {
