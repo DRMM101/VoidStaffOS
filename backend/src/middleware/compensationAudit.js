@@ -18,7 +18,8 @@ const SENSITIVE_FIELDS = new Set([
   'base_salary', 'min_salary', 'mid_salary', 'max_salary',
   'current_salary', 'proposed_salary', 'approved_salary',
   'value', 'employer_contribution', 'employee_contribution',
-  'budget_total', 'budget_remaining'
+  'budget_total', 'budget_remaining',
+  'calculation_value', 'amount', 'calculated_amount', 'base_amount'
 ]);
 
 /**

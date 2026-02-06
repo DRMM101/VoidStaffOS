@@ -9998,3 +9998,290 @@ button[type="submit"]:disabled {
     gap: var(--space-3);
   }
 }
+
+/* ============================================
+   COMPENSATION SETTINGS PANEL
+   ============================================ */
+
+.compensation-settings {
+  max-width: 720px;
+}
+
+.compensation-settings__header h2 {
+  margin-bottom: var(--space-1);
+}
+
+.compensation-settings__subtitle {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-5);
+}
+
+.compensation-settings__toggles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.compensation-settings__toggle-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.compensation-settings__toggle-info h3 {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.compensation-settings__toggle-info p {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.compensation-settings__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.compensation-settings__message {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+}
+
+.compensation-settings__message--success { color: var(--color-success); }
+.compensation-settings__message--error { color: var(--color-error); }
+.compensation-settings__denied {
+  color: var(--color-text-muted);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+/* Toggle switch — reusable component */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch__slider {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: 26px;
+  transition: background 0.2s;
+}
+
+.toggle-switch__slider::before {
+  content: '';
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-switch__slider {
+  background: var(--color-primary);
+}
+
+.toggle-switch input:checked + .toggle-switch__slider::before {
+  transform: translateX(22px);
+}
+
+/* ============================================
+   BONUS SCHEME MANAGER
+   ============================================ */
+
+.bonus-scheme-manager,
+.allowance-manager {
+  width: 100%;
+}
+
+.bonus-scheme-manager__header,
+.allowance-manager__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.bonus-scheme-manager__header h2,
+.allowance-manager__header h2 {
+  margin: 0;
+}
+
+.bonus-scheme-manager__tabs,
+.allowance-manager__tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-2);
+}
+
+.tab-btn {
+  padding: var(--space-2) var(--space-3);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab-btn:hover { color: var(--color-text); }
+
+.tab-btn--active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.bonus-scheme-manager__table-wrap,
+.allowance-manager__table-wrap {
+  overflow-x: auto;
+}
+
+/* Assignment status badges */
+.assignment-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: capitalize;
+}
+
+.assignment-status-badge--amber {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.assignment-status-badge--green {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.assignment-status-badge--blue {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.assignment-status-badge--red {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.assignment-status-badge--grey {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+/* Actions cell — inline buttons */
+.actions-cell {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+/* Small danger button */
+.btn--danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.btn--danger:hover {
+  background: #fca5a5;
+}
+
+/* Calculation preview summary */
+.calc-preview__summary {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+/* Wide modal variant */
+.modal--wide {
+  max-width: 700px;
+  width: 90vw;
+}
+
+/* Radio label inline */
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-size: var(--font-size-body);
+}
+
+/* Checkbox label inline */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-size: var(--font-size-body);
+}
+
+/* Modal fieldset */
+.modal__fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  margin: var(--space-2) 0;
+}
+
+.modal__fieldset legend {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  padding: 0 var(--space-1);
+}
+
+/* Employee checklist in assign modal */
+.employee-checklist {
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+}
+
+/* Empty state text */
+.empty-state {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-6);
+}
+
+/* Error text */
+.error-text {
+  color: var(--color-error);
+  text-align: center;
+  padding: var(--space-4);
+}

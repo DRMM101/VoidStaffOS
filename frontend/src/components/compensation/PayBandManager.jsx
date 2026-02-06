@@ -19,11 +19,13 @@ function PayBandManager({ user }) {
   const [showModal, setShowModal] = useState(false);
   const [editingBand, setEditingBand] = useState(null);
   const [form, setForm] = useState({
-    band_name: '', grade: '', min_salary: '', mid_salary: '', max_salary: '', currency: 'GBP'
+    band_name: '', grade: '', min_salary: '', mid_salary: '', max_salary: '', currency: 'GBP', tier_level: ''
   });
   const [saving, setSaving] = useState(false);
+  const [tiers, setTiers] = useState([]);
+  const [settings, setSettings] = useState({ enable_tier_band_linking: false });
 
-  // Fetch all pay bands
+  // Fetch all pay bands, tiers, and settings
   const fetchBands = async () => {
     try {
       const response = await apiFetch('/api/compensation/pay-bands');
@@ -41,7 +43,19 @@ function PayBandManager({ user }) {
     }
   };
 
-  useEffect(() => { fetchBands(); }, []);
+  useEffect(() => {
+    fetchBands();
+    // Fetch settings and tiers for tier-band linking feature
+    apiFetch('/api/compensation/settings').then(async r => {
+      if (r.ok) setSettings(await r.json());
+    }).catch(() => {});
+    apiFetch('/api/roles/tiers').then(async r => {
+      if (r.ok) {
+        const d = await r.json();
+        setTiers(Array.isArray(d) ? d : d.data || []);
+      }
+    }).catch(() => {});
+  }, []);
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -54,7 +68,7 @@ function PayBandManager({ user }) {
   // Open modal to create new band
   const handleCreate = () => {
     setEditingBand(null);
-    setForm({ band_name: '', grade: '', min_salary: '', mid_salary: '', max_salary: '', currency: 'GBP' });
+    setForm({ band_name: '', grade: '', min_salary: '', mid_salary: '', max_salary: '', currency: 'GBP', tier_level: '' });
     setShowModal(true);
   };
 
@@ -67,7 +81,8 @@ function PayBandManager({ user }) {
       min_salary: band.min_salary,
       mid_salary: band.mid_salary,
       max_salary: band.max_salary,
-      currency: band.currency || 'GBP'
+      currency: band.currency || 'GBP',
+      tier_level: band.tier_level || ''
     });
     setShowModal(true);
   };
@@ -93,7 +108,8 @@ function PayBandManager({ user }) {
           min_salary: parseFloat(form.min_salary),
           mid_salary: parseFloat(form.mid_salary),
           max_salary: parseFloat(form.max_salary),
-          currency: form.currency
+          currency: form.currency,
+          tier_level: form.tier_level ? parseInt(form.tier_level) : null
         })
       });
 
@@ -160,12 +176,13 @@ function PayBandManager({ user }) {
               <th>Mid Salary</th>
               <th>Max Salary</th>
               <th>Currency</th>
+              {settings.enable_tier_band_linking && <th>Tier</th>}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {bands.length === 0 ? (
-              <tr><td colSpan="7" className="text-center text-muted">No pay bands defined yet</td></tr>
+              <tr><td colSpan={settings.enable_tier_band_linking ? 8 : 7} className="text-center text-muted">No pay bands defined yet</td></tr>
             ) : (
               bands.map((band) => (
                 <tr key={band.id}>
@@ -175,6 +192,9 @@ function PayBandManager({ user }) {
                   <td>{formatCurrency(band.mid_salary)}</td>
                   <td>{formatCurrency(band.max_salary)}</td>
                   <td>{band.currency}</td>
+                  {settings.enable_tier_band_linking && (
+                    <td>{tiers.find(t => t.tier_level === band.tier_level)?.tier_name || '-'}</td>
+                  )}
                   <td>
                     <div className="table-actions">
                       <button className="btn btn--sm btn--secondary" onClick={() => handleEdit(band)}>Edit</button>
@@ -242,6 +262,24 @@ function PayBandManager({ user }) {
                     />
                   </div>
                 </div>
+                {/* Tier dropdown — shown when tier-band linking is enabled */}
+                {settings.enable_tier_band_linking && (
+                  <div className="form-group">
+                    <label htmlFor="tier_level">Linked Tier (optional)</label>
+                    <select
+                      id="tier_level"
+                      value={form.tier_level}
+                      onChange={(e) => setForm({ ...form, tier_level: e.target.value })}
+                    >
+                      <option value="">No tier link</option>
+                      {tiers.map(t => (
+                        <option key={t.tier_level} value={t.tier_level}>
+                          {t.tier_name} ({t.tier_level})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn--secondary" onClick={() => setShowModal(false)}>Cancel</button>

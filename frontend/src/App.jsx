@@ -38,6 +38,9 @@ import PayBandManager from './components/compensation/PayBandManager';
 import PayReviewWorkflow from './components/compensation/PayReviewWorkflow';
 import CompensationReports from './components/compensation/CompensationReports';
 import CompensationAuditLog from './components/compensation/CompensationAuditLog';
+import BonusSchemeManager from './components/compensation/BonusSchemeManager';
+import ResponsibilityAllowanceManager from './components/compensation/ResponsibilityAllowanceManager';
+import CompensationSettingsPanel from './components/compensation/CompensationSettingsPanel';
 import AppShell from './components/layout/AppShell';
 
 function App() {
@@ -131,6 +134,9 @@ function App() {
       {currentPage === 'compensation-reviews' && <PayReviewWorkflow user={user} />}
       {currentPage === 'compensation-reports' && <CompensationReports user={user} />}
       {currentPage === 'compensation-audit' && <CompensationAuditLog user={user} />}
+      {currentPage === 'compensation-bonus-schemes' && <BonusSchemeManager user={user} />}
+      {currentPage === 'compensation-allowances' && <ResponsibilityAllowanceManager user={user} />}
+      {currentPage === 'compensation-settings' && <CompensationSettingsPanel user={user} />}
       {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}
     </AppShell>
   );

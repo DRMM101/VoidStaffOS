@@ -35,7 +35,11 @@ All endpoints require authentication. Access control varies by role:
 | PUT | `/pay-bands/:id` | HR/Admin | Update a pay band |
 | DELETE | `/pay-bands/:id` | HR/Admin | Delete a pay band |
 
-**Pay Band fields:** `band_name`, `grade`, `min_salary`, `mid_salary`, `max_salary`, `currency`
+**Pay Band fields:** `band_name`, `grade`, `min_salary`, `mid_salary`, `max_salary`, `currency`, `tier_level` (optional, INTEGER FK to tier_definitions)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/pay-bands/by-tier/:tierLevel` | Any authenticated | List pay bands for a specific tier level |
 
 ### Compensation Records
 
@@ -108,6 +112,68 @@ All endpoints require authentication. Access control varies by role:
 **Query params:** `action`, `employee_id`, `date_from`, `date_to`, `limit` (default 50), `offset` (default 0)
 
 **Response:** `{ data: [...], total, limit, offset }`
+
+### Compensation Settings
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/settings` | Any authenticated | Get feature toggle settings |
+| PUT | `/settings` | Admin | Update feature toggles |
+
+**Settings fields:** `enable_tier_band_linking`, `enable_bonus_schemes`, `enable_responsibility_allowances` (all BOOLEAN, default false)
+
+### Bonus Schemes
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/bonus-schemes` | Any authenticated | List bonus schemes |
+| POST | `/bonus-schemes` | Admin/HR | Create a bonus scheme |
+| PUT | `/bonus-schemes/:id` | Admin/HR | Update a bonus scheme |
+| DELETE | `/bonus-schemes/:id` | Admin/HR | Delete a bonus scheme |
+| POST | `/bonus-schemes/:id/calculate` | Admin/HR/Finance | Calculate bonuses for eligible employees |
+
+**Scheme fields:** `scheme_name`, `description`, `calculation_type` (percentage/fixed), `calculation_value`, `basis` (base_salary/total_compensation), `frequency`, `tier_level` (optional), `pay_band_id` (optional), `min_service_months`, `is_active`
+
+**Calculate request:** `{ effective_date }` — finds eligible employees by tier/band/service months and creates pending assignments
+
+### Bonus Assignments
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/bonus-assignments` | Admin/HR | List all bonus assignments (filterable by `status`, `scheme_id`) |
+| PUT | `/bonus-assignments/:id` | Admin/HR | Update assignment status (approve/reject) |
+| POST | `/bonus-assignments/:id/apply` | Admin/HR | Apply approved bonus — creates a `benefits` record |
+
+**Assignment status workflow:** `pending` → `approved` → `applied` (with `rejected` branch)
+
+### Responsibility Allowances
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/responsibility-allowances` | Any authenticated | List responsibility allowances |
+| POST | `/responsibility-allowances` | Admin/HR | Create an allowance |
+| PUT | `/responsibility-allowances/:id` | Admin/HR | Update an allowance |
+| DELETE | `/responsibility-allowances/:id` | Admin/HR | Delete an allowance |
+| POST | `/responsibility-allowances/:id/assign` | Admin/HR | Assign allowance to employees |
+
+**Allowance fields:** `allowance_name`, `description`, `amount`, `frequency`, `tier_level` (optional), `pay_band_id` (optional), `additional_role_id` (optional), `is_active`
+
+**Assign request:** `{ employee_ids: [1, 2, 3], start_date }` — creates assignments for each employee
+
+### Allowance Assignments
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/allowance-assignments` | Admin/HR | List all allowance assignments |
+| PUT | `/allowance-assignments/:id` | Admin/HR | Update assignment (e.g., set end_date) |
+
+### Total Compensation
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/total-compensation/:employeeId` | Self/Manager/HR/Admin | Full compensation package with annualised totals |
+
+**Response:** `{ employee_id, base_salary, currency, band, bonuses: [...], allowances: [...], benefits: [...], totals: { base_salary, bonuses, allowances, benefits, total_annual } }`
 
 ### Audit Middleware
 

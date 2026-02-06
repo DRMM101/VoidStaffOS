@@ -17,8 +17,14 @@ function CompensationDashboard({ user, onNavigate }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [settings, setSettings] = useState({
+    enable_bonus_schemes: false,
+    enable_responsibility_allowances: false
+  });
 
-  // Fetch dashboard statistics on mount
+  const isAdmin = user?.role_name === 'Admin';
+
+  // Fetch dashboard statistics and settings on mount
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -37,6 +43,10 @@ function CompensationDashboard({ user, onNavigate }) {
       }
     };
     fetchStats();
+    // Fetch feature settings (non-blocking)
+    apiFetch('/api/compensation/settings').then(async r => {
+      if (r.ok) setSettings(await r.json());
+    }).catch(() => {});
   }, []);
 
   // Format currency for display
@@ -108,6 +118,25 @@ function CompensationDashboard({ user, onNavigate }) {
           <span className="comp-link-card__title">Audit Log</span>
           <span className="comp-link-card__desc">View all compensation data access</span>
         </button>
+        {/* Conditional links based on enabled features */}
+        {settings.enable_bonus_schemes && (
+          <button className="comp-link-card" onClick={() => onNavigate('compensation-bonus-schemes')}>
+            <span className="comp-link-card__title">Bonus Schemes</span>
+            <span className="comp-link-card__desc">Manage bonus calculations and assignments</span>
+          </button>
+        )}
+        {settings.enable_responsibility_allowances && (
+          <button className="comp-link-card" onClick={() => onNavigate('compensation-allowances')}>
+            <span className="comp-link-card__title">Allowances</span>
+            <span className="comp-link-card__desc">Responsibility allowances and assignments</span>
+          </button>
+        )}
+        {isAdmin && (
+          <button className="comp-link-card" onClick={() => onNavigate('compensation-settings')}>
+            <span className="comp-link-card__title">Settings</span>
+            <span className="comp-link-card__desc">Configure compensation features</span>
+          </button>
+        )}
       </div>
     </div>
   );

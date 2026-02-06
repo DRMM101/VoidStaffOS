@@ -301,7 +301,7 @@ Full sick leave and statutory leave management with Return to Work interviews.
 | Offboarding | ✅ Complete | 032 | Exit workflow & compliance |
 | HR Cases | ✅ Complete | 033 | PIP, Disciplinary, Grievance |
 | Layout Shell | ✅ Complete | — | Collapsible sidebar + header + breadcrumb |
-| Compensation | ✅ Complete | 034 | Pay bands, reviews, benefits, audit |
+| Compensation | ✅ Complete | 034-035 | Pay bands, reviews, benefits, bonus schemes, allowances, audit |
 | Theme | ✅ Complete | — | HeadofficeOS neutral design system migration |
 
 ---
@@ -500,3 +500,46 @@ npm run dev
   - `backend/src/routes/compensation.js` — fixed 3 report endpoints
 - **Status**: Complete
 - **Tests**: 52 unit tests passing, 7/7 integration test steps passing
+
+### 2026-02-06 — Tier-Linked Pay Bands with Bonus Schemes & Responsibility Allowances
+
+- **Task**: Add optional features to associate pay bands with tiers, configure bonus calculation schemes (percentage or fixed), and add responsibility allowances. All features toggle-based — Admin enables per-tenant.
+- **Decisions**:
+  - All three features (tier-band linking, bonus schemes, responsibility allowances) are opt-in via `compensation_settings` toggles — Admin enables them independently
+  - Bonus calculation supports both percentage (of base salary or total compensation) and fixed amounts, with min_service_months eligibility filtering
+  - When a bonus assignment is "applied", a `benefits` record (type=bonus) is created for full traceability
+  - Allowance assignments support ongoing (no end_date) or time-limited with end dates
+  - Total compensation endpoint aggregates base salary + bonuses + allowances + benefits with annualisation
+  - Used existing `tier_definitions` FK (tier_level INTEGER) and `additional_roles` FK for allowance links
+- **Integration Test Results (all 8 steps)**:
+  1. **Settings toggle**: Enabled all 3 feature flags via PUT `/settings`
+  2. **Pay band with tier**: Created "Manager Band" linked to tier 60 (Manager)
+  3. **Bonus scheme**: Created percentage (10%) and fixed (£500) schemes with tier/band restrictions
+  4. **Calculate bonuses**: 2 eligible employees found for unrestricted company-wide scheme
+  5. **Approve & apply**: Bonus approved, then applied — benefits record created with `applied_benefit_id` link
+  6. **Responsibility allowance**: Created "Fire Warden" £150/month, assigned to employee
+  7. **Total compensation**: £41,000 base + £500 bonus + £1,800 allowances = £43,300 annual
+  8. **Access control**: Employee blocked from scheme CRUD and settings update; audit log captures all actions
+- **Bugs Found & Fixed**:
+  - Bonus apply INSERT referenced non-existent `benefit_name` column → fixed to use `description`
+  - Total compensation SELECT referenced non-existent `benefit_name` → fixed to use `description`
+- **Changes**:
+  - `backend/migrations/035_tier_linked_compensation.sql` — 6 new tables: compensation_settings, bonus_schemes, responsibility_allowances, employee_bonus_assignments, employee_allowance_assignments + ALTER pay_bands ADD tier_level
+  - `backend/src/middleware/compensationAudit.js` — Added calculation_value, amount, calculated_amount, base_amount to SENSITIVE_FIELDS
+  - `backend/src/routes/compensation.js` — ~500 new lines: settings, bonus CRUD/calculate/assignments/apply, allowances CRUD/assign/assignments, total-compensation, pay-bands/by-tier. Updated pay-bands POST/PUT for tier_level
+  - `frontend/src/components/compensation/CompensationSettingsPanel.jsx` — Admin toggle switches for feature flags
+  - `frontend/src/components/compensation/BonusSchemeManager.jsx` — Schemes table, create/edit modal, calculate preview, assignment approve/reject/apply
+  - `frontend/src/components/compensation/ResponsibilityAllowanceManager.jsx` — Allowances table, assign modal, assignment end-date
+  - `frontend/src/components/compensation/PayBandManager.jsx` — Added optional tier_level dropdown (visible when tier-band linking enabled)
+  - `frontend/src/components/compensation/CompensationDashboard.jsx` — Added conditional quick links for bonus/allowances/settings
+  - `frontend/src/App.jsx` — 3 new imports + 3 new routes
+  - `frontend/src/components/layout/Breadcrumb.jsx` — 3 new page entries
+  - `frontend/src/theme/components.css` — ~250 lines: settings panel, toggle switches, bonus/allowance tables, assignment badges, modals
+  - `frontend/src/components/compensation/__tests__/CompensationSettingsPanel.test.jsx` — 3 tests
+  - `frontend/src/components/compensation/__tests__/BonusSchemeManager.test.jsx` — 5 tests
+  - `frontend/src/components/compensation/__tests__/ResponsibilityAllowanceManager.test.jsx` — 4 tests
+- **Tools/Dependencies**: No new dependencies
+- **Status**: Complete
+- **Tests**: 64 unit tests passing (12 test suites), 8/8 integration test steps passing
+
+> ⚠️ No user test performed for this chunk.

@@ -34,6 +34,9 @@ const PAGE_MAP = {
   'compensation-reviews':   { section: 'Compensation', label: 'Pay Reviews' },
   'compensation-reports':   { section: 'Compensation', label: 'Reports' },
   'compensation-audit':     { section: 'Compensation', label: 'Audit Log' },
+  'compensation-bonus-schemes': { section: 'Compensation', label: 'Bonus Schemes' },
+  'compensation-allowances':    { section: 'Compensation', label: 'Responsibility Allowances' },
+  'compensation-settings':      { section: 'Compensation', label: 'Settings' },
   settings:                 { section: 'Admin', label: 'Settings' },
 };
 

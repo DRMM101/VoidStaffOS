@@ -78,7 +78,7 @@ router.post('/pay-bands', authorize('Admin', 'HR', 'Finance'), async (req, res) 
   try {
     const tenantId = req.session?.tenantId || 1;
     const user = req.user;
-    const { band_name, grade, min_salary, mid_salary, max_salary, currency } = req.body;
+    const { band_name, grade, min_salary, mid_salary, max_salary, currency, tier_level } = req.body;
 
     // Validate required fields
     if (!band_name || grade === undefined || !min_salary || !mid_salary || !max_salary) {
@@ -93,10 +93,10 @@ router.post('/pay-bands', authorize('Admin', 'HR', 'Finance'), async (req, res) 
     }
 
     const result = await db.query(
-      `INSERT INTO pay_bands (tenant_id, band_name, grade, min_salary, mid_salary, max_salary, currency)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO pay_bands (tenant_id, band_name, grade, min_salary, mid_salary, max_salary, currency, tier_level)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
-      [tenantId, band_name.trim(), grade, min_salary, mid_salary, max_salary, currency || 'GBP']
+      [tenantId, band_name.trim(), grade, min_salary, mid_salary, max_salary, currency || 'GBP', tier_level || null]
     );
 
     // Audit log
@@ -123,7 +123,7 @@ router.put('/pay-bands/:id', authorize('Admin', 'HR', 'Finance'), async (req, re
     const tenantId = req.session?.tenantId || 1;
     const user = req.user;
     const { id } = req.params;
-    const { band_name, grade, min_salary, mid_salary, max_salary, currency } = req.body;
+    const { band_name, grade, min_salary, mid_salary, max_salary, currency, tier_level } = req.body;
 
     // Fetch existing record for audit comparison
     const existing = await db.query(
@@ -150,10 +150,11 @@ router.put('/pay-bands/:id', authorize('Admin', 'HR', 'Finance'), async (req, re
         mid_salary = COALESCE($4, mid_salary),
         max_salary = COALESCE($5, max_salary),
         currency = COALESCE($6, currency),
+        tier_level = $7,
         updated_at = NOW()
-       WHERE id = $7 AND tenant_id = $8
+       WHERE id = $8 AND tenant_id = $9
        RETURNING *`,
-      [band_name, grade, min_salary, mid_salary, max_salary, currency, id, tenantId]
+      [band_name, grade, min_salary, mid_salary, max_salary, currency, tier_level !== undefined ? tier_level : existing.rows[0].tier_level, id, tenantId]
     );
 
     // Log field-level changes for audit
@@ -1353,6 +1354,951 @@ router.get('/audit', authorize('Admin', 'HR'), async (req, res) => {
   } catch (err) {
     console.error('Audit log query error:', err);
     res.status(500).json({ error: 'Failed to retrieve audit log' });
+  }
+});
+
+// ============================================
+// COMPENSATION SETTINGS (Feature Toggles)
+// ============================================
+
+// GET /api/compensation/settings — Get tenant feature toggles
+router.get('/settings', async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const result = await db.query(
+      'SELECT * FROM compensation_settings WHERE tenant_id = $1',
+      [tenantId]
+    );
+    // Return defaults if no settings row exists yet
+    if (result.rows.length === 0) {
+      return res.json({
+        enable_tier_band_linking: false,
+        enable_bonus_schemes: false,
+        enable_responsibility_allowances: false
+      });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Get compensation settings error:', err);
+    res.status(500).json({ error: 'Failed to retrieve settings' });
+  }
+});
+
+// PUT /api/compensation/settings — Update feature toggles (Admin only)
+router.put('/settings', authorize('Admin'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { enable_tier_band_linking, enable_bonus_schemes, enable_responsibility_allowances } = req.body;
+
+    // Upsert settings row for the tenant
+    const result = await db.query(
+      `INSERT INTO compensation_settings (tenant_id, enable_tier_band_linking, enable_bonus_schemes, enable_responsibility_allowances, updated_by)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (tenant_id) DO UPDATE SET
+         enable_tier_band_linking = COALESCE($2, compensation_settings.enable_tier_band_linking),
+         enable_bonus_schemes = COALESCE($3, compensation_settings.enable_bonus_schemes),
+         enable_responsibility_allowances = COALESCE($4, compensation_settings.enable_responsibility_allowances),
+         updated_by = $5,
+         updated_at = NOW()
+       RETURNING *`,
+      [tenantId, enable_tier_band_linking, enable_bonus_schemes, enable_responsibility_allowances, user.id]
+    );
+
+    await logCompensationAudit({
+      tenantId, accessedBy: user.id, action: 'update',
+      tableName: 'compensation_settings', recordId: result.rows[0].id,
+      ipAddress: getClientIP(req)
+    });
+
+    res.json({ message: 'Settings updated', data: result.rows[0] });
+  } catch (err) {
+    console.error('Update compensation settings error:', err);
+    res.status(500).json({ error: 'Failed to update settings' });
+  }
+});
+
+// ============================================
+// BONUS SCHEMES (Admin/HR)
+// ============================================
+
+// GET /api/compensation/bonus-schemes — List bonus schemes
+router.get('/bonus-schemes', async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const result = await db.query(
+      `SELECT bs.*,
+              td.tier_name,
+              pb.band_name
+       FROM bonus_schemes bs
+       LEFT JOIN tier_definitions td ON bs.tier_level = td.tier_level AND td.tenant_id = $1
+       LEFT JOIN pay_bands pb ON bs.pay_band_id = pb.id
+       WHERE bs.tenant_id = $1
+       ORDER BY bs.created_at DESC`,
+      [tenantId]
+    );
+
+    await logCompensationAudit({
+      tenantId, accessedBy: req.user.id, action: 'view',
+      tableName: 'bonus_schemes', ipAddress: getClientIP(req)
+    });
+
+    res.json({ data: result.rows });
+  } catch (err) {
+    console.error('List bonus schemes error:', err);
+    res.status(500).json({ error: 'Failed to retrieve bonus schemes' });
+  }
+});
+
+// POST /api/compensation/bonus-schemes — Create a bonus scheme
+router.post('/bonus-schemes', authorize('Admin', 'HR'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const {
+      scheme_name, description, calculation_type, calculation_value,
+      basis, frequency, tier_level, pay_band_id, min_service_months, is_active
+    } = req.body;
+
+    // Validate required fields
+    if (!scheme_name || !calculation_type || calculation_value === undefined) {
+      return res.status(400).json({
+        error: 'Missing required fields: scheme_name, calculation_type, calculation_value'
+      });
+    }
+
+    // Validate calculation_type
+    if (!['percentage', 'fixed'].includes(calculation_type)) {
+      return res.status(400).json({ error: 'calculation_type must be percentage or fixed' });
+    }
+
+    const result = await db.query(
+      `INSERT INTO bonus_schemes
+        (tenant_id, scheme_name, description, calculation_type, calculation_value,
+         basis, frequency, tier_level, pay_band_id, min_service_months, is_active, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       RETURNING *`,
+      [tenantId, scheme_name.trim(), description || null, calculation_type,
+       calculation_value, basis || 'base_salary', frequency || 'annual',
+       tier_level || null, pay_band_id || null, min_service_months || 0,
+       is_active !== false, user.id]
+    );
+
+    await logCompensationAudit({
+      tenantId, accessedBy: user.id, action: 'create',
+      tableName: 'bonus_schemes', recordId: result.rows[0].id,
+      ipAddress: getClientIP(req)
+    });
+
+    res.status(201).json({ message: 'Bonus scheme created', data: result.rows[0] });
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'A bonus scheme with this name already exists' });
+    }
+    console.error('Create bonus scheme error:', err);
+    res.status(500).json({ error: 'Failed to create bonus scheme' });
+  }
+});
+
+// PUT /api/compensation/bonus-schemes/:id — Update a bonus scheme
+router.put('/bonus-schemes/:id', authorize('Admin', 'HR'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { id } = req.params;
+    const {
+      scheme_name, description, calculation_type, calculation_value,
+      basis, frequency, tier_level, pay_band_id, min_service_months, is_active
+    } = req.body;
+
+    // Fetch existing for audit comparison
+    const existing = await db.query(
+      'SELECT * FROM bonus_schemes WHERE id = $1 AND tenant_id = $2',
+      [id, tenantId]
+    );
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Bonus scheme not found' });
+    }
+
+    const result = await db.query(
+      `UPDATE bonus_schemes SET
+        scheme_name = COALESCE($1, scheme_name),
+        description = COALESCE($2, description),
+        calculation_type = COALESCE($3, calculation_type),
+        calculation_value = COALESCE($4, calculation_value),
+        basis = COALESCE($5, basis),
+        frequency = COALESCE($6, frequency),
+        tier_level = $7,
+        pay_band_id = $8,
+        min_service_months = COALESCE($9, min_service_months),
+        is_active = COALESCE($10, is_active),
+        updated_at = NOW()
+       WHERE id = $11 AND tenant_id = $12
+       RETURNING *`,
+      [scheme_name, description, calculation_type, calculation_value,
+       basis, frequency,
+       tier_level !== undefined ? tier_level : existing.rows[0].tier_level,
+       pay_band_id !== undefined ? pay_band_id : existing.rows[0].pay_band_id,
+       min_service_months, is_active, id, tenantId]
+    );
+
+    await logFieldChanges({
+      tenantId, employeeId: null, accessedBy: user.id,
+      tableName: 'bonus_schemes', recordId: id,
+      oldData: existing.rows[0], newData: result.rows[0],
+      ipAddress: getClientIP(req)
+    });
+
+    res.json({ message: 'Bonus scheme updated', data: result.rows[0] });
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'A bonus scheme with this name already exists' });
+    }
+    console.error('Update bonus scheme error:', err);
+    res.status(500).json({ error: 'Failed to update bonus scheme' });
+  }
+});
+
+// DELETE /api/compensation/bonus-schemes/:id — Delete a bonus scheme (Admin only, no assignments)
+router.delete('/bonus-schemes/:id', authorize('Admin'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { id } = req.params;
+
+    // Check for existing assignments
+    const assignments = await db.query(
+      'SELECT COUNT(*) FROM employee_bonus_assignments WHERE bonus_scheme_id = $1',
+      [id]
+    );
+    if (parseInt(assignments.rows[0].count) > 0) {
+      return res.status(409).json({ error: 'Cannot delete scheme with existing assignments' });
+    }
+
+    const result = await db.query(
+      'DELETE FROM bonus_schemes WHERE id = $1 AND tenant_id = $2 RETURNING id',
+      [id, tenantId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Bonus scheme not found' });
+    }
+
+    await logCompensationAudit({
+      tenantId, accessedBy: user.id, action: 'update',
+      tableName: 'bonus_schemes', recordId: id,
+      ipAddress: getClientIP(req)
+    });
+
+    res.json({ message: 'Bonus scheme deleted' });
+  } catch (err) {
+    console.error('Delete bonus scheme error:', err);
+    res.status(500).json({ error: 'Failed to delete bonus scheme' });
+  }
+});
+
+// POST /api/compensation/bonus-schemes/:id/calculate — Calculate bonuses for eligible employees
+router.post('/bonus-schemes/:id/calculate', authorize('Admin', 'HR', 'Finance'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { id } = req.params;
+    const { effective_date } = req.body;
+
+    if (!effective_date) {
+      return res.status(400).json({ error: 'effective_date is required' });
+    }
+
+    // Fetch the bonus scheme
+    const scheme = await db.query(
+      'SELECT * FROM bonus_schemes WHERE id = $1 AND tenant_id = $2 AND is_active = TRUE',
+      [id, tenantId]
+    );
+    if (scheme.rows.length === 0) {
+      return res.status(404).json({ error: 'Active bonus scheme not found' });
+    }
+    const s = scheme.rows[0];
+
+    // Build query to find eligible employees with their current salary
+    // Eligible = matching tier AND/OR band, meeting min_service_months
+    let eligibleQuery = `
+      SELECT DISTINCT ON (u.id)
+        u.id as employee_id,
+        u.full_name,
+        u.tier,
+        u.start_date,
+        cr.base_salary,
+        cr.pay_band_id,
+        pb.band_name
+      FROM users u
+      INNER JOIN compensation_records cr ON u.id = cr.employee_id AND cr.tenant_id = $1
+      LEFT JOIN pay_bands pb ON cr.pay_band_id = pb.id
+      WHERE u.tenant_id = $1 AND u.employment_status != 'terminated'
+    `;
+    const params = [tenantId];
+    let paramIdx = 2;
+
+    // Filter by tier if scheme is tier-linked
+    if (s.tier_level) {
+      eligibleQuery += ` AND u.tier = $${paramIdx}`;
+      params.push(s.tier_level);
+      paramIdx++;
+    }
+
+    // Filter by pay band if scheme is band-linked
+    if (s.pay_band_id) {
+      eligibleQuery += ` AND cr.pay_band_id = $${paramIdx}`;
+      params.push(s.pay_band_id);
+      paramIdx++;
+    }
+
+    // Filter by minimum service months
+    if (s.min_service_months > 0) {
+      eligibleQuery += ` AND u.start_date <= (CURRENT_DATE - INTERVAL '1 month' * $${paramIdx})`;
+      params.push(s.min_service_months);
+      paramIdx++;
+    }
+
+    // Get most recent salary record per employee
+    eligibleQuery += `
+      ORDER BY u.id, cr.effective_date DESC
+    `;
+
+    const eligible = await db.query(eligibleQuery, params);
+
+    // Calculate bonus for each eligible employee
+    const assignments = [];
+    for (const emp of eligible.rows) {
+      const baseSalary = Number(emp.base_salary);
+      let calculatedAmount;
+
+      if (s.calculation_type === 'percentage') {
+        calculatedAmount = baseSalary * (Number(s.calculation_value) / 100);
+      } else {
+        // Fixed amount
+        calculatedAmount = Number(s.calculation_value);
+      }
+
+      // Round to 2 decimal places
+      calculatedAmount = Math.round(calculatedAmount * 100) / 100;
+
+      // Check if assignment already exists for this employee/scheme/date
+      const existingAssignment = await db.query(
+        `SELECT id FROM employee_bonus_assignments
+         WHERE employee_id = $1 AND bonus_scheme_id = $2 AND effective_date = $3`,
+        [emp.employee_id, id, effective_date]
+      );
+
+      if (existingAssignment.rows.length > 0) {
+        // Skip — already calculated for this period
+        continue;
+      }
+
+      // Create pending assignment
+      const assignment = await db.query(
+        `INSERT INTO employee_bonus_assignments
+          (tenant_id, employee_id, bonus_scheme_id, base_amount, calculated_amount,
+           status, effective_date, created_by)
+         VALUES ($1, $2, $3, $4, $5, 'pending', $6, $7)
+         RETURNING *`,
+        [tenantId, emp.employee_id, id, baseSalary, calculatedAmount, effective_date, user.id]
+      );
+
+      assignments.push({
+        ...assignment.rows[0],
+        employee_name: emp.full_name,
+        band_name: emp.band_name
+      });
+    }
+
+    await logCompensationAudit({
+      tenantId, accessedBy: user.id, action: 'create',
+      tableName: 'employee_bonus_assignments',
+      ipAddress: getClientIP(req)
+    });
+
+    res.json({
+      message: `Calculated bonuses for ${assignments.length} eligible employees`,
+      scheme: { scheme_name: s.scheme_name, calculation_type: s.calculation_type, calculation_value: s.calculation_value },
+      data: assignments
+    });
+  } catch (err) {
+    console.error('Calculate bonuses error:', err);
+    res.status(500).json({ error: 'Failed to calculate bonuses' });
+  }
+});
+
+// GET /api/compensation/bonus-assignments — List bonus assignments
+router.get('/bonus-assignments', authorize('Admin', 'HR', 'Finance'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const { scheme_id, status, employee_id } = req.query;
+
+    let query = `
+      SELECT eba.*, u.full_name as employee_name, bs.scheme_name
+      FROM employee_bonus_assignments eba
+      JOIN users u ON eba.employee_id = u.id
+      JOIN bonus_schemes bs ON eba.bonus_scheme_id = bs.id
+      WHERE eba.tenant_id = $1
+    `;
+    const params = [tenantId];
+    let paramIdx = 2;
+
+    if (scheme_id) {
+      query += ` AND eba.bonus_scheme_id = $${paramIdx}`;
+      params.push(scheme_id);
+      paramIdx++;
+    }
+    if (status) {
+      query += ` AND eba.status = $${paramIdx}`;
+      params.push(status);
+      paramIdx++;
+    }
+    if (employee_id) {
+      query += ` AND eba.employee_id = $${paramIdx}`;
+      params.push(parseInt(employee_id));
+      paramIdx++;
+    }
+
+    query += ' ORDER BY eba.created_at DESC';
+
+    const result = await db.query(query, params);
+    res.json({ data: result.rows });
+  } catch (err) {
+    console.error('List bonus assignments error:', err);
+    res.status(500).json({ error: 'Failed to retrieve bonus assignments' });
+  }
+});
+
+// PUT /api/compensation/bonus-assignments/:id — Approve or reject a bonus assignment
+router.put('/bonus-assignments/:id', authorize('Admin', 'HR'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { id } = req.params;
+    const { status, notes } = req.body;
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Status must be approved or rejected' });
+    }
+
+    const existing = await db.query(
+      'SELECT * FROM employee_bonus_assignments WHERE id = $1 AND tenant_id = $2',
+      [id, tenantId]
+    );
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+    if (existing.rows[0].status !== 'pending') {
+      return res.status(400).json({ error: 'Can only approve/reject pending assignments' });
+    }
+
+    const result = await db.query(
+      `UPDATE employee_bonus_assignments SET
+        status = $1, approved_by = $2, notes = COALESCE($3, notes), updated_at = NOW()
+       WHERE id = $4 AND tenant_id = $5
+       RETURNING *`,
+      [status, user.id, notes, id, tenantId]
+    );
+
+    await logFieldChanges({
+      tenantId, employeeId: existing.rows[0].employee_id, accessedBy: user.id,
+      tableName: 'employee_bonus_assignments', recordId: id,
+      oldData: existing.rows[0], newData: result.rows[0],
+      ipAddress: getClientIP(req)
+    });
+
+    res.json({ message: `Assignment ${status}`, data: result.rows[0] });
+  } catch (err) {
+    console.error('Update bonus assignment error:', err);
+    res.status(500).json({ error: 'Failed to update assignment' });
+  }
+});
+
+// POST /api/compensation/bonus-assignments/:id/apply — Apply approved bonus (creates benefit record)
+router.post('/bonus-assignments/:id/apply', authorize('Admin', 'HR'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { id } = req.params;
+
+    // Fetch assignment
+    const assignment = await db.query(
+      `SELECT eba.*, bs.scheme_name, bs.frequency
+       FROM employee_bonus_assignments eba
+       JOIN bonus_schemes bs ON eba.bonus_scheme_id = bs.id
+       WHERE eba.id = $1 AND eba.tenant_id = $2`,
+      [id, tenantId]
+    );
+    if (assignment.rows.length === 0) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+
+    const a = assignment.rows[0];
+    if (a.status !== 'approved') {
+      return res.status(400).json({ error: 'Can only apply approved assignments' });
+    }
+
+    // Create a benefits record (type=bonus) for the employee
+    const benefit = await db.query(
+      `INSERT INTO benefits
+        (employee_id, tenant_id, benefit_type, description, value, frequency, start_date, created_by)
+       VALUES ($1, $2, 'bonus', $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [a.employee_id, tenantId, `Bonus: ${a.scheme_name}`, a.calculated_amount, a.frequency, a.effective_date, user.id]
+    );
+
+    // Update assignment status to applied and link to benefit
+    const result = await db.query(
+      `UPDATE employee_bonus_assignments SET
+        status = 'applied', applied_benefit_id = $1, updated_at = NOW()
+       WHERE id = $2
+       RETURNING *`,
+      [benefit.rows[0].id, id]
+    );
+
+    await logCompensationAudit({
+      tenantId, employeeId: a.employee_id, accessedBy: user.id, action: 'create',
+      tableName: 'benefits', recordId: benefit.rows[0].id,
+      ipAddress: getClientIP(req)
+    });
+
+    res.json({
+      message: 'Bonus applied as benefit',
+      assignment: result.rows[0],
+      benefit: benefit.rows[0]
+    });
+  } catch (err) {
+    console.error('Apply bonus error:', err);
+    res.status(500).json({ error: 'Failed to apply bonus' });
+  }
+});
+
+// ============================================
+// RESPONSIBILITY ALLOWANCES (Admin/HR)
+// ============================================
+
+// GET /api/compensation/responsibility-allowances — List allowance templates
+router.get('/responsibility-allowances', async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const result = await db.query(
+      `SELECT ra.*,
+              td.tier_name,
+              pb.band_name,
+              ar.role_name as additional_role_name
+       FROM responsibility_allowances ra
+       LEFT JOIN tier_definitions td ON ra.tier_level = td.tier_level AND td.tenant_id = $1
+       LEFT JOIN pay_bands pb ON ra.pay_band_id = pb.id
+       LEFT JOIN additional_roles ar ON ra.additional_role_id = ar.id
+       WHERE ra.tenant_id = $1
+       ORDER BY ra.created_at DESC`,
+      [tenantId]
+    );
+
+    await logCompensationAudit({
+      tenantId, accessedBy: req.user.id, action: 'view',
+      tableName: 'responsibility_allowances', ipAddress: getClientIP(req)
+    });
+
+    res.json({ data: result.rows });
+  } catch (err) {
+    console.error('List responsibility allowances error:', err);
+    res.status(500).json({ error: 'Failed to retrieve allowances' });
+  }
+});
+
+// POST /api/compensation/responsibility-allowances — Create an allowance template
+router.post('/responsibility-allowances', authorize('Admin', 'HR'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const {
+      allowance_name, description, amount, frequency,
+      tier_level, pay_band_id, additional_role_id, is_active
+    } = req.body;
+
+    if (!allowance_name || amount === undefined) {
+      return res.status(400).json({ error: 'Missing required fields: allowance_name, amount' });
+    }
+
+    const result = await db.query(
+      `INSERT INTO responsibility_allowances
+        (tenant_id, allowance_name, description, amount, frequency,
+         tier_level, pay_band_id, additional_role_id, is_active, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING *`,
+      [tenantId, allowance_name.trim(), description || null, amount,
+       frequency || 'monthly', tier_level || null, pay_band_id || null,
+       additional_role_id || null, is_active !== false, user.id]
+    );
+
+    await logCompensationAudit({
+      tenantId, accessedBy: user.id, action: 'create',
+      tableName: 'responsibility_allowances', recordId: result.rows[0].id,
+      ipAddress: getClientIP(req)
+    });
+
+    res.status(201).json({ message: 'Allowance created', data: result.rows[0] });
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'An allowance with this name already exists' });
+    }
+    console.error('Create responsibility allowance error:', err);
+    res.status(500).json({ error: 'Failed to create allowance' });
+  }
+});
+
+// PUT /api/compensation/responsibility-allowances/:id — Update an allowance
+router.put('/responsibility-allowances/:id', authorize('Admin', 'HR'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { id } = req.params;
+    const {
+      allowance_name, description, amount, frequency,
+      tier_level, pay_band_id, additional_role_id, is_active
+    } = req.body;
+
+    const existing = await db.query(
+      'SELECT * FROM responsibility_allowances WHERE id = $1 AND tenant_id = $2',
+      [id, tenantId]
+    );
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Allowance not found' });
+    }
+
+    const result = await db.query(
+      `UPDATE responsibility_allowances SET
+        allowance_name = COALESCE($1, allowance_name),
+        description = COALESCE($2, description),
+        amount = COALESCE($3, amount),
+        frequency = COALESCE($4, frequency),
+        tier_level = $5,
+        pay_band_id = $6,
+        additional_role_id = $7,
+        is_active = COALESCE($8, is_active),
+        updated_at = NOW()
+       WHERE id = $9 AND tenant_id = $10
+       RETURNING *`,
+      [allowance_name, description, amount, frequency,
+       tier_level !== undefined ? tier_level : existing.rows[0].tier_level,
+       pay_band_id !== undefined ? pay_band_id : existing.rows[0].pay_band_id,
+       additional_role_id !== undefined ? additional_role_id : existing.rows[0].additional_role_id,
+       is_active, id, tenantId]
+    );
+
+    await logFieldChanges({
+      tenantId, employeeId: null, accessedBy: user.id,
+      tableName: 'responsibility_allowances', recordId: id,
+      oldData: existing.rows[0], newData: result.rows[0],
+      ipAddress: getClientIP(req)
+    });
+
+    res.json({ message: 'Allowance updated', data: result.rows[0] });
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'An allowance with this name already exists' });
+    }
+    console.error('Update responsibility allowance error:', err);
+    res.status(500).json({ error: 'Failed to update allowance' });
+  }
+});
+
+// DELETE /api/compensation/responsibility-allowances/:id — Delete an allowance (Admin only)
+router.delete('/responsibility-allowances/:id', authorize('Admin'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { id } = req.params;
+
+    // Check for existing employee assignments
+    const assignments = await db.query(
+      'SELECT COUNT(*) FROM employee_allowance_assignments WHERE allowance_id = $1',
+      [id]
+    );
+    if (parseInt(assignments.rows[0].count) > 0) {
+      return res.status(409).json({ error: 'Cannot delete allowance with existing assignments' });
+    }
+
+    const result = await db.query(
+      'DELETE FROM responsibility_allowances WHERE id = $1 AND tenant_id = $2 RETURNING id',
+      [id, tenantId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Allowance not found' });
+    }
+
+    await logCompensationAudit({
+      tenantId, accessedBy: user.id, action: 'update',
+      tableName: 'responsibility_allowances', recordId: id,
+      ipAddress: getClientIP(req)
+    });
+
+    res.json({ message: 'Allowance deleted' });
+  } catch (err) {
+    console.error('Delete responsibility allowance error:', err);
+    res.status(500).json({ error: 'Failed to delete allowance' });
+  }
+});
+
+// POST /api/compensation/responsibility-allowances/:id/assign — Assign allowance to employee(s)
+router.post('/responsibility-allowances/:id/assign', authorize('Admin', 'HR'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { id } = req.params;
+    const { employee_ids, start_date } = req.body;
+
+    if (!employee_ids || !Array.isArray(employee_ids) || employee_ids.length === 0) {
+      return res.status(400).json({ error: 'employee_ids array is required' });
+    }
+    if (!start_date) {
+      return res.status(400).json({ error: 'start_date is required' });
+    }
+
+    // Fetch the allowance template
+    const allowance = await db.query(
+      'SELECT * FROM responsibility_allowances WHERE id = $1 AND tenant_id = $2 AND is_active = TRUE',
+      [id, tenantId]
+    );
+    if (allowance.rows.length === 0) {
+      return res.status(404).json({ error: 'Active allowance not found' });
+    }
+
+    const a = allowance.rows[0];
+    const created = [];
+
+    for (const empId of employee_ids) {
+      try {
+        const result = await db.query(
+          `INSERT INTO employee_allowance_assignments
+            (tenant_id, employee_id, allowance_id, amount, start_date, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           RETURNING *`,
+          [tenantId, empId, id, a.amount, start_date, user.id]
+        );
+        created.push(result.rows[0]);
+      } catch (dupErr) {
+        // Skip duplicate assignments (unique constraint)
+        if (dupErr.code !== '23505') throw dupErr;
+      }
+    }
+
+    await logCompensationAudit({
+      tenantId, accessedBy: user.id, action: 'create',
+      tableName: 'employee_allowance_assignments',
+      ipAddress: getClientIP(req)
+    });
+
+    res.status(201).json({
+      message: `Assigned allowance to ${created.length} employees`,
+      data: created
+    });
+  } catch (err) {
+    console.error('Assign allowance error:', err);
+    res.status(500).json({ error: 'Failed to assign allowance' });
+  }
+});
+
+// GET /api/compensation/allowance-assignments — List employee allowance assignments
+router.get('/allowance-assignments', authorize('Admin', 'HR', 'Finance'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const { employee_id, allowance_id } = req.query;
+
+    let query = `
+      SELECT eaa.*, u.full_name as employee_name, ra.allowance_name
+      FROM employee_allowance_assignments eaa
+      JOIN users u ON eaa.employee_id = u.id
+      JOIN responsibility_allowances ra ON eaa.allowance_id = ra.id
+      WHERE eaa.tenant_id = $1
+    `;
+    const params = [tenantId];
+    let paramIdx = 2;
+
+    if (employee_id) {
+      query += ` AND eaa.employee_id = $${paramIdx}`;
+      params.push(parseInt(employee_id));
+      paramIdx++;
+    }
+    if (allowance_id) {
+      query += ` AND eaa.allowance_id = $${paramIdx}`;
+      params.push(allowance_id);
+      paramIdx++;
+    }
+
+    query += ' ORDER BY eaa.start_date DESC';
+
+    const result = await db.query(query, params);
+    res.json({ data: result.rows });
+  } catch (err) {
+    console.error('List allowance assignments error:', err);
+    res.status(500).json({ error: 'Failed to retrieve allowance assignments' });
+  }
+});
+
+// PUT /api/compensation/allowance-assignments/:id — Update/end an allowance assignment
+router.put('/allowance-assignments/:id', authorize('Admin', 'HR'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const { id } = req.params;
+    const { end_date, amount } = req.body;
+
+    const existing = await db.query(
+      'SELECT * FROM employee_allowance_assignments WHERE id = $1 AND tenant_id = $2',
+      [id, tenantId]
+    );
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ error: 'Assignment not found' });
+    }
+
+    const result = await db.query(
+      `UPDATE employee_allowance_assignments SET
+        end_date = COALESCE($1, end_date),
+        amount = COALESCE($2, amount),
+        updated_at = NOW()
+       WHERE id = $3 AND tenant_id = $4
+       RETURNING *`,
+      [end_date, amount, id, tenantId]
+    );
+
+    await logFieldChanges({
+      tenantId, employeeId: existing.rows[0].employee_id, accessedBy: user.id,
+      tableName: 'employee_allowance_assignments', recordId: id,
+      oldData: existing.rows[0], newData: result.rows[0],
+      ipAddress: getClientIP(req)
+    });
+
+    res.json({ message: 'Assignment updated', data: result.rows[0] });
+  } catch (err) {
+    console.error('Update allowance assignment error:', err);
+    res.status(500).json({ error: 'Failed to update assignment' });
+  }
+});
+
+// ============================================
+// TOTAL COMPENSATION CALCULATOR
+// ============================================
+
+// GET /api/compensation/total-compensation/:employeeId — Full compensation package
+router.get('/total-compensation/:employeeId', async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const user = req.user;
+    const employeeId = parseInt(req.params.employeeId);
+
+    // Access control: self, manager of direct report, or HR/Admin/Finance
+    if (user.id !== employeeId && !isHROrAdmin(user)) {
+      const isManager = await isManagerOf(user.id, employeeId, tenantId);
+      if (!isManager) {
+        return res.status(403).json({ error: 'Insufficient permissions' });
+      }
+    }
+
+    // Current base salary
+    const salary = await db.query(
+      `SELECT cr.base_salary, cr.currency, cr.effective_date, pb.band_name, pb.grade
+       FROM compensation_records cr
+       LEFT JOIN pay_bands pb ON cr.pay_band_id = pb.id
+       WHERE cr.employee_id = $1 AND cr.tenant_id = $2
+       ORDER BY cr.effective_date DESC LIMIT 1`,
+      [employeeId, tenantId]
+    );
+
+    const baseSalary = salary.rows.length > 0 ? Number(salary.rows[0].base_salary) : 0;
+
+    // Active bonus assignments (approved or applied)
+    const bonuses = await db.query(
+      `SELECT eba.calculated_amount, eba.status, eba.effective_date, bs.scheme_name, bs.frequency
+       FROM employee_bonus_assignments eba
+       JOIN bonus_schemes bs ON eba.bonus_scheme_id = bs.id
+       WHERE eba.employee_id = $1 AND eba.tenant_id = $2
+         AND eba.status IN ('approved', 'applied')
+       ORDER BY eba.effective_date DESC`,
+      [employeeId, tenantId]
+    );
+
+    // Active responsibility allowances
+    const allowances = await db.query(
+      `SELECT eaa.amount, eaa.start_date, eaa.end_date, ra.allowance_name, ra.frequency
+       FROM employee_allowance_assignments eaa
+       JOIN responsibility_allowances ra ON eaa.allowance_id = ra.id
+       WHERE eaa.employee_id = $1 AND eaa.tenant_id = $2
+         AND (eaa.end_date IS NULL OR eaa.end_date >= CURRENT_DATE)
+       ORDER BY eaa.start_date DESC`,
+      [employeeId, tenantId]
+    );
+
+    // Active benefits (non-bonus — bonuses counted above)
+    const benefits = await db.query(
+      `SELECT benefit_type, description, value, frequency
+       FROM benefits
+       WHERE employee_id = $1 AND tenant_id = $2
+         AND (end_date IS NULL OR end_date >= CURRENT_DATE)
+         AND benefit_type != 'bonus'`,
+      [employeeId, tenantId]
+    );
+
+    // Calculate total annual compensation
+    // Helper: annualise an amount based on frequency
+    const annualise = (amount, frequency) => {
+      const v = Number(amount);
+      switch (frequency) {
+        case 'monthly': return v * 12;
+        case 'quarterly': return v * 4;
+        case 'annual': return v;
+        case 'one-off': return v;
+        default: return v;
+      }
+    };
+
+    const totalBonusAnnual = bonuses.rows.reduce((sum, b) => sum + annualise(b.calculated_amount, b.frequency), 0);
+    const totalAllowanceAnnual = allowances.rows.reduce((sum, a) => sum + annualise(a.amount, a.frequency), 0);
+    const totalBenefitsAnnual = benefits.rows.reduce((sum, b) => sum + annualise(b.value || 0, b.frequency), 0);
+
+    await logCompensationAudit({
+      tenantId, employeeId, accessedBy: user.id, action: 'view',
+      tableName: 'total_compensation', ipAddress: getClientIP(req)
+    });
+
+    res.json({
+      employee_id: employeeId,
+      base_salary: baseSalary,
+      currency: salary.rows[0]?.currency || 'GBP',
+      band: salary.rows[0] ? { band_name: salary.rows[0].band_name, grade: salary.rows[0].grade } : null,
+      bonuses: bonuses.rows,
+      allowances: allowances.rows,
+      benefits: benefits.rows,
+      totals: {
+        base_salary: baseSalary,
+        bonuses: Math.round(totalBonusAnnual * 100) / 100,
+        allowances: Math.round(totalAllowanceAnnual * 100) / 100,
+        benefits: Math.round(totalBenefitsAnnual * 100) / 100,
+        total_annual: Math.round((baseSalary + totalBonusAnnual + totalAllowanceAnnual + totalBenefitsAnnual) * 100) / 100
+      }
+    });
+  } catch (err) {
+    console.error('Total compensation error:', err);
+    res.status(500).json({ error: 'Failed to calculate total compensation' });
+  }
+});
+
+// GET /api/compensation/pay-bands/by-tier/:tierLevel — Get pay bands for a specific tier
+router.get('/pay-bands/by-tier/:tierLevel', async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const tierLevel = parseInt(req.params.tierLevel);
+
+    const result = await db.query(
+      'SELECT * FROM pay_bands WHERE tenant_id = $1 AND tier_level = $2 ORDER BY grade',
+      [tenantId, tierLevel]
+    );
+
+    res.json({ data: result.rows });
+  } catch (err) {
+    console.error('Pay bands by tier error:', err);
+    res.status(500).json({ error: 'Failed to retrieve pay bands by tier' });
   }
 });
 
