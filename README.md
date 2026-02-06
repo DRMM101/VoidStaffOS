@@ -87,9 +87,9 @@ npm install
 cp .env.example .env
 # Edit .env with your database credentials and SESSION_SECRET
 
-# Run migrations (001 through 033)
+# Run migrations (001 through 039)
 psql -U your_user -d your_db -f migrations/001_initial_schema.sql
-# ... through 033_hr_cases.sql
+# ... through 039_gdpr_data_requests.sql
 
 # Start backend
 npm run dev
@@ -119,6 +119,7 @@ HeadOfficeOS/
 │   │   ├── middleware/      # Auth, CSRF, security
 │   │   ├── repositories/    # Data access layer
 │   │   ├── routes/          # API endpoints
+│   │   ├── services/        # Business logic services
 │   │   ├── utils/           # Audit logging
 │   │   └── server.js        # Express entry point
 │   └── package.json
@@ -222,6 +223,10 @@ Full API documentation available at [docs/API_REFERENCE.md](docs/API_REFERENCE.m
 - `GET /api/users` - List users
 - `POST /api/reviews` - Create review
 - `POST /api/leave/request` - Submit leave
+- `GET /api/goals` - Goals dashboard
+- `GET /api/announcements` - Company announcements
+- `POST /api/gdpr/export` - GDPR data export request
+- `GET /api/opportunities` - Internal job board
 
 ---
 
