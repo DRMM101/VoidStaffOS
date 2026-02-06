@@ -63,6 +63,10 @@ function GDPRPage({ user, onNavigate }) {
   const [exportError, setExportError] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
 
+  // Download confirmation modal state
+  const [confirmDownloadId, setConfirmDownloadId] = useState(null);
+  const [confirmName, setConfirmName] = useState('');
+
   // Role checks for admin link
   const isAdmin = user.role_name === 'Admin' || user.role_name === 'HR Manager';
 
@@ -105,9 +109,25 @@ function GDPRPage({ user, onNavigate }) {
   };
 
   /**
+   * Open confirmation modal before download — user must type their name
+   */
+  const promptDownload = (requestId) => {
+    setConfirmDownloadId(requestId);
+    setConfirmName('');
+  };
+
+  /**
+   * Check if the typed name matches the user's full name (case-insensitive)
+   */
+  const isNameMatch = confirmName.trim().toLowerCase() === (user.full_name || '').trim().toLowerCase();
+
+  /**
    * Download a completed export ZIP using blob fetch pattern
    */
   const handleDownload = async (requestId) => {
+    // Close the confirmation modal
+    setConfirmDownloadId(null);
+    setConfirmName('');
     try {
       setDownloadingId(requestId);
 
@@ -291,7 +311,7 @@ function GDPRPage({ user, onNavigate }) {
                   {isDownloadable(req) && (
                     <button
                       className="btn-primary btn-primary--sm"
-                      onClick={() => handleDownload(req.id)}
+                      onClick={() => promptDownload(req.id)}
                       disabled={downloadingId === req.id}
                       aria-label={`Download export ${req.id}`}
                     >
@@ -312,6 +332,57 @@ function GDPRPage({ user, onNavigate }) {
             ))}
           </tbody>
         </table>
+      )}
+
+      {/* Download confirmation modal — user must type their name */}
+      {confirmDownloadId && (
+        <div className="modal-backdrop" onClick={() => setConfirmDownloadId(null)}>
+          <div
+            className="gdpr-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Confirm download"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="gdpr-confirm-modal__title">
+              <Shield size={20} aria-hidden="true" />
+              Confirm Your Identity
+            </h3>
+            <p className="gdpr-confirm-modal__text">
+              This file contains sensitive personal data. To confirm you are the intended
+              recipient, please type your full name exactly as it appears below:
+            </p>
+            <p className="gdpr-confirm-modal__name-hint">
+              <strong>{user.full_name}</strong>
+            </p>
+            <input
+              type="text"
+              className="gdpr-confirm-modal__input"
+              placeholder="Type your full name to confirm"
+              value={confirmName}
+              onChange={(e) => setConfirmName(e.target.value)}
+              aria-label="Type your full name to confirm download"
+              autoFocus
+            />
+            <div className="gdpr-confirm-modal__actions">
+              <button
+                className="btn-secondary"
+                onClick={() => setConfirmDownloadId(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn-primary"
+                onClick={() => handleDownload(confirmDownloadId)}
+                disabled={!isNameMatch}
+                aria-label="Confirm and download"
+              >
+                <Download size={16} aria-hidden="true" />
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

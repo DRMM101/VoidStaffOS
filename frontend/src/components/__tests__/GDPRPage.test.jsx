@@ -179,6 +179,54 @@ describe('GDPRPage', () => {
     });
   });
 
+  it('shows name confirmation modal when download is clicked', async () => {
+    api.get.mockResolvedValue({ requests: mockRequests });
+
+    render(<GDPRPage user={mockUser} onNavigate={mockNavigate} />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Download export 1')).toBeInTheDocument();
+    });
+
+    // Click download — should open confirmation modal, not download immediately
+    fireEvent.click(screen.getByLabelText('Download export 1'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Confirm Your Identity')).toBeInTheDocument();
+      expect(screen.getByText('Test User')).toBeInTheDocument();
+      expect(screen.getByLabelText('Confirm and download')).toBeDisabled();
+    });
+  });
+
+  it('enables download button only when name matches', async () => {
+    api.get.mockResolvedValue({ requests: mockRequests });
+
+    render(<GDPRPage user={mockUser} onNavigate={mockNavigate} />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Download export 1')).toBeInTheDocument();
+    });
+
+    // Open the confirmation modal
+    fireEvent.click(screen.getByLabelText('Download export 1'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Confirm and download')).toBeDisabled();
+    });
+
+    // Type wrong name — button stays disabled
+    fireEvent.change(screen.getByLabelText('Type your full name to confirm download'), {
+      target: { value: 'Wrong Name' }
+    });
+    expect(screen.getByLabelText('Confirm and download')).toBeDisabled();
+
+    // Type correct name — button becomes enabled
+    fireEvent.change(screen.getByLabelText('Type your full name to confirm download'), {
+      target: { value: 'Test User' }
+    });
+    expect(screen.getByLabelText('Confirm and download')).not.toBeDisabled();
+  });
+
   it('calls export endpoint when button is clicked', async () => {
     api.get.mockResolvedValue({ requests: [] });
     api.post.mockResolvedValue({ request: { id: 4, status: 'completed' } });

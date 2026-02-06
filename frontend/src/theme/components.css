@@ -13181,6 +13181,68 @@ button[type="submit"]:disabled {
   cursor: not-allowed;
 }
 
+/* --- GDPR Download Confirmation Modal --- */
+
+.gdpr-confirm-modal {
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  max-width: 460px;
+  width: 90%;
+  box-shadow: var(--shadow-lg, 0 10px 30px rgba(0,0,0,0.2));
+}
+
+.gdpr-confirm-modal__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-heading);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.gdpr-confirm-modal__text {
+  font-size: 0.875rem;
+  color: var(--color-body);
+  line-height: 1.5;
+  margin: 0 0 var(--space-3) 0;
+}
+
+.gdpr-confirm-modal__name-hint {
+  font-size: 0.9375rem;
+  background: var(--color-surface);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+  text-align: center;
+  margin: 0 0 var(--space-3) 0;
+}
+
+.gdpr-confirm-modal__input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  background: var(--color-card);
+  color: var(--color-body);
+  margin-bottom: var(--space-4);
+  box-sizing: border-box;
+}
+
+.gdpr-confirm-modal__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb, 19, 78, 74), 0.15);
+}
+
+.gdpr-confirm-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
 /* --- GDPR Admin Page --- */
 
 .gdpr-admin {
