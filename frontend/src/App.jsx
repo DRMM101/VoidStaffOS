@@ -49,6 +49,8 @@ import OpportunitiesAdminPage from './components/opportunities/OpportunitiesAdmi
 import ApplicationsReviewPage from './components/opportunities/ApplicationsReviewPage';
 import GoalsDashboardPage from './components/goals/GoalsDashboardPage';
 import TeamGoalsPage from './components/goals/TeamGoalsPage';
+import AnnouncementsPage from './components/announcements/AnnouncementsPage';
+import AnnouncementsAdminPage from './components/announcements/AnnouncementsAdminPage';
 import OrgChartPage from './components/OrgChartPage';
 import AppShell from './components/layout/AppShell';
 
@@ -155,6 +157,9 @@ function App() {
       {/* Goals pages */}
       {currentPage === 'goals' && <GoalsDashboardPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'team-goals' && (isAdmin || isManager) && <TeamGoalsPage user={user} onNavigate={handleNavigate} />}
+      {/* Announcements pages */}
+      {currentPage === 'announcements' && <AnnouncementsPage user={user} onNavigate={handleNavigate} />}
+      {currentPage === 'announcements-admin' && isAdmin && <AnnouncementsAdminPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'org-chart' && (isAdmin || isManager) && <OrgChartPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'settings' && isAdmin && <AdminSettingsPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}

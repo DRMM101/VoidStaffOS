@@ -20,6 +20,7 @@ const SECTION_NAV = {
   'Cases': 'hr-cases',
   'Opportunities': 'opportunities',
   'Goals': 'goals',
+  'Announcements': 'announcements',
 };
 
 /* Map page keys to breadcrumb metadata: section and display label */
@@ -57,6 +58,8 @@ const PAGE_MAP = {
   settings:                 { section: 'Admin', label: 'Settings' },
   goals:                    { section: null, label: 'Goals' },
   'team-goals':             { section: 'Goals', label: 'Team Goals' },
+  announcements:            { section: null, label: 'Announcements' },
+  'announcements-admin':    { section: 'Announcements', label: 'Manage Announcements' },
   'org-chart':              { section: 'People', label: 'Org Chart' },
 };
 

@@ -184,6 +184,9 @@ function Dashboard({ user, onNavigate }) {
   // Internal opportunities — full list for ticker + count for stat card
   const [openOpportunities, setOpenOpportunities] = useState([]);
 
+  // Ticker announcements — urgent/pinned published announcements
+  const [tickerAnnouncements, setTickerAnnouncements] = useState([]);
+
   const isManager = user.role_name === 'Manager' || user.role_name === 'Admin';
   const isAdmin = user.role_name === 'Admin';
   const isHR = user.role_name === 'HR Manager' || user.role_name === 'Admin';
@@ -198,6 +201,7 @@ function Dashboard({ user, onNavigate }) {
     fetchPolicyStats();
     fetchDocumentStats();
     fetchOpenOpportunities();
+    fetchTickerAnnouncements();
     if (isManager) {
       fetchTeamStats();
       fetchPendingLeaveCount();
@@ -259,6 +263,21 @@ function Dashboard({ user, onNavigate }) {
       }
     } catch (err) {
       console.error('Failed to fetch open opportunities');
+    }
+  };
+
+  /* Fetch urgent/pinned announcements for the ticker banner */
+  const fetchTickerAnnouncements = async () => {
+    try {
+      const response = await fetch('/api/announcements/ticker', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setTickerAnnouncements(data.announcements || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch ticker announcements');
     }
   };
 
@@ -464,9 +483,15 @@ function Dashboard({ user, onNavigate }) {
   const pausedRef = useRef(false);   // true while user hovers
   const speedPx = 0.8;              // pixels per frame (~48 px/s at 60fps)
 
+  // Combine opportunities + announcements into unified ticker items
+  const tickerItems = [
+    ...openOpportunities.map(opp => ({ type: 'opportunity', ...opp })),
+    ...tickerAnnouncements.map(ann => ({ type: 'announcement', ...ann }))
+  ];
+
   useEffect(() => {
     const track = tickerRef.current;
-    if (!track || openOpportunities.length === 0) return;
+    if (!track || tickerItems.length === 0) return;
 
     const step = () => {
       if (!pausedRef.current) {
@@ -483,39 +508,61 @@ function Dashboard({ user, onNavigate }) {
 
     rafRef.current = requestAnimationFrame(step);
 
-    // Cleanup on unmount or when opportunities change
+    // Cleanup on unmount or when items change
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [openOpportunities]);
+  }, [openOpportunities, tickerAnnouncements]);
 
   return (
     <div className="dashboard-content">
-      {/* Ticker tape banner — scrolling internal job opportunities */}
-      {openOpportunities.length > 0 && (
+      {/* Ticker tape banner — scrolling opportunities + urgent/pinned announcements */}
+      {tickerItems.length > 0 && (
         <div
           className="ticker-banner"
           role="marquee"
-          aria-label="Internal job opportunities"
-          onClick={() => onNavigate('opportunities')}
+          aria-label="Updates and opportunities"
           onMouseEnter={() => { pausedRef.current = true; }}
           onMouseLeave={() => { pausedRef.current = false; }}
         >
           <div className="ticker-banner__track" ref={tickerRef}>
             {/* Duplicate the items so the loop is seamless */}
-            {[...openOpportunities, ...openOpportunities].map((opp, idx) => (
-              <span className="ticker-banner__item" key={`${opp.id}-${idx}`}>
-                <strong>{opp.title}</strong>
-                {opp.show_salary && opp.salary_range_min && opp.salary_range_max && (
-                  <span className="ticker-salary">
-                    {formatSalary(opp.salary_range_min)}–{formatSalary(opp.salary_range_max)}
-                  </span>
+            {[...tickerItems, ...tickerItems].map((item, idx) => (
+              <span
+                className="ticker-banner__item"
+                key={`${item.type}-${item.id}-${idx}`}
+                onClick={() => onNavigate(item.type === 'announcement' ? 'announcements' : 'opportunities')}
+              >
+                {/* Opportunity items show title + salary */}
+                {item.type === 'opportunity' && (
+                  <>
+                    <strong>{item.title}</strong>
+                    {item.show_salary && item.salary_range_min && item.salary_range_max && (
+                      <span className="ticker-salary">
+                        {formatSalary(item.salary_range_min)}–{formatSalary(item.salary_range_max)}
+                      </span>
+                    )}
+                    {item.posted_at && (
+                      <span className="ticker-date">
+                        Posted {formatTickerDate(item.posted_at)}
+                      </span>
+                    )}
+                  </>
                 )}
-                {opp.posted_at && (
-                  <span className="ticker-date">
-                    Posted {formatTickerDate(opp.posted_at)}
-                  </span>
+
+                {/* Announcement items show category badge + title + NEW if unread */}
+                {item.type === 'announcement' && (
+                  <>
+                    <span className={`ticker-badge ticker-badge--${item.category === 'urgent' ? 'red' : 'teal'}`}>
+                      {item.category}
+                    </span>
+                    <strong>{item.title}</strong>
+                    {!item.read && (
+                      <span className="ticker-new">NEW</span>
+                    )}
+                  </>
                 )}
+
                 <span className="ticker-separator" aria-hidden="true">&#x2022;</span>
               </span>
             ))}
