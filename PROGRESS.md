@@ -1,6 +1,6 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-02-06 15:00 UTC
+**Last Updated:** 2026-02-06 15:30 UTC
 
 ## Current State
 
@@ -23,6 +23,7 @@ All core modules are **COMPLETE** and production-ready. Theme migration to Heado
 > ✅ **HeadofficeOS Neutral Theme Migration** - Complete
 > ✅ **Internal Opportunities** - Complete
 > ✅ **Org Chart** - Complete
+> ✅ **Goals Dashboard** - Complete
 
 ---
 
@@ -768,5 +769,43 @@ npm run dev
 - **Tools/Dependencies**: No new dependencies (uses existing lucide-react, vitest stack)
 - **Status**: Complete
 - **Tests**: 97 unit tests passing (18 test suites), production build compiles
+
+> ⚠️ No user test performed for this chunk.
+
+### 2026-02-06 15:30 UTC — Chunk 14: Goals Dashboard
+
+- **Task**: Add goal-setting and tracking system with personal goals, manager-assigned goals, progress tracking, comments/updates timeline, and team goals view.
+- **Decisions**:
+  - Used INTEGER serial PKs (not UUIDs as the spec suggested) to match existing codebase convention
+  - Migration numbered 037 (not 036 as spec suggested — 036 already used by opportunities)
+  - Express middleware auth (authenticate, authorize) instead of Supabase RLS
+  - CSS custom properties (BEM naming) instead of TailwindCSS
+  - Goals have 4 categories (performance, development, project, personal) and 3 priorities (low, medium, high)
+  - Status lifecycle: draft → active → completed/cancelled
+  - Progress 0–100 with step-5 slider
+  - Goal updates table tracks progress changes and comments with author names
+  - Manager assignment verified via direct reports check (managers assign to reports, admins to anyone)
+  - Team goals grouped by owner name with search filtering
+  - Overdue detection: active goals where target_date < today
+  - Goals page accessible to all users; Team Goals page gated to Admin/Manager
+- **Changes**:
+  - `backend/migrations/037_goals.sql` — goals + goal_updates tables with indexes
+  - `backend/src/routes/goals.js` — Full CRUD + stats + team + progress + updates (~727 lines)
+  - `backend/src/server.js` — Registered goals routes
+  - `frontend/src/components/goals/GoalCard.jsx` — Goal card with category badge, priority, progress bar, overdue detection
+  - `frontend/src/components/goals/GoalForm.jsx` — Create/edit modal with assign-to dropdown for managers
+  - `frontend/src/components/goals/GoalProgressUpdate.jsx` — Progress slider modal with comment
+  - `frontend/src/components/goals/GoalsDashboardPage.jsx` — Main page with stats cards, filter tabs, category filter, goals grid
+  - `frontend/src/components/goals/GoalDetailModal.jsx` — Full goal view with update timeline, comment form, edit/delete/complete
+  - `frontend/src/components/goals/TeamGoalsPage.jsx` — Manager team view grouped by owner with search
+  - `frontend/src/theme/components.css` — ~450 lines of goals CSS (stats cards, filters, cards, badges, progress bars, detail modal, timeline, empty states, responsive)
+  - `frontend/src/components/layout/Sidebar.jsx` — Added Goals nav item with Target icon
+  - `frontend/src/components/layout/Breadcrumb.jsx` — Added goals and team-goals page entries
+  - `frontend/src/App.jsx` — Added GoalsDashboardPage and TeamGoalsPage imports and routes
+  - `frontend/src/components/__tests__/GoalsDashboardPage.test.jsx` — 7 tests (loading, stats, goals list, error, empty, create modal, filter tabs)
+  - `frontend/src/components/__tests__/GoalCard.test.jsx` — 13 tests (render, badges, progress, actions, callbacks, completed, overdue, owner, assigned)
+- **Tools/Dependencies**: No new dependencies (uses existing lucide-react, vitest stack)
+- **Status**: Complete
+- **Tests**: 117 unit tests passing (20 test suites), production build compiles
 
 > ⚠️ No user test performed for this chunk.

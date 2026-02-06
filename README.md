@@ -181,6 +181,7 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full details.
 | InsightsOS | ✅ Active | Absence pattern detection & Bradford Factor |
 | OffboardingOS | ✅ Active | Exit workflow, checklists, handovers |
 | HR Cases | ✅ Active | ACAS-compliant PIP, Disciplinary, Grievance |
+| GoalsOS | ✅ Active | Goal-setting, tracking, progress updates |
 | LearnOS | 📋 Planned | Learning management |
 | AssetOS | 📋 Planned | Asset tracking |
 | TimeOS | 📋 Planned | Time tracking |

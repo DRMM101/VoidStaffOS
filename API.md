@@ -312,3 +312,57 @@ All compensation endpoints are automatically audited via `compensationAudit.js` 
 ### Status Values
 - **Opportunity**: `draft`, `open`, `closed`, `filled`
 - **Application**: `submitted`, `reviewing`, `shortlisted`, `interview`, `offered`, `accepted`, `rejected`, `withdrawn`
+
+---
+
+## Goals Endpoints
+
+All goals endpoints require authentication. Base path: `/api/goals`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/goals/stats` | Any | Get own goal stats (+ team stats for Manager/Admin) |
+| `GET` | `/api/goals/team` | Manager, Admin | List direct reports' goals |
+| `GET` | `/api/goals` | Any | List own goals (optional `?status=active&category=performance`) |
+| `GET` | `/api/goals/:id` | Owner, Manager, Admin | Get goal detail with update history |
+| `POST` | `/api/goals` | Any | Create goal (managers can set `assigned_to` for reports) |
+| `PUT` | `/api/goals/:id` | Owner, Admin | Update goal fields |
+| `PUT` | `/api/goals/:id/progress` | Owner, Manager, Admin | Quick progress update with optional comment |
+| `POST` | `/api/goals/:id/complete` | Owner, Admin | Mark goal as completed (sets progress=100) |
+| `DELETE` | `/api/goals/:id` | Owner, Admin | Cancel goal (soft delete: status → cancelled) |
+| `GET` | `/api/goals/:id/updates` | Owner, Manager, Admin | Get update history |
+| `POST` | `/api/goals/:id/updates` | Owner, Manager, Admin | Add comment to goal |
+
+### Stats Response
+```json
+{
+  "own": { "total": 5, "active": 3, "completed": 1, "overdue": 1 },
+  "team": { "total": 12, "active": 8, "completed": 3, "overdue": 1 }
+}
+```
+
+### Create/Update Goal Body
+```json
+{
+  "title": "Complete leadership training",
+  "description": "Finish all modules by Q2",
+  "category": "development",
+  "priority": "high",
+  "target_date": "2026-06-30",
+  "assigned_to": 5
+}
+```
+
+### Progress Update Body
+```json
+{
+  "progress": 75,
+  "comment": "Completed modules 1-3"
+}
+```
+
+### Goal Values
+- **Category**: `performance`, `development`, `project`, `personal`
+- **Priority**: `low`, `medium`, `high`
+- **Status**: `draft`, `active`, `completed`, `cancelled`
+- **Progress**: 0–100 (integer)
