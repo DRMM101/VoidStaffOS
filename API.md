@@ -366,3 +366,51 @@ All goals endpoints require authentication. Base path: `/api/goals`
 - **Priority**: `low`, `medium`, `high`
 - **Status**: `draft`, `active`, `completed`, `cancelled`
 - **Progress**: 0–100 (integer)
+
+---
+
+## Announcements Endpoints
+
+All endpoints require authentication. Base path: `/api/announcements`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/announcements` | Any | Published, non-expired announcements with read status |
+| `GET` | `/api/announcements/all` | Admin | All announcements with read counts |
+| `GET` | `/api/announcements/unread` | Any | Unread announcements for current user |
+| `GET` | `/api/announcements/ticker` | Any | Pinned/urgent published announcements for ticker |
+| `GET` | `/api/announcements/:id` | Any | Single announcement (employees see published only) |
+| `POST` | `/api/announcements` | Admin | Create announcement |
+| `PUT` | `/api/announcements/:id` | Admin | Update announcement |
+| `DELETE` | `/api/announcements/:id` | Admin | Delete announcement |
+| `POST` | `/api/announcements/:id/publish` | Admin | Publish a draft announcement |
+| `POST` | `/api/announcements/:id/archive` | Admin | Archive an announcement |
+| `POST` | `/api/announcements/:id/read` | Any | Mark announcement as read (idempotent) |
+| `GET` | `/api/announcements/:id/reads` | Admin | Read receipts with employee list |
+
+### Create/Update Announcement Body
+```json
+{
+  "title": "Office closure notice",
+  "content": "The office will be closed on Friday.",
+  "category": "general",
+  "priority": "normal",
+  "expires_at": "2026-03-01",
+  "pinned": false
+}
+```
+
+### Read Receipts Response
+```json
+{
+  "employees": [
+    { "id": 1, "full_name": "John Smith", "has_read": true, "read_at": "2026-02-01T10:00:00Z" }
+  ],
+  "summary": { "total": 20, "read": 15, "unread": 5, "percentage": 75 }
+}
+```
+
+### Announcement Values
+- **Category**: `general`, `urgent`, `policy`, `event`, `celebration`
+- **Priority**: `low`, `normal`, `high`, `urgent`
+- **Status**: `draft`, `published`, `archived`

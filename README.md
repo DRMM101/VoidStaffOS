@@ -182,6 +182,7 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full details.
 | OffboardingOS | ✅ Active | Exit workflow, checklists, handovers |
 | HR Cases | ✅ Active | ACAS-compliant PIP, Disciplinary, Grievance |
 | GoalsOS | ✅ Active | Goal-setting, tracking, progress updates |
+| AnnouncementsOS | ✅ Active | Company announcements, read tracking, ticker |
 | LearnOS | 📋 Planned | Learning management |
 | AssetOS | 📋 Planned | Asset tracking |
 | TimeOS | 📋 Planned | Time tracking |

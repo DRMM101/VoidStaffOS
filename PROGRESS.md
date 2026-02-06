@@ -1,6 +1,6 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-02-06 15:30 UTC
+**Last Updated:** 2026-02-06 16:20 UTC
 
 ## Current State
 
@@ -24,6 +24,7 @@ All core modules are **COMPLETE** and production-ready. Theme migration to Heado
 > ✅ **Internal Opportunities** - Complete
 > ✅ **Org Chart** - Complete
 > ✅ **Goals Dashboard** - Complete
+> ✅ **Announcements** - Complete
 
 ---
 
@@ -807,5 +808,43 @@ npm run dev
 - **Tools/Dependencies**: No new dependencies (uses existing lucide-react, vitest stack)
 - **Status**: Complete
 - **Tests**: 117 unit tests passing (20 test suites), production build compiles
+
+> ⚠️ No user test performed for this chunk.
+
+### 2026-02-06 16:20 UTC — Chunk 15: Announcements
+
+- **Task**: Add company announcements system with HR/Admin management, employee viewing, read tracking, and dashboard ticker integration.
+- **Decisions**:
+  - INTEGER serial PKs, Express middleware auth (not UUID/Supabase as spec suggested)
+  - Migration 038 (announcements + announcement_reads tables)
+  - 5 categories (general, urgent, policy, event, celebration) with colour-coded badges
+  - 4 priorities (low, normal, high, urgent) — urgent gets red border accent
+  - Status lifecycle: draft → published → archived
+  - Read tracking via announcement_reads table with ON CONFLICT upsert
+  - Auto-mark as read when detail modal opens (fire-and-forget)
+  - Dashboard ticker: urgent/pinned announcements added alongside opportunities, with category badge + NEW indicator
+  - Admin page uses table layout matching existing OpportunitiesAdminPage pattern
+  - Read receipts modal shows employee list with read/unread status and coverage percentage
+  - Announcements nav item visible to all users; Admin page gated to Admin role
+- **Changes**:
+  - `backend/migrations/038_announcements.sql` — announcements + announcement_reads tables with indexes
+  - `backend/src/routes/announcements.js` — 12 API endpoints (~430 lines)
+  - `backend/src/server.js` — Registered announcements routes
+  - `frontend/src/components/announcements/AnnouncementCard.jsx` — Card with category badge, priority, pinned icon, unread dot, content preview
+  - `frontend/src/components/announcements/AnnouncementDetailModal.jsx` — Full view with auto-mark-as-read
+  - `frontend/src/components/announcements/AnnouncementForm.jsx` — Create/edit modal with Save as Draft / Publish
+  - `frontend/src/components/announcements/AnnouncementsPage.jsx` — Employee view with filter tabs (All/Unread/Pinned) and category filter
+  - `frontend/src/components/announcements/AnnouncementsAdminPage.jsx` — Admin table with status-based actions
+  - `frontend/src/components/announcements/AnnouncementReadReceipts.jsx` — Read receipts modal with coverage stats
+  - `frontend/src/components/Dashboard.jsx` — Ticker integration: fetches `/announcements/ticker`, combines with opportunities
+  - `frontend/src/theme/components.css` — ~350 lines announcements CSS
+  - `frontend/src/components/layout/Sidebar.jsx` — Added Announcements nav item with Bell icon
+  - `frontend/src/components/layout/Breadcrumb.jsx` — Added announcements + announcements-admin page entries
+  - `frontend/src/App.jsx` — Added AnnouncementsPage and AnnouncementsAdminPage imports and routes
+  - `frontend/src/components/__tests__/AnnouncementsPage.test.jsx` — 7 tests
+  - `frontend/src/components/__tests__/AnnouncementCard.test.jsx` — 12 tests
+- **Tools/Dependencies**: No new dependencies
+- **Status**: Complete
+- **Tests**: 136 unit tests passing (22 test suites), production build compiles
 
 > ⚠️ No user test performed for this chunk.
