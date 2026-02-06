@@ -8893,3 +8893,1108 @@ button[type="submit"]:disabled {
   background: var(--color-border);
   cursor: not-allowed;
 }
+
+/* ============================================
+   APP SHELL — Sidebar + Header + Content layout
+   ============================================ */
+
+/* Root shell container — horizontal flex: sidebar | main */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+/* Sidebar width transition for smooth collapse/expand */
+.app-shell--expanded .sidebar {
+  width: var(--layout-sidebar-expanded);
+}
+
+.app-shell--collapsed .sidebar {
+  width: var(--layout-sidebar-collapsed);
+}
+
+/* Main area takes remaining width */
+.app-shell__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* prevents flex overflow */
+  overflow-x: hidden;
+}
+
+/* Content area — padded, scrollable */
+.app-shell__content {
+  flex: 1;
+  padding: var(--layout-content-padding);
+  overflow-y: auto;
+}
+
+/* ============================================
+   SIDEBAR — Collapsible dark sidebar
+   ============================================ */
+
+.sidebar {
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  transition: width var(--duration-normal) var(--ease-default);
+  overflow: hidden; /* clip labels when collapsing */
+  flex-shrink: 0;
+}
+
+/* Header area: toggle + brand */
+.sidebar__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  height: 60px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar__toggle {
+  background: none;
+  border: none;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--duration-fast) var(--ease-default),
+              background var(--duration-fast) var(--ease-default);
+}
+
+.sidebar__toggle:hover {
+  color: var(--color-text-inverse);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar__brand {
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+/* Navigation list */
+.sidebar__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2) var(--space-2);
+  gap: var(--space-1);
+  overflow-y: auto;
+}
+
+/* Individual nav item */
+.sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease-default),
+              background var(--duration-fast) var(--ease-default);
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar__item:hover {
+  color: var(--color-text-inverse);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Active state — lighter bg + accent bar */
+.sidebar__item--active {
+  color: var(--sidebar-text-active);
+  background: var(--sidebar-active-bg);
+}
+
+.sidebar__item--active:hover {
+  color: var(--sidebar-text-active);
+  background: var(--sidebar-active-bg);
+}
+
+/* Left accent bar on active item */
+.sidebar__accent-bar {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  background: var(--sidebar-accent-bar);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Icon sizing */
+.sidebar__icon {
+  flex-shrink: 0;
+}
+
+/* Label text — hidden when sidebar is collapsed */
+.sidebar__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Footer area — logout button */
+.sidebar__footer {
+  padding: var(--space-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar__item--logout:hover {
+  color: var(--color-error-text);
+  background: var(--color-error-bg);
+}
+
+/* ============================================
+   HEADER BAR — Sticky top bar with breadcrumbs
+   ============================================ */
+
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) var(--layout-content-padding);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 52px;
+}
+
+.header-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Search input */
+.header-bar__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-4);
+  min-width: 200px;
+}
+
+.header-bar__search-icon {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.header-bar__search-input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text);
+  width: 100%;
+  cursor: pointer;
+}
+
+.header-bar__search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Contextual action button */
+.header-bar__action-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--duration-fast) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+}
+
+.header-bar__action-btn:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   BREADCRUMB — Route trail navigation
+   ============================================ */
+
+.breadcrumb__list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumb__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.breadcrumb__separator {
+  color: var(--color-text-muted);
+  margin: 0 var(--space-1);
+}
+
+.breadcrumb__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-fast) var(--ease-default),
+              background var(--duration-fast) var(--ease-default);
+}
+
+.breadcrumb__link:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.breadcrumb__text {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  padding: var(--space-1) var(--space-2);
+}
+
+.breadcrumb__text--active {
+  color: var(--color-text-heading);
+  font-weight: var(--font-weight-medium);
+}
+
+.breadcrumb__icon {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   STAT CARD — Bento grid stat display
+   ============================================ */
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--layout-card-radius);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: box-shadow var(--duration-fast) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card--clickable {
+  cursor: pointer;
+}
+
+.stat-card--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-card__label {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.stat-card__value {
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  line-height: var(--leading-tight);
+}
+
+.stat-card__trend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.stat-card__trend--up {
+  color: var(--color-success-text);
+}
+
+.stat-card__trend--down {
+  color: var(--color-error-text);
+}
+
+.stat-card__trend--flat {
+  color: var(--color-text-muted);
+}
+
+.stat-card__trend-value {
+  /* Inherits colour from parent trend class */
+}
+
+.stat-card__subtitle {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+/* Bento grid for stat cards */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--layout-card-gap);
+}
+
+/* ============================================
+   PAGE HEADER — Title + subtitle + actions
+   ============================================ */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.page-header__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.page-header__title {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  margin: 0;
+  line-height: var(--leading-tight);
+}
+
+.page-header__subtitle {
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.page-header__actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   COMPENSATION — Dashboard, salary view, reports
+   ============================================ */
+
+/* Section title used throughout compensation module */
+.comp-section-title {
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  margin: 0 0 var(--space-4) 0;
+}
+
+/* Quick links grid */
+.comp-quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--layout-card-gap);
+  margin-bottom: var(--space-6);
+}
+
+.comp-link-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--layout-card-radius);
+  padding: var(--space-5);
+  cursor: pointer;
+  text-align: left;
+  transition: box-shadow var(--duration-fast) var(--ease-default),
+              transform var(--duration-fast) var(--ease-default);
+}
+
+.comp-link-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.comp-link-card__title {
+  display: block;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  margin-bottom: var(--space-1);
+}
+
+.comp-link-card__desc {
+  display: block;
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+
+/* Salary current card */
+.salary-current-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--layout-card-radius);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.salary-current-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.salary-current-card__header h3 {
+  margin: 0;
+  font-size: var(--font-size-h4);
+  color: var(--color-text-heading);
+}
+
+.salary-current-card__amount {
+  font-size: var(--text-h2);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.salary-current-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.salary-badge {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.salary-badge--info {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.salary-date {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+
+/* Band position bar */
+.band-position {
+  margin-top: var(--space-4);
+}
+
+.band-position__labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.band-position__bar {
+  position: relative;
+  height: 8px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.band-position__midpoint {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 16px;
+  background: var(--color-text-muted);
+  border-radius: 1px;
+  transform: translateX(-50%);
+}
+
+.band-position__marker {
+  position: absolute;
+  top: -6px;
+  width: 20px;
+  height: 20px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  border: 3px solid var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transform: translateX(-50%);
+}
+
+/* Salary timeline */
+.salary-timeline {
+  position: relative;
+  padding-left: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.salary-timeline::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.salary-timeline__item {
+  position: relative;
+  padding-bottom: var(--space-5);
+}
+
+.salary-timeline__dot {
+  position: absolute;
+  left: calc(-1 * var(--space-6) + 6px);
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  background: var(--color-border-strong);
+  border-radius: 50%;
+  border: 2px solid var(--color-surface);
+}
+
+.salary-timeline__item--current .salary-timeline__dot {
+  background: var(--color-primary);
+}
+
+.salary-timeline__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.salary-timeline__amount {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.salary-timeline__date {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+
+.salary-timeline__reason {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text);
+  font-style: italic;
+}
+
+.salary-timeline__band {
+  font-size: var(--font-size-caption);
+  color: var(--color-info-text);
+  background: var(--color-info-bg);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  width: fit-content;
+}
+
+/* Benefits grid (shared between EmployeeSalaryView and BenefitsEditor) */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--layout-card-gap);
+  margin-bottom: var(--space-6);
+}
+
+.benefit-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--layout-card-radius);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.benefit-card--expired {
+  opacity: 0.6;
+}
+
+.benefit-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.benefit-card__type {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  text-transform: capitalize;
+}
+
+.benefit-card__frequency {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  text-transform: capitalize;
+}
+
+.benefit-card__provider {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text);
+}
+
+.benefit-card__desc {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.benefit-card__value {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.benefit-card__contributions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+.benefit-card__dates {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+.benefit-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-2);
+}
+
+.benefits-editor__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+/* Pay review workflow kanban */
+.review-cycle-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.review-cycle-selector label {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-heading);
+}
+
+.review-cycle-selector select {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-body-sm);
+  min-width: 250px;
+}
+
+.cycle-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.cycle-budget {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+
+.review-kanban {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  padding-bottom: var(--space-4);
+}
+
+.review-column {
+  min-width: 220px;
+  flex: 1;
+}
+
+.review-column__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.review-column--approved .review-column__header {
+  border-bottom-color: var(--color-success-text);
+}
+
+.review-column--rejected .review-column__header {
+  border-bottom-color: var(--color-error-text);
+}
+
+.review-column__count {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.review-column__cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.review-column__empty {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-4);
+}
+
+.review-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.review-card__name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  font-size: var(--font-size-body-sm);
+}
+
+.review-card__salary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-caption);
+  color: var(--color-text);
+}
+
+.review-card__approved {
+  color: var(--color-success-text);
+  font-weight: var(--font-weight-medium);
+}
+
+.review-card__manager {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+.review-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+/* Compensation tabs */
+.comp-tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comp-tab {
+  padding: var(--space-3) var(--space-5);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default);
+}
+
+.comp-tab:hover {
+  color: var(--color-text-heading);
+}
+
+.comp-tab--active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Report section */
+.report-section {
+  margin-bottom: var(--space-8);
+}
+
+.report-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.report-section__header h3 {
+  margin: 0;
+  font-size: var(--font-size-h4);
+  color: var(--color-text-heading);
+}
+
+/* CSS bar charts */
+.report-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.chart-group {
+  margin-bottom: var(--space-3);
+}
+
+.chart-group__label {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  margin-bottom: var(--space-2);
+}
+
+.chart-bar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.chart-bar-row--dept {
+  flex-wrap: wrap;
+}
+
+.chart-bar-label {
+  min-width: 100px;
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text);
+  text-align: right;
+}
+
+.chart-bar-track {
+  flex: 1;
+  height: 28px;
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.chart-bar {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-2);
+  min-width: fit-content;
+  transition: width var(--duration-normal) var(--ease-default);
+}
+
+.chart-bar--male,
+.chart-bar--dept {
+  background: var(--color-primary);
+}
+
+.chart-bar--female {
+  background: var(--color-lavender);
+}
+
+.chart-bar--unknown {
+  background: var(--color-border-strong);
+}
+
+.chart-bar__value {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-inverse);
+  white-space: nowrap;
+}
+
+.chart-bar-median {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.chart-bar-stats {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+/* Audit log filters */
+.audit-filters {
+  margin-bottom: var(--space-4);
+}
+
+.audit-filters__row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.audit-filters__row .form-group {
+  flex: 1;
+  min-width: 120px;
+}
+
+.audit-action-badge {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+}
+
+.audit-action-badge--view {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+.audit-action-badge--create {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.audit-action-badge--update {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.audit-action-badge--export,
+.audit-action-badge--download {
+  background: var(--color-accent-light);
+  color: var(--color-accent-text);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.pagination__info {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+
+/* Text helpers */
+.text-mono {
+  font-family: 'Courier New', monospace;
+  font-size: var(--font-size-caption);
+}
+
+.text-nowrap {
+  white-space: nowrap;
+}
+
+/* ============================================
+   RESPONSIVE — Layout adaptations
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Force sidebar collapsed on mobile */
+  .app-shell .sidebar {
+    width: var(--layout-sidebar-collapsed);
+  }
+
+  /* Hide labels on mobile */
+  .sidebar__label,
+  .sidebar__brand {
+    display: none;
+  }
+
+  /* Stack header bar vertically on small screens */
+  .header-bar {
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: flex-start;
+  }
+
+  .header-bar__search {
+    min-width: 100%;
+  }
+
+  /* Single column stat cards */
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stack page header */
+  .page-header {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}

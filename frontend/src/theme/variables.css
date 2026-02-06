@@ -2,7 +2,7 @@
  * VoidStaffOS — Design Tokens (variables.css)
  * ============================================
  * Product: StaffOS / HeadofficeOS
- * Design System: PropertyOS Design System
+ * Design System: HeadofficeOS Neutral Design System
  *
  * TO WHITE-LABEL FOR A CLIENT:
  * 1. Copy themes/default.css -> themes/client-name.css
@@ -180,4 +180,25 @@
   --container-padding: 24px;
   --sidebar-width: 0px;
   --nav-height: 60px;
+
+  /* Layout — Sidebar Shell */
+  --layout-sidebar-collapsed: 60px;
+  --layout-sidebar-expanded: 200px;
+  --layout-content-padding: 24px;
+  --layout-card-radius: 12px;
+  --layout-card-gap: 12px;
+
+  /* Sidebar */
+  --sidebar-bg: #1A1D27;
+  --sidebar-active-bg: rgba(19, 78, 74, 0.15);
+  --sidebar-accent-bar: var(--color-primary);
+  --sidebar-text: rgba(255, 255, 255, 0.6);
+  --sidebar-text-active: var(--color-dusty-blue);
+
+  /* Dark mode tokens (reserved — not active yet) */
+  --color-bg-dark: #0F1117;
+  --color-surface-dark: #1A1D27;
+  --color-text-dark: #E8EAF0;
+  --color-text-muted-dark: #8B8FA3;
+  --color-border-dark: #2A2E3B;
 }

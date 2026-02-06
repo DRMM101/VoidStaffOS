@@ -4,7 +4,7 @@
 
 ## Current State
 
-All core modules are **COMPLETE** and production-ready. Theme migration to PropertyOS design system complete.
+All core modules are **COMPLETE** and production-ready. Theme migration to HeadofficeOS neutral design system complete.
 
 > ✅ **Core Employee Management** - Complete
 > ✅ **Performance Reviews (Blind KPIs)** - Complete
@@ -20,15 +20,15 @@ All core modules are **COMPLETE** and production-ready. Theme migration to Prope
 > ✅ **Absence Insights** - Complete
 > ✅ **Offboarding** - Complete
 > ✅ **HR Cases (PIP/Disciplinary/Grievance)** - Complete (debugged, ready for browser testing)
-> ✅ **PropertyOS Theme Migration** - Complete
+> ✅ **HeadofficeOS Neutral Theme Migration** - Complete
 
 ---
 
 ## Recent Updates (2026-02-04)
 
-### PropertyOS Theme Migration - COMPLETE
+### HeadofficeOS Neutral Theme Migration - COMPLETE
 
-Full migration from dark cyberpunk theme to PropertyOS light design system, aligned with the shared PropertyOS brand guidelines (ClickUp task 86c7yj0uu).
+Full migration from dark cyberpunk theme to HeadofficeOS neutral design system, aligned with the shared HeadofficeOS brand guidelines (ClickUp task 86c7yj0uu).
 
 **Design System Applied:**
 - **Brand**: Warm, trustworthy, premium — "Calm and competent" energy
@@ -300,7 +300,9 @@ Full sick leave and statutory leave management with Return to Work interviews.
 | Insights | ✅ Complete | 031 | Absence pattern detection |
 | Offboarding | ✅ Complete | 032 | Exit workflow & compliance |
 | HR Cases | ✅ Complete | 033 | PIP, Disciplinary, Grievance |
-| Theme | ✅ Complete | — | PropertyOS design system migration |
+| Layout Shell | ✅ Complete | — | Collapsible sidebar + header + breadcrumb |
+| Compensation | ✅ Complete | 034 | Pay bands, reviews, benefits, audit |
+| Theme | ✅ Complete | — | HeadofficeOS neutral design system migration |
 
 ---
 
@@ -339,7 +341,7 @@ Full sick leave and statutory leave management with Return to Work interviews.
 
 ## Future Enhancements
 
-- ~~**UX Pass Required**: Full review of font colours, contrast, layout and styling across all modules~~ ✅ Done (PropertyOS theme migration)
+- ~~**UX Pass Required**: Full review of font colours, contrast, layout and styling across all modules~~ ✅ Done (HeadofficeOS neutral theme migration)
 - Visual testing pass — verify all modules render correctly with new theme
 - Fit note document upload UI (currently accepts document_id)
 - SSP calculation refinement (earnings check)
@@ -373,7 +375,7 @@ npm run dev
 
 ## Git Commit History (Recent)
 
-- PropertyOS theme migration — full design system, white-label ready
+- HeadofficeOS neutral theme migration — full design system, white-label ready
 - Fix component CSS and JSX inline styles — purple remnants and grey text contrast
 - HR Cases debugging — cookie/auth flow, route ordering fixes
 - Fix offboarding route ordering and add missing stats endpoint
@@ -386,3 +388,115 @@ npm run dev
 - Sick & Statutory Leave module complete
 - Probation management complete
 - Emergency contacts complete
+
+---
+
+## Progress Log
+
+### 2026-02-05 — Rebrand theme from PropertyOS to HeadofficeOS
+
+- **Task**: Rename all references from "PropertyOS theme migration" to "HeadofficeOS neutral theme migration" across the project.
+- **Decisions**: Replaced "PropertyOS" with "HeadofficeOS" and changed "light design system" to "neutral design system" throughout. Kept all other theme details (colours, tokens, architecture) unchanged as the request was a naming/branding change only.
+- **Changes**: 13 references updated across 5 files:
+  - `PROGRESS.md` (7 references)
+  - `README.md` (3 references)
+  - `THEME_SPEC.md` (1 reference)
+  - `frontend/src/README.md` (1 reference)
+  - `frontend/src/theme/variables.css` (1 reference)
+- **Status**: Complete
+
+### 2026-02-06 — Phase 1: Layout Modernisation (Chunk 11 prep)
+
+- **Task**: Replace the dual-sidebar/horizontal-nav layout with a collapsible sidebar + sticky header bar + content area shell. Add layout CSS tokens, create reusable layout components, migrate all pages, and write unit tests.
+- **Decisions**:
+  - Used BEM-style CSS class naming (`.sidebar__item--active`) to avoid conflicts with existing component styles
+  - Kept existing page components unchanged — only replaced the outer Navigation wrapper with AppShell
+  - Sidebar stores collapsed/expanded preference in localStorage (`voidstaffos-sidebar-collapsed`)
+  - Nav items follow the spec: Dashboard, People, Cases, Leave, Documents, Compensation, Compliance, Reports, Settings
+  - Compliance is admin/manager only; Settings is admin only
+  - Breadcrumb auto-generates from a page key → section/label map
+  - Header bar includes search placeholder (Ctrl+K palette ready) and contextual action button
+  - Installed vitest + @testing-library/react for frontend unit testing (first time setup)
+  - Dark mode tokens added to variables.css but not activated
+- **Changes**:
+  - `frontend/src/theme/variables.css` — added layout sidebar, sidebar colour, and dark mode tokens
+  - `frontend/src/components/layout/AppShell.jsx` — new layout shell component
+  - `frontend/src/components/layout/Sidebar.jsx` — new collapsible sidebar with lucide-react icons
+  - `frontend/src/components/layout/Breadcrumb.jsx` — auto-generating breadcrumb trail
+  - `frontend/src/components/layout/StatCard.jsx` — reusable stat card for bento grids
+  - `frontend/src/components/layout/PageHeader.jsx` — reusable page header with actions
+  - `frontend/src/theme/components.css` — added ~350 lines of layout component styles + responsive rules
+  - `frontend/src/App.jsx` — replaced Navigation import with AppShell, wrapped all pages in AppShell
+  - `frontend/vite.config.js` — added vitest test configuration
+  - `frontend/src/test/setup.js` — test setup file for @testing-library/jest-dom
+  - `frontend/src/components/layout/__tests__/Sidebar.test.jsx` — 10 tests
+  - `frontend/src/components/layout/__tests__/Breadcrumb.test.jsx` — 5 tests
+  - `frontend/src/components/layout/__tests__/StatCard.test.jsx` — 7 tests
+  - `frontend/src/components/layout/__tests__/PageHeader.test.jsx` — 5 tests
+  - `frontend/src/components/layout/__tests__/AppShell.test.jsx` — 6 tests
+- **Tools/Dependencies**: lucide-react, vitest, @testing-library/react, @testing-library/jest-dom, jsdom
+- **Status**: Complete
+- **Tests**: 33 tests passing (5 test suites)
+
+> ⚠️ No user test performed for this chunk.
+
+### 2026-02-06 — Phase 2: Compensation Tracking (Chunk 11)
+
+- **Task**: Implement full compensation tracking module — database migration, audit middleware, API routes, 7 frontend components, CSS styles, App.jsx routing, breadcrumb updates, and unit tests.
+- **Decisions**:
+  - Migration uses INTEGER FKs referencing `users(id)` and `tenants(id)` — not UUID as the prompt spec suggested — because the actual schema uses SERIAL (INTEGER) PKs
+  - No separate `employees` table exists; `users` IS the employees table
+  - Created `compensation_audit_log` as append-only table with salary field redaction middleware
+  - Access control: Employee (own data), Manager (direct reports, current salary only), HR/Admin (full), Director (aggregates only)
+  - Pay review workflow: draft → submitted → hr_review → approved → applied (with rejected branch)
+  - CSS bar charts used for reports (no additional charting dependency)
+  - CSV export for compensation reports
+  - 7 tables with RLS policies and 11 indexes
+- **Changes**:
+  - `backend/migrations/034_compensation_tracking.sql` — 7 tables: pay_bands, compensation_records, benefits, review_cycles, pay_reviews, pay_slips, compensation_audit_log
+  - `backend/src/middleware/compensationAudit.js` — Audit middleware with sensitive field redaction
+  - `backend/src/routes/compensation.js` — Full CRUD routes (~700 lines) for all compensation features
+  - `backend/src/server.js` — Registered compensation routes at `/api/compensation`
+  - `frontend/src/components/compensation/CompensationDashboard.jsx` — Dashboard with stat cards and quick links
+  - `frontend/src/components/compensation/EmployeeSalaryView.jsx` — Salary timeline, band position, benefits, pay slips
+  - `frontend/src/components/compensation/PayBandManager.jsx` — CRUD table for pay bands
+  - `frontend/src/components/compensation/PayReviewWorkflow.jsx` — Review cycle management with kanban columns
+  - `frontend/src/components/compensation/BenefitsEditor.jsx` — Card-based benefits CRUD
+  - `frontend/src/components/compensation/CompensationReports.jsx` — Gender pay gap and department cost reports with CSV export
+  - `frontend/src/components/compensation/CompensationAuditLog.jsx` — Filterable audit log with pagination
+  - `frontend/src/components/layout/Breadcrumb.jsx` — Added compensation sub-page entries to PAGE_MAP
+  - `frontend/src/App.jsx` — Added 6 compensation imports and 7 page routes
+  - `frontend/src/theme/components.css` — Added ~400 lines of compensation component styles
+  - `frontend/src/components/compensation/__tests__/CompensationDashboard.test.jsx` — 5 tests
+  - `frontend/src/components/compensation/__tests__/PayBandManager.test.jsx` — 5 tests
+  - `frontend/src/components/compensation/__tests__/CompensationAuditLog.test.jsx` — 4 tests
+  - `frontend/src/components/compensation/__tests__/auditRedaction.test.jsx` — 5 tests
+- **Tools/Dependencies**: No new dependencies (uses existing lucide-react, vitest stack)
+- **Status**: Complete
+- **Tests**: 52 tests passing (9 test suites)
+
+> ⚠️ No user test performed for this chunk.
+
+### 2026-02-06 — Phase 2E: Integration Testing & Bug Fixes
+
+- **Task**: Run integration tests against live database per CLAUDE-CODE-PROMPT.md section 2E (steps 1-7). Fix bugs discovered during testing.
+- **Decisions**:
+  - Gender pay gap report: `users` table has no `gender` column — query now groups by pay band only (ready to add gender grouping when column exists)
+  - Department costs report: `users` table has no `department` column — query groups by role as a proxy (ready to switch when department column exists)
+  - Aggregates endpoint was missing `authorize()` middleware — added `authorize('Admin', 'HR', 'Finance', 'Director')` for proper access control
+- **Integration Test Results (all 7 steps)**:
+  1. **Create pay bands**: 3 bands (Junior/Mid/Senior) created and listed via API
+  2. **Add compensation records**: 3 records for 2 employees, including a promotion/raise
+  3. **Self-service view**: Employee sees own salary history + band info; denied access to others
+  4. **Manager view**: Manager sees only current salary for direct reports; denied for non-reports
+  5. **Pay review workflow**: Full lifecycle — draft → submitted → hr_review → approved → applied
+  6. **Audit log**: 21 entries captured — all creates, views, updates logged; salary fields correctly show "REDACTED"
+  7. **Access control**: Stats/reports blocked for employees; aggregates now requires Admin/HR/Finance/Director role
+- **Bugs Found & Fixed**:
+  - `reports/gender-pay-gap`: Query referenced non-existent `u.gender` column → fixed to group by pay band
+  - `reports/department-costs`: Query referenced non-existent `u.department` column → fixed to group by role
+  - `reports/aggregates`: Missing `authorize()` middleware → added role check (Admin/HR/Finance/Director)
+- **Changes**:
+  - `backend/src/routes/compensation.js` — fixed 3 report endpoints
+- **Status**: Complete
+- **Tests**: 52 unit tests passing, 7/7 integration test steps passing

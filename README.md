@@ -9,7 +9,7 @@
 
 **Proprietary Employee Performance Management System**
 
-VoidStaffOS is a comprehensive employee management platform featuring blind performance reviews, leave management, 360 feedback, ACAS-compliant HR case management, and multi-tenant support with enterprise-grade security. Built on the PropertyOS design system for a warm, professional aesthetic with white-label support.
+VoidStaffOS is a comprehensive employee management platform featuring blind performance reviews, leave management, 360 feedback, ACAS-compliant HR case management, and multi-tenant support with enterprise-grade security. Built on the HeadofficeOS neutral design system for a warm, professional aesthetic with white-label support.
 
 ---
 
@@ -51,7 +51,7 @@ VoidStaffOS is a comprehensive employee management platform featuring blind perf
 | Layer | Technology |
 |-------|------------|
 | Frontend | React 18, Vite, Inter (Google Fonts) |
-| Design System | PropertyOS — CSS custom properties, white-label ready |
+| Design System | HeadofficeOS Neutral — CSS custom properties, white-label ready |
 | Backend | Node.js, Express.js |
 | Database | PostgreSQL |
 | Auth | Session cookies (HttpOnly) |
@@ -118,7 +118,7 @@ VoidStaffOS/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/      # React components
-│   │   ├── theme/           # PropertyOS design system
+│   │   ├── theme/           # HeadofficeOS neutral design system
 │   │   │   ├── variables.css    # Design tokens (CSS custom properties)
 │   │   │   ├── base.css         # Reset, typography, body defaults
 │   │   │   ├── components.css   # All component styles

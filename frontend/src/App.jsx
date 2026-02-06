@@ -32,7 +32,13 @@ import AbsenceDashboard from './components/AbsenceDashboard';
 import InsightsDashboard from './components/InsightsDashboard';
 import OffboardingDashboard from './components/OffboardingDashboard';
 import HRCasesDashboard from './components/HRCasesDashboard';
-import Navigation from './components/Navigation';
+import CompensationDashboard from './components/compensation/CompensationDashboard';
+import EmployeeSalaryView from './components/compensation/EmployeeSalaryView';
+import PayBandManager from './components/compensation/PayBandManager';
+import PayReviewWorkflow from './components/compensation/PayReviewWorkflow';
+import CompensationReports from './components/compensation/CompensationReports';
+import CompensationAuditLog from './components/compensation/CompensationAuditLog';
+import AppShell from './components/layout/AppShell';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -95,32 +101,38 @@ function App() {
   const canCreateReviews = isAdmin || isManager;
 
   return (
-    <div className="app-container">
-      <Navigation
-        currentPage={currentPage}
-        onNavigate={handleNavigate}
-        onLogout={handleLogout}
-        isAdmin={isAdmin}
-        isManager={isManager}
-      />
-      <main className="main-content">
-        {currentPage === 'dashboard' && <Dashboard user={user} onNavigate={handleNavigate} />}
-        {currentPage === 'employees' && <Employees user={user} navParams={navParams} />}
-        {currentPage === 'reviews' && <Reviews user={user} canCreate={canCreateReviews} />}
-        {currentPage === 'review-detail' && <Reviews user={user} canCreate={canCreateReviews} viewMode="detail" />}
-        {currentPage === 'my-reports' && <EmployeeQuarterlyReport user={user} />}
-        {currentPage === 'policies' && <Policies user={user} />}
-        {currentPage === 'documents' && <Documents user={user} />}
-        {currentPage === 'emergency' && <Emergency user={user} />}
-        {currentPage === 'absence' && <AbsenceDashboard user={user} navParams={navParams} />}
-        {currentPage === 'compliance' && (isAdmin || isManager) && <Compliance user={user} />}
-        {currentPage === 'probation' && (isAdmin || isManager) && <Probation user={user} />}
-        {currentPage === 'insights' && (isAdmin || isManager) && <InsightsDashboard user={user} />}
-        {currentPage === 'offboarding' && (isAdmin || isManager) && <OffboardingDashboard user={user} />}
-        {currentPage === 'hr-cases' && <HRCasesDashboard user={user} />}
-        {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}
-      </main>
-    </div>
+    <AppShell
+      currentPage={currentPage}
+      onNavigate={handleNavigate}
+      onLogout={handleLogout}
+      isAdmin={isAdmin}
+      isManager={isManager}
+    >
+      {/* Page routing — each page fills the AppShell content area */}
+      {currentPage === 'dashboard' && <Dashboard user={user} onNavigate={handleNavigate} />}
+      {currentPage === 'employees' && <Employees user={user} navParams={navParams} />}
+      {currentPage === 'reviews' && <Reviews user={user} canCreate={canCreateReviews} />}
+      {currentPage === 'review-detail' && <Reviews user={user} canCreate={canCreateReviews} viewMode="detail" />}
+      {currentPage === 'my-reports' && <EmployeeQuarterlyReport user={user} />}
+      {currentPage === 'policies' && <Policies user={user} />}
+      {currentPage === 'documents' && <Documents user={user} />}
+      {currentPage === 'emergency' && <Emergency user={user} />}
+      {currentPage === 'absence' && <AbsenceDashboard user={user} navParams={navParams} />}
+      {currentPage === 'compliance' && (isAdmin || isManager) && <Compliance user={user} />}
+      {currentPage === 'probation' && (isAdmin || isManager) && <Probation user={user} />}
+      {currentPage === 'insights' && (isAdmin || isManager) && <InsightsDashboard user={user} />}
+      {currentPage === 'offboarding' && (isAdmin || isManager) && <OffboardingDashboard user={user} />}
+      {currentPage === 'hr-cases' && <HRCasesDashboard user={user} />}
+      {/* Compensation sub-pages */}
+      {currentPage === 'compensation' && <CompensationDashboard user={user} onNavigate={handleNavigate} />}
+      {currentPage === 'compensation-me' && <EmployeeSalaryView user={user} isSelfService={true} />}
+      {currentPage === 'compensation-employee' && <EmployeeSalaryView user={user} employeeId={navParams?.employeeId} />}
+      {currentPage === 'compensation-pay-bands' && <PayBandManager user={user} />}
+      {currentPage === 'compensation-reviews' && <PayReviewWorkflow user={user} />}
+      {currentPage === 'compensation-reports' && <CompensationReports user={user} />}
+      {currentPage === 'compensation-audit' && <CompensationAuditLog user={user} />}
+      {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}
+    </AppShell>
   );
 }
 

@@ -1,7 +1,7 @@
 # VoidStaffOS (HeadofficeOS) — Theme Specification
 
 ## Source
-PropertyOS Design System (ClickUp task 86c7yj0uu)
+HeadofficeOS Neutral Design System (ClickUp task 86c7yj0uu)
 
 ## Product Accent
 - **Product:** StaffOS / HeadofficeOS
