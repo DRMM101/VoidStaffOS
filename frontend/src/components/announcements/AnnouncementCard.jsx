@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AnnouncementCard Component
+ * HeadOfficeOS — AnnouncementCard Component
  * Displays an individual announcement as a card with category badge,
  * priority indicator, pinned icon, read/unread state, and content preview.
  */

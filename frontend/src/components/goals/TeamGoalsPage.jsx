@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — TeamGoalsPage Component
+ * HeadOfficeOS — TeamGoalsPage Component
  * Manager/Admin view of team goals. Shows direct reports' goals
  * with summary stats, filtering, and ability to assign new goals.
  */

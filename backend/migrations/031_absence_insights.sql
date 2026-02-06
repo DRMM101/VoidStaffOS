@@ -1,5 +1,5 @@
 -- Migration 031: Absence Insights
--- VoidStaffOS - Pattern detection and reporting for HR review
+-- HeadOfficeOS - Pattern detection and reporting for HR review
 -- Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
 -- Created: 2026-01-31
 -- PROPRIETARY AND CONFIDENTIAL

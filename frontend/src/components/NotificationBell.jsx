@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Notification Bell Component
+ * HeadOfficeOS - Notification Bell Component
  * Notification icon with unread count badge.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

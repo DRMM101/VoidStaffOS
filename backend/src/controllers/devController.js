@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Development Controller
+ * HeadOfficeOS - Development Controller
  * Development utilities for testing and data generation.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

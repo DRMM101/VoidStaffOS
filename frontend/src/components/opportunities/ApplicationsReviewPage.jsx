@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS - Applications Review Page
+ * HeadOfficeOS - Applications Review Page
  * HR view for reviewing applications submitted to a specific opportunity.
  * Displays applicant table, detail panel with cover letter, internal notes,
  * and status workflow transitions.

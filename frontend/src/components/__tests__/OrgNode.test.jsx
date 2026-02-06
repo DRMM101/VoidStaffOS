@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — OrgNode Tests
+ * HeadOfficeOS — OrgNode Tests
  * Tests for the recursive org chart node component:
  * render, toggle expand/collapse, highlight, click handler.
  */

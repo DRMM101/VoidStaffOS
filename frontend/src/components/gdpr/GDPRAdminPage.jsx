@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GDPR Admin Page (HR/Admin Management)
+ * HeadOfficeOS — GDPR Admin Page (HR/Admin Management)
  * Lists all data requests across the tenant with filtering.
  * Allows HR/Admin to process, reject, and create deletion requests.
  */

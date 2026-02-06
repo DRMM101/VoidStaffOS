@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Authentication Middleware
+ * HeadOfficeOS - Authentication Middleware
  * Provides JWT token verification and role-based access control.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

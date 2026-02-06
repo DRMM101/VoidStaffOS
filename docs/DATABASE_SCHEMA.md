@@ -1,18 +1,18 @@
 <!--
-  VoidStaffOS - Database Schema Documentation
+  HeadOfficeOS - Database Schema Documentation
   Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
   Created: 24/01/2026
   Updated: 25/01/2026
   PROPRIETARY AND CONFIDENTIAL
 -->
 
-# VoidStaffOS Database Schema
+# HeadOfficeOS Database Schema
 
 Last Updated: 2026-01-31
 
 ## Overview
 
-VoidStaffOS uses PostgreSQL as its database. The schema supports multi-tenant employee management, performance reviews with blind review functionality, leave management, notifications, and comprehensive audit logging.
+HeadOfficeOS uses PostgreSQL as its database. The schema supports multi-tenant employee management, performance reviews with blind review functionality, leave management, notifications, and comprehensive audit logging.
 
 ## Entity Relationship Diagram
 

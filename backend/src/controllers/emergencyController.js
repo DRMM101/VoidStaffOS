@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Emergency Controller
+ * HeadOfficeOS - Emergency Controller
  * Emergency contacts and medical information management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

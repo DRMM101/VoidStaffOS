@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Onboarding Dashboard Component
+ * HeadOfficeOS - Onboarding Dashboard Component
  * Manages candidate onboarding process.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

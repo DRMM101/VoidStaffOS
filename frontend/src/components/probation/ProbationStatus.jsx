@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Probation Status
+ * HeadOfficeOS - Probation Status
  * Employee view of their own probation timeline.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

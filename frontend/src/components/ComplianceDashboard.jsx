@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Compliance Dashboard
+ * HeadOfficeOS - Compliance Dashboard
  * Overview of RTW and DBS compliance status.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

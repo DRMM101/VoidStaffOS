@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GoalCard Component
+ * HeadOfficeOS — GoalCard Component
  * Displays an individual goal as a card with progress bar,
  * category badge, priority indicator, and quick actions.
  */

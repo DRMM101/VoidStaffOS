@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Application Entry Point
+ * HeadOfficeOS - Application Entry Point
  * React application bootstrap.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

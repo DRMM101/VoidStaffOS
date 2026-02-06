@@ -1,4 +1,4 @@
-# VoidStaffOS — API Documentation
+# HeadOfficeOS — API Documentation
 
 ## Authentication
 

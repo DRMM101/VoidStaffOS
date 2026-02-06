@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — ApplicationForm Tests
+ * HeadOfficeOS — ApplicationForm Tests
  * Tests for the application submission modal.
  */
 

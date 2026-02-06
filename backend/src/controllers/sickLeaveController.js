@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Sick & Statutory Leave Controller
+ * HeadOfficeOS - Sick & Statutory Leave Controller
  * Handles sick leave, statutory leave types, and Return to Work interviews.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

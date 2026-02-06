@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 023c: Policy Tables RLS Fix
+ * HeadOfficeOS - Migration 023c: Policy Tables RLS Fix
  * Disables RLS on policy tables since app handles tenant isolation at application level.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Document List Component
+ * HeadOfficeOS - Document List Component
  * Employee's document list with filtering and download.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

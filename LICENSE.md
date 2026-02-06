@@ -1,4 +1,4 @@
-# VoidStaffOS - Proprietary Software Licence
+# HeadOfficeOS - Proprietary Software Licence
 
 Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
 

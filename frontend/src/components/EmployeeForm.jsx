@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Employee Form Component
+ * HeadOfficeOS - Employee Form Component
  * Create and edit employee details.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

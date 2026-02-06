@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GDPRAdminPage Tests
+ * HeadOfficeOS — GDPRAdminPage Tests
  * Tests for the HR/Admin GDPR request management page: loading,
  * request table, filters, detail modal, and deletion modal.
  */

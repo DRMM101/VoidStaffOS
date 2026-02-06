@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AppShell Component
+ * HeadOfficeOS — AppShell Component
  * Top-level layout wrapper: sidebar + header bar + content area.
  * Manages sidebar collapsed state and mobile drawer state.
  */
@@ -14,7 +14,7 @@ import Sidebar from './Sidebar';
 import Breadcrumb from './Breadcrumb';
 
 /* Storage key for sidebar collapsed preference */
-const STORAGE_KEY = 'voidstaffos-sidebar-collapsed';
+const STORAGE_KEY = 'HeadOfficeOS-sidebar-collapsed';
 
 /* Context-aware action button labels per page */
 const PAGE_ACTIONS = {

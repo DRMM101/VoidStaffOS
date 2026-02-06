@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GoalsDashboardPage Tests
+ * HeadOfficeOS — GoalsDashboardPage Tests
  * Tests for the goals dashboard: loading, stats, goals list, filters,
  * empty state, create modal, and error handling.
  */

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Sick Leave Report Component
+ * HeadOfficeOS - Sick Leave Report Component
  * Employee self-service form for reporting sick leave.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

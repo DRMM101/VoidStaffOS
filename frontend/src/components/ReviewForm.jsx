@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Review Form Component
+ * HeadOfficeOS - Review Form Component
  * Form for creating and editing performance reviews.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

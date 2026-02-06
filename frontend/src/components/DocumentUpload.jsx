@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Document Upload Component
+ * HeadOfficeOS - Document Upload Component
  * Drag & drop document upload with metadata.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Employee Quarterly Report Component
+ * HeadOfficeOS - Employee Quarterly Report Component
  * Displays employee's personal quarterly performance report.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

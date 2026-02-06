@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Document Controller
+ * HeadOfficeOS - Document Controller
  * Secure employee document management with expiry tracking.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

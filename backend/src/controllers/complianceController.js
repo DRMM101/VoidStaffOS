@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Compliance Controller
+ * HeadOfficeOS - Compliance Controller
  * RTW, DBS checks and compliance task management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Quarterly Report Component
+ * HeadOfficeOS - Quarterly Report Component
  * Displays quarterly performance report with charts.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -485,7 +485,7 @@ function QuarterlyReport({ employeeId, onClose, user }) {
 
         <div class="footer">
           <p>Generated on ${new Date(report.generated_at).toLocaleString()}</p>
-          <p>VoidStaff OS - Quarterly Performance Report</p>
+          <p>headoffice OS - Quarterly Performance Report</p>
         </div>
       </body>
       </html>

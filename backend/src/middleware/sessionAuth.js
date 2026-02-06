@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Session Authentication Middleware
+ * HeadOfficeOS - Session Authentication Middleware
  * Secure cookie-based sessions (no localStorage tokens).
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -29,7 +29,7 @@ const sessionConfig = {
     tableName: 'user_sessions',
     createTableIfMissing: true
   }),
-  name: 'staffos_sid',
+  name: 'HeadOfficeOS_sid',
   secret: process.env.SESSION_SECRET || 'CHANGE_THIS_IN_PRODUCTION',
   resave: false,
   saveUninitialized: false,

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Vite Configuration
+ * HeadOfficeOS - Vite Configuration
  * Build and development server configuration.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

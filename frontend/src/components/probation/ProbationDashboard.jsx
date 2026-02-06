@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Probation Dashboard
+ * HeadOfficeOS - Probation Dashboard
  * HR view of all probations with filters and status overview.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — PageHeader Component Tests
+ * HeadOfficeOS — PageHeader Component Tests
  * Tests for page header rendering with title, subtitle, and actions.
  */
 

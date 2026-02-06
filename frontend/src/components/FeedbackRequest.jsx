@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Feedback Request Component
+ * HeadOfficeOS - Feedback Request Component
  * Form for submitting 360 feedback.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

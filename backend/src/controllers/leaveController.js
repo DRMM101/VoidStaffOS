@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Leave Controller
+ * HeadOfficeOS - Leave Controller
  * Handles leave requests, approvals, and balance tracking.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Interview Scheduler Component
+ * HeadOfficeOS - Interview Scheduler Component
  * Schedule and manage candidate interviews.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 023b: PolicyOS Upgrade
+ * HeadOfficeOS - Migration 023b: PolicyOS Upgrade
  * Upgrades existing policies schema to new PolicyOS structure.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,14 +1,14 @@
 <!--
-  VoidStaffOS - Backend Documentation
+  HeadOfficeOS - Backend Documentation
   Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
   Created: 24/01/2026
   Updated: 25/01/2026
   PROPRIETARY AND CONFIDENTIAL
 -->
 
-# VoidStaffOS Backend
+# HeadOfficeOS Backend
 
-Express.js REST API for the VoidStaffOS employee management system.
+Express.js REST API for the HeadOfficeOS employee management system.
 
 ## Structure
 
@@ -50,12 +50,12 @@ src/
 ### Authentication
 - **Session-based** with HttpOnly cookies (no localStorage tokens)
 - Sessions stored in PostgreSQL via `connect-pg-simple`
-- Session cookie: `staffos_sid` (HttpOnly, secure in production)
+- Session cookie: `HeadOfficeOS_sid` (HttpOnly, secure in production)
 - 8-hour session lifetime with rolling expiry
 
 ### CSRF Protection
 - Double-submit cookie pattern
-- CSRF token: `staffos_csrf` (readable by frontend)
+- CSRF token: `HeadOfficeOS_csrf` (readable by frontend)
 - Required header: `X-CSRF-Token` for POST/PUT/PATCH/DELETE
 - Auth endpoints exempt (no session yet at login)
 
@@ -140,12 +140,12 @@ Migrations are in `../migrations/`. Run them in order:
 
 ```bash
 # Core tables
-psql -U voidstaff -d voidstaff_db -f migrations/001_initial_schema.sql
+psql -U headoffice -d headoffice_db -f migrations/001_initial_schema.sql
 # ... through 015
 
 # Security tables (required)
-psql -U voidstaff -d voidstaff_db -f migrations/016_multi_tenant_foundation.sql
-psql -U voidstaff -d voidstaff_db -f migrations/017_audit_log_enhanced.sql
+psql -U headoffice -d headoffice_db -f migrations/016_multi_tenant_foundation.sql
+psql -U headoffice -d headoffice_db -f migrations/017_audit_log_enhanced.sql
 ```
 
 ## Rate Limiting

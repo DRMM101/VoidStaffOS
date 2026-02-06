@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Goals Routes
+ * HeadOfficeOS — Goals Routes
  * API routes for goal-setting and tracking.
  * Employees create/update their own goals; managers can assign goals
  * to direct reports and view team goals; Admin/HR see all.

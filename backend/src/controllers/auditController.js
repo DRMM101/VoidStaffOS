@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Audit Trail Controller
+ * HeadOfficeOS - Audit Trail Controller
  * Provides API endpoints for viewing the comprehensive audit trail.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

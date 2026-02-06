@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - CSRF Protection Middleware
+ * HeadOfficeOS - CSRF Protection Middleware
  * Prevents cross-site request forgery attacks.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -18,7 +18,7 @@
 const crypto = require('crypto');
 
 const CSRF_HEADER = 'x-csrf-token';
-const CSRF_COOKIE = 'staffos_csrf';
+const CSRF_COOKIE = 'HeadOfficeOS_csrf';
 
 /**
  * CSRF protection middleware

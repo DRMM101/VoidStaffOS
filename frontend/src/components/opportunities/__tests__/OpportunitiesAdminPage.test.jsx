@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — OpportunitiesAdminPage Tests
+ * HeadOfficeOS — OpportunitiesAdminPage Tests
  * Tests for the HR management page for opportunities.
  */
 

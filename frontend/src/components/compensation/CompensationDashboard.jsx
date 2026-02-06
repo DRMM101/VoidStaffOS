@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — CompensationDashboard
+ * HeadOfficeOS — CompensationDashboard
  * Main compensation landing page for HR/Finance/Admin.
  * Shows stat cards in bento grid and quick links to sub-pages.
  */

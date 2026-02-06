@@ -1,12 +1,12 @@
 <!--
-  VoidStaffOS - Component Map Documentation
+  HeadOfficeOS - Component Map Documentation
   Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
   Created: 24/01/2026
   Updated: 25/01/2026
   PROPRIETARY AND CONFIDENTIAL
 -->
 
-# VoidStaffOS Component Map
+# HeadOfficeOS Component Map
 
 Last Updated: 2026-01-31
 
@@ -81,15 +81,15 @@ Last Updated: 2026-01-31
 │                           ▼                                         │
 │  3. Response sets HttpOnly cookies                                  │
 │     ┌────────────────────────────────────────┐                     │
-│     │ Set-Cookie: staffos_sid=xxx; HttpOnly  │ ← Session (secure)  │
-│     │ Set-Cookie: staffos_csrf=xxx           │ ← CSRF (readable)   │
+│     │ Set-Cookie: HeadOfficeOS_sid=xxx; HttpOnly  │ ← Session (secure)  │
+│     │ Set-Cookie: HeadOfficeOS_csrf=xxx           │ ← CSRF (readable)   │
 │     └────────────────────────────────────────┘                     │
 │                           │                                         │
 │                           ▼                                         │
 │  4. Subsequent requests                                             │
 │     ┌────────────────────────────────────────┐                     │
-│     │ Cookie: staffos_sid=xxx (automatic)    │                     │
-│     │ X-CSRF-Token: xxx (from staffos_csrf)  │ ← State-changing    │
+│     │ Cookie: HeadOfficeOS_sid=xxx (automatic)    │                     │
+│     │ X-CSRF-Token: xxx (from HeadOfficeOS_csrf)  │ ← State-changing    │
 │     │ credentials: 'include' (required)      │                     │
 │     └────────────────────────────────────────┘                     │
 │                           │                                         │
@@ -423,7 +423,7 @@ recordUpdate(tenantId, userId, type, id, req)  // Log record update
 ## File Structure
 
 ```
-VoidStaffOS/
+HeadOfficeOS/
 ├── backend/
 │   ├── migrations/              # SQL migration files
 │   │   ├── 016_multi_tenant_foundation.sql

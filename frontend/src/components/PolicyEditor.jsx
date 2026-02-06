@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Policy Editor Component
+ * HeadOfficeOS - Policy Editor Component
  * Create and edit policies with rich text support.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Test setup file
+ * HeadOfficeOS — Test setup file
  * Configures testing-library/jest-dom matchers for vitest.
  */
 

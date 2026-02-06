@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Audit Logger
+ * HeadOfficeOS - Audit Logger
  * Comprehensive security audit trail.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

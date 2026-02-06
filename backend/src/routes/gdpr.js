@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GDPR Data Export Routes
+ * HeadOfficeOS — GDPR Data Export Routes
  * Handles Subject Access Requests (data export) and deletion requests.
  * Employees can request a copy of all their personal data held in the system.
  * HR/Admin can manage deletion requests and view all requests across the tenant.
@@ -278,7 +278,7 @@ async function generateExportZip(tenantId, employeeId, requestId) {
     tenant_id: tenantId,
     format: 'JSON files organised by category',
     tables_included: tablesIncluded,
-    note: 'This archive contains all personal data held in VoidStaffOS for this employee, ' +
+    note: 'This archive contains all personal data held in HeadOfficeOS for this employee, ' +
           'generated in compliance with UK GDPR Article 15 (Right of Access).'
   };
   archive.append(JSON.stringify(manifest, null, 2), { name: 'manifest.json' });

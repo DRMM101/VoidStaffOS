@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Navigation Component
+ * HeadOfficeOS - Navigation Component
  * Main navigation header with dropdown menus.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -46,7 +46,7 @@ function Navigation({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
 
   return (
     <header className="nav-header">
-      <h1 className="nav-logo">VoidStaffOS</h1>
+      <h1 className="nav-logo">HeadOfficeOS</h1>
       <nav className="nav-links" ref={navRef}>
         {/* Dashboard - standalone */}
         <button

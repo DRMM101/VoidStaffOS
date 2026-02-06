@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GDPR Request Detail Modal
+ * HeadOfficeOS — GDPR Request Detail Modal
  * Displays full details of a data request including employee info,
  * status, timestamps, and an activity log timeline.
  * Admin can process (approve) or reject pending requests.

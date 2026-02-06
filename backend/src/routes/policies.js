@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Policy Management Routes
+ * HeadOfficeOS - Policy Management Routes
  * API routes for PolicyOS with legally compliant acknowledgment tracking.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -43,7 +43,7 @@ const { validateIdParam } = require('../middleware/validation');
 
 // Configure multer for PDF uploads
 const upload = multer({
-  dest: path.join(os.tmpdir(), 'voidstaffos-uploads'),
+  dest: path.join(os.tmpdir(), 'HeadOfficeOS-uploads'),
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB limit
   },

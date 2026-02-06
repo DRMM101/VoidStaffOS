@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Emergency Module
+ * HeadOfficeOS - Emergency Module
  * Main emergency contacts and medical information interface.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

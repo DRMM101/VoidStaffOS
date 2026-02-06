@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Compliance Module
+ * HeadOfficeOS - Compliance Module
  * Main compliance management interface for RTW and DBS tracking.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

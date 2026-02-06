@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Quarterly Composite View Component
+ * HeadOfficeOS - Quarterly Composite View Component
  * Displays employee's quarterly composite KPIs.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Audit Trail Viewer Component
+ * HeadOfficeOS - Audit Trail Viewer Component
  * Read-only view of system audit trail for administrators.
  *
  * SECURITY NOTICE:

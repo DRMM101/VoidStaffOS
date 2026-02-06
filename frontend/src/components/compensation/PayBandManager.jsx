@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — PayBandManager
+ * HeadOfficeOS — PayBandManager
  * CRUD table for managing pay bands. HR/Admin only.
  * Supports inline editing via modal.
  */

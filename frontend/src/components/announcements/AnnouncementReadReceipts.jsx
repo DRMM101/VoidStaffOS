@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AnnouncementReadReceipts Component
+ * HeadOfficeOS — AnnouncementReadReceipts Component
  * Admin view showing who has read a specific announcement.
  * Displays employee list with read/unread status and timestamps.
  */

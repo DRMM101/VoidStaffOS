@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Probation Extend Modal
+ * HeadOfficeOS - Probation Extend Modal
  * Modal to extend a probation period.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

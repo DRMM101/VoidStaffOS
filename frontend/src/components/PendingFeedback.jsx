@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Pending Feedback Component
+ * HeadOfficeOS - Pending Feedback Component
  * Displays pending feedback requests.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

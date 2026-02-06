@@ -1,12 +1,12 @@
 <!--
-  VoidStaffOS - API Reference Documentation
+  HeadOfficeOS - API Reference Documentation
   Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
   Created: 24/01/2026
   Updated: 25/01/2026
   PROPRIETARY AND CONFIDENTIAL
 -->
 
-# VoidStaffOS API Reference
+# HeadOfficeOS API Reference
 
 Last Updated: 2026-01-31
 
@@ -14,13 +14,13 @@ Base URL: `http://localhost:3001/api`
 
 ## Authentication
 
-VoidStaffOS uses **secure HttpOnly session cookies** for authentication. No tokens are stored in localStorage or exposed to JavaScript.
+HeadOfficeOS uses **secure HttpOnly session cookies** for authentication. No tokens are stored in localStorage or exposed to JavaScript.
 
 ### Session Cookie
-After successful login, the server sets an HttpOnly cookie named `staffos_sid`. This cookie is automatically sent with all requests when using `credentials: 'include'`.
+After successful login, the server sets an HttpOnly cookie named `HeadOfficeOS_sid`. This cookie is automatically sent with all requests when using `credentials: 'include'`.
 
 ### CSRF Protection
-A readable `staffos_csrf` cookie is set for CSRF protection. Include this token in the `X-CSRF-Token` header for all state-changing requests (POST, PUT, PATCH, DELETE).
+A readable `HeadOfficeOS_csrf` cookie is set for CSRF protection. Include this token in the `X-CSRF-Token` header for all state-changing requests (POST, PUT, PATCH, DELETE).
 
 ### Frontend Implementation
 ```javascript
@@ -29,7 +29,7 @@ const response = await fetch('/api/endpoint', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'X-CSRF-Token': getCsrfToken() // Read from staffos_csrf cookie
+    'X-CSRF-Token': getCsrfToken() // Read from HeadOfficeOS_csrf cookie
   },
   credentials: 'include', // Required for session cookies
   body: JSON.stringify(data)
@@ -69,8 +69,8 @@ Authenticate user and establish session.
 ```
 
 **Side Effects:**
-- Sets `staffos_sid` HttpOnly session cookie
-- Sets `staffos_csrf` readable CSRF token cookie
+- Sets `HeadOfficeOS_sid` HttpOnly session cookie
+- Sets `HeadOfficeOS_csrf` readable CSRF token cookie
 - Creates session record in `user_sessions` table
 - Logs `LOGIN_SUCCESS` to audit_logs
 
@@ -122,8 +122,8 @@ End user session and clear cookies.
 
 **Side Effects:**
 - Destroys session in `user_sessions` table
-- Clears `staffos_sid` cookie
-- Clears `staffos_csrf` cookie
+- Clears `HeadOfficeOS_sid` cookie
+- Clears `HeadOfficeOS_csrf` cookie
 - Logs `LOGOUT` to audit_logs
 
 ---

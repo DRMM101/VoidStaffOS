@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Candidate Form Component
+ * HeadOfficeOS - Candidate Form Component
  * Form for creating and editing candidates.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

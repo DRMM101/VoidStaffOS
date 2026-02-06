@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AnnouncementForm Component
+ * HeadOfficeOS — AnnouncementForm Component
  * Create or edit an announcement. Supports Save as Draft and Publish actions.
  */
 

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Candidate Pipeline Routes
+ * HeadOfficeOS - Candidate Pipeline Routes
  * API routes for recruitment pipeline management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

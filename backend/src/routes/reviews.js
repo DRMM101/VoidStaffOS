@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Review Management Routes
+ * HeadOfficeOS - Review Management Routes
  * API routes for performance reviews with blind review support.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

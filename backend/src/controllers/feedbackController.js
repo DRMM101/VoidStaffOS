@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - 360 Feedback Controller
+ * HeadOfficeOS - 360 Feedback Controller
  * Handles quarterly feedback collection, weighting, and composite calculations.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

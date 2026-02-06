@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Absence Insights Dashboard
+ * HeadOfficeOS - Absence Insights Dashboard
  * HR dashboard for reviewing detected absence patterns.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AnnouncementsPage Component
+ * HeadOfficeOS — AnnouncementsPage Component
  * Employee view of company announcements. Shows published announcements
  * with filter tabs (All / Unread / Pinned) and category filter.
  * Clicking a card opens the detail modal and auto-marks as read.

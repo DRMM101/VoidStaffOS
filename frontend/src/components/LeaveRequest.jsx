@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Leave Request Component
+ * HeadOfficeOS - Leave Request Component
  * Form for submitting leave requests.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

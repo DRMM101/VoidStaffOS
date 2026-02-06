@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - My Leave Requests Component
+ * HeadOfficeOS - My Leave Requests Component
  * Displays user's own leave requests.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - ESLint Configuration
+ * HeadOfficeOS - ESLint Configuration
  * Linting rules for frontend React code.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

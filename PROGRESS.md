@@ -1,6 +1,6 @@
-# VoidStaffOS - Development Progress
+# HeadOfficeOS - Development Progress
 
-**Last Updated:** 2026-02-06 17:00 UTC
+**Last Updated:** 2026-02-06 17:15 UTC
 
 ## Current State
 
@@ -37,7 +37,7 @@ Full migration from dark cyberpunk theme to HeadofficeOS neutral design system, 
 
 **Design System Applied:**
 - **Brand**: Warm, trustworthy, premium — "Calm and competent" energy
-- **Product Accent**: Dusty Blue #b8c4d4 (StaffOS-specific)
+- **Product Accent**: Dusty Blue #b8c4d4 (HeadOfficeOS-specific)
 - **Typography**: Inter font via Google Fonts (400/500/600 weights)
 - **Colour Palette**: Cream #f9f6f2 (page bg), Dark Teal #134e4a (primary), Warm White #ffffff (cards), Stone #e8e2d9 (borders), Muted Teal #5c6b63 (body text)
 - **Shadows**: Teal-tinted (not pure black)
@@ -51,7 +51,7 @@ frontend/src/theme/
 ├── base.css           # Reset, typography, body defaults
 ├── components.css     # 8881 lines — all component styles using CSS variables
 └── themes/
-    └── default.css    # StaffOS product accent overrides (Dusty Blue)
+    └── default.css    # HeadOfficeOS product accent overrides (Dusty Blue)
 ```
 
 **Migration Stats:**
@@ -419,7 +419,7 @@ npm run dev
 - **Decisions**:
   - Used BEM-style CSS class naming (`.sidebar__item--active`) to avoid conflicts with existing component styles
   - Kept existing page components unchanged — only replaced the outer Navigation wrapper with AppShell
-  - Sidebar stores collapsed/expanded preference in localStorage (`voidstaffos-sidebar-collapsed`)
+  - Sidebar stores collapsed/expanded preference in localStorage (`HeadOfficeOS-sidebar-collapsed`)
   - Nav items follow the spec: Dashboard, People, Cases, Leave, Documents, Compensation, Compliance, Reports, Settings
   - Compliance is admin/manager only; Settings is admin only
   - Breadcrumb auto-generates from a page key → section/label map
@@ -885,5 +885,23 @@ npm run dev
 - **Tools/Dependencies**: archiver (new backend dependency for ZIP generation)
 - **Status**: Complete
 - **Tests**: 156 unit tests passing (24 test suites), production build compiles
+
+> ⚠️ No user test performed for this chunk.
+
+### 2026-02-06 17:15 UTC — Full Rebrand: StaffOS/VoidStaffOS → HeadOfficeOS
+
+- **Task**: Rename all references to StaffOS/VoidStaffOS to HeadOfficeOS across the entire codebase.
+- **Decisions**:
+  - Replacement order: most specific first (Void Staff OS, VoidStaffOS, voidstaffos, voidstaff_db, voidstaff) then general (Staff OS, StaffOS, staffos)
+  - Excluded `.claude/settings.local.json` (contains folder paths that reference the actual directory name, which was NOT renamed)
+  - Excluded `.git/` and `node_modules/` directories
+  - Did NOT rename the folder on disk (VoidStaffOS) — only file contents
+  - Database name references updated: `voidstaff_db` → `headoffice_db`, `voidstaffos` → `headofficeos`
+  - localStorage keys updated: `headofficeos-sidebar-collapsed`
+- **Changes**: 263 files updated across all source code, migrations, tests, documentation, CSS, and config files
+- **Tools/Dependencies**: PowerShell script for bulk find-and-replace
+- **Status**: Complete
+- **Tests**: 156 unit tests passing (24 test suites), production build compiles
+- **Verification**: grep for StaffOS/VoidStaffOS/staffos/voidstaffos returns 0 matches (excluding .claude/settings.local.json folder paths)
 
 > ⚠️ No user test performed for this chunk.

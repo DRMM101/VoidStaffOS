@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Audit Trail Routes
+ * HeadOfficeOS - Audit Trail Routes
  * API routes for viewing the comprehensive audit trail.
  *
  * SECURITY NOTICE:

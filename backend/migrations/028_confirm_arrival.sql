@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 028: Confirm Arrival
+ * HeadOfficeOS - Migration 028: Confirm Arrival
  * Adds arrival confirmation fields to candidates table.
  * Pre-colleagues must have arrival confirmed before promotion to active.
  *

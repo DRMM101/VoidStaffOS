@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Notifications Component
+ * HeadOfficeOS - Notifications Component
  * Full notifications list view.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Self Reflection Form Component
+ * HeadOfficeOS - Self Reflection Form Component
  * Weekly self-assessment form for employees.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

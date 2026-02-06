@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Policy List Component
+ * HeadOfficeOS - Policy List Component
  * Admin view for managing all policies.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

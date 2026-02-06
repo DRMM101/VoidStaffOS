@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Announcements Routes
+ * HeadOfficeOS — Announcements Routes
  * API routes for company announcements. Admin creates and manages
  * announcements; all employees can view published ones.
  * Supports read tracking, pinning, expiry, and priority levels.

@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS -- OpportunitiesPage
+ * HeadOfficeOS -- OpportunitiesPage
  * Employee-facing browse page for internal job opportunities.
  * Displays a filterable bento-grid of opportunity cards with status badges,
  * salary ranges, and closing deadlines.

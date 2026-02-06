@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Row Level Security Migration
+ * HeadOfficeOS - Row Level Security Migration
  * Implements PostgreSQL RLS for tenant data isolation.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -244,7 +244,7 @@ CREATE POLICY tier_definitions_tenant_isolation ON tier_definitions
 -- This is typically set up during initial database configuration.
 --
 -- Example (run as superuser):
--- ALTER ROLE voidstaffos_app BYPASSRLS;
+-- ALTER ROLE HeadOfficeOS_app BYPASSRLS;
 --
 -- For now, the OR get_current_tenant_id() IS NULL clause allows
 -- operations when context is not set, enabling backwards compatibility

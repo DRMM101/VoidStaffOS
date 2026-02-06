@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Compensation Settings Panel
+ * HeadOfficeOS — Compensation Settings Panel
  * Admin-only toggle switches for optional compensation features:
  * tier-band linking, bonus schemes, and responsibility allowances.
  */

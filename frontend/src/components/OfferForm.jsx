@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Offer Form Component
+ * HeadOfficeOS - Offer Form Component
  * Create job offers for candidates.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

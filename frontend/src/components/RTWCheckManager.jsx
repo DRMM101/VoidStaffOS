@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - RTW Check Manager
+ * HeadOfficeOS - RTW Check Manager
  * Right to Work verification management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

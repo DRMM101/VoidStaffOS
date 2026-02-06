@@ -1,15 +1,15 @@
 <!--
-  VoidStaffOS - Main Project Documentation
+  HeadOfficeOS - Main Project Documentation
   Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
   Created: 25/01/2026
   PROPRIETARY AND CONFIDENTIAL
 -->
 
-# VoidStaffOS
+# HeadOfficeOS
 
 **Proprietary Employee Performance Management System**
 
-VoidStaffOS is a comprehensive employee management platform featuring blind performance reviews, leave management, 360 feedback, ACAS-compliant HR case management, and multi-tenant support with enterprise-grade security. Built on the HeadofficeOS neutral design system for a warm, professional aesthetic with white-label support.
+HeadOfficeOS is a comprehensive employee management platform featuring blind performance reviews, leave management, 360 feedback, ACAS-compliant HR case management, and multi-tenant support with enterprise-grade security. Built on the HeadofficeOS neutral design system for a warm, professional aesthetic with white-label support.
 
 ---
 
@@ -79,7 +79,7 @@ VoidStaffOS is a comprehensive employee management platform featuring blind perf
 ```bash
 # Clone repository
 git clone <repository-url>
-cd VoidStaffOS
+cd HeadOfficeOS
 
 # Backend setup
 cd backend
@@ -110,7 +110,7 @@ npm run dev
 ## Project Structure
 
 ```
-VoidStaffOS/
+HeadOfficeOS/
 ├── backend/
 │   ├── migrations/          # SQL migration files
 │   ├── src/
@@ -130,7 +130,7 @@ VoidStaffOS/
 │   │   │   ├── base.css         # Reset, typography, body defaults
 │   │   │   ├── components.css   # All component styles
 │   │   │   └── themes/
-│   │   │       └── default.css  # StaffOS product accent (Dusty Blue)
+│   │   │       └── default.css  # HeadOfficeOS product accent (Dusty Blue)
 │   │   ├── utils/           # API utilities
 │   │   ├── App.jsx          # Root component
 │   │   └── main.jsx         # Entry point
@@ -149,7 +149,7 @@ VoidStaffOS/
 
 ## Security Overview
 
-VoidStaffOS implements enterprise-grade security:
+HeadOfficeOS implements enterprise-grade security:
 
 | Feature | Implementation |
 |---------|----------------|
@@ -197,7 +197,7 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full details.
 
 ```env
 # Database
-DATABASE_URL=postgres://user:pass@localhost:5432/voidstaff_db
+DATABASE_URL=postgres://user:pass@localhost:5432/headoffice_db
 
 # Session Security
 SESSION_SECRET=change-this-to-a-long-random-string

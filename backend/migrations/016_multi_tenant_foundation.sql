@@ -1,4 +1,4 @@
--- VoidStaffOS - Multi-Tenant Foundation
+-- HeadOfficeOS - Multi-Tenant Foundation
 -- Migration: 016_multi_tenant_foundation.sql
 --
 -- Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

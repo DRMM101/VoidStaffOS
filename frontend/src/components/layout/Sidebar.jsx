@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Sidebar Component
+ * HeadOfficeOS — Sidebar Component
  * Collapsible sidebar navigation with icons and labels.
  * Collapsed state is managed by AppShell (single source of truth)
  * and passed down via props.
@@ -77,7 +77,7 @@ function Sidebar({ currentPage, onNavigate, onLogout, isAdmin, isManager, collap
           {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
         {/* Show brand text only when expanded */}
-        {!collapsed && <span className="sidebar__brand">StaffOS</span>}
+        {!collapsed && <span className="sidebar__brand">HeadOfficeOS</span>}
       </div>
 
       {/* Navigation items */}

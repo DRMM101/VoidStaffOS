@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Notification Routes
+ * HeadOfficeOS - Notification Routes
  * API routes for system notifications.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

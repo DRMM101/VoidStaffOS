@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AnnouncementsAdminPage Component
+ * HeadOfficeOS — AnnouncementsAdminPage Component
  * Admin management view for announcements. Table layout with
  * create/edit/publish/archive actions and read count tracking.
  */

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Candidate Notes Component
+ * HeadOfficeOS - Candidate Notes Component
  * Notes management for candidates.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

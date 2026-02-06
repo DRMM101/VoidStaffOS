@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — BenefitsEditor
+ * HeadOfficeOS — BenefitsEditor
  * Card-based CRUD for employee benefits.
  * HR/Finance only for editing; employees can view.
  */

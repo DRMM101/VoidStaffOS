@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 027: Probation Management
+ * HeadOfficeOS - Migration 027: Probation Management
  * Probation periods and review milestones for new employees.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

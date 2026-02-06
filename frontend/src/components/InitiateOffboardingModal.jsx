@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Initiate Offboarding Modal
+ * HeadOfficeOS - Initiate Offboarding Modal
  * Form to start a new offboarding workflow.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

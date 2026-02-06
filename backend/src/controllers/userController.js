@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - User Controller
+ * HeadOfficeOS - User Controller
  * Handles user CRUD, manager assignments, employee transfers, and adoptions.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

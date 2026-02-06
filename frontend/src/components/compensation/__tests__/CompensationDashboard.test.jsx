@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — CompensationDashboard Tests
+ * HeadOfficeOS — CompensationDashboard Tests
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

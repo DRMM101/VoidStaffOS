@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Input Validation Middleware
+ * HeadOfficeOS - Input Validation Middleware
  * Provides validation and sanitization functions for user input.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

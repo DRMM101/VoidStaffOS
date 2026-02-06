@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AnnouncementsPage Tests
+ * HeadOfficeOS — AnnouncementsPage Tests
  * Tests for the announcements page: loading, list render, error,
  * filter tabs, empty state, and card click.
  */

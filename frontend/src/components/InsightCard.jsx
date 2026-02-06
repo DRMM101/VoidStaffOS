@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Insight Card Component
+ * HeadOfficeOS - Insight Card Component
  * Displays a single absence insight in a card format.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

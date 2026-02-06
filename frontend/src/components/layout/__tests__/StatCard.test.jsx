@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — StatCard Component Tests
+ * HeadOfficeOS — StatCard Component Tests
  * Tests for stat card rendering, trends, and click behaviour.
  */
 

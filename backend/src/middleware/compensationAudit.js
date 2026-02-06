@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Compensation Audit Middleware
+ * HeadOfficeOS — Compensation Audit Middleware
  * Wraps compensation routes to log every access and change
  * to the compensation_audit_log table (append-only).
  *

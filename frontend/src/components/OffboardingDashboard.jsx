@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Offboarding Dashboard
+ * HeadOfficeOS - Offboarding Dashboard
  * HR dashboard for managing employee offboarding workflows.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

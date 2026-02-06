@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Recruitment Approvals Component
+ * HeadOfficeOS - Recruitment Approvals Component
  * Interface for approving recruitment requests.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

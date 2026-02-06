@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — OrgChartPage Tests
+ * HeadOfficeOS — OrgChartPage Tests
  * Tests for the org chart page: loading, tree render, error, search, quick card.
  */
 

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Recruitment Controller
+ * HeadOfficeOS - Recruitment Controller
  * Manages the recruitment request workflow.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

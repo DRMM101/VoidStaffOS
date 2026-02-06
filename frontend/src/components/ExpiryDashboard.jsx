@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Expiry Dashboard Component
+ * HeadOfficeOS - Expiry Dashboard Component
  * Shows expiring and expired documents with escalation levels.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

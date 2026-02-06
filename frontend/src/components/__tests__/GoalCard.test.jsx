@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GoalCard Tests
+ * HeadOfficeOS — GoalCard Tests
  * Tests for the goal card component: rendering, badges, progress bar,
  * overdue detection, actions, and completed state.
  */

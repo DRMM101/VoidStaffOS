@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration Runner
+ * HeadOfficeOS - Migration Runner
  * Executes all database migrations in sequence.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

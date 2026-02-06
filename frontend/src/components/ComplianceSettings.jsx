@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Compliance Settings
+ * HeadOfficeOS - Compliance Settings
  * Configuration for compliance module.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

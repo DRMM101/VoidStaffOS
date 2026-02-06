@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Recruitment Routes
+ * HeadOfficeOS - Recruitment Routes
  * API routes for recruitment request workflow.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

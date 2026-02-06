@@ -1,10 +1,10 @@
-# VoidStaffOS (HeadofficeOS) — Theme Specification
+# HeadOfficeOS (HeadofficeOS) — Theme Specification
 
 ## Source
 HeadofficeOS Neutral Design System (ClickUp task 86c7yj0uu)
 
 ## Product Accent
-- **Product:** StaffOS / HeadofficeOS
+- **Product:** HeadOfficeOS / HeadofficeOS
 - **Primary Accent:** Dusty Blue `#b8c4d4`
 - **Accent Hover:** `#a8b8c9`
 
@@ -18,7 +18,7 @@ frontend/src/
 │   ├── base.css               # Reset, typography, body defaults
 │   ├── components.css         # Component-level styles (cards, tables, modals, badges, nav, etc.)
 │   └── themes/
-│       └── default.css        # Default StaffOS overrides (product accent, any tweaks)
+│       └── default.css        # Default HeadOfficeOS overrides (product accent, any tweaks)
 ├── App.css                    # DELETE or replace with single @import chain
 ├── index.css                  # DELETE or replace with single @import chain
 └── main.jsx                   # Import theme/variables.css + theme/base.css + theme/components.css
@@ -43,7 +43,7 @@ To retheme for a client:
   --color-secondary: #4338ca;
   --color-secondary-hover: #3730a3;
 
-  /* Product Accent (StaffOS = Dusty Blue) */
+  /* Product Accent (HeadOfficeOS = Dusty Blue) */
   --color-product-accent: #b8c4d4;
   --color-product-accent-hover: #a8b8c9;
 
@@ -201,7 +201,7 @@ To retheme for a client:
 1. Create `frontend/src/theme/variables.css` with all tokens above
 2. Create `frontend/src/theme/base.css` — reset, typography, body, links, grain overlay
 3. Create `frontend/src/theme/components.css` — migrate ALL component styles from App.css using variables
-4. Create `frontend/src/theme/themes/default.css` — StaffOS product accent overrides (empty initially, accent is in variables)
+4. Create `frontend/src/theme/themes/default.css` — HeadOfficeOS product accent overrides (empty initially, accent is in variables)
 5. Update `frontend/index.html` — add Inter font link
 6. Update `frontend/src/main.jsx` — replace CSS imports with theme chain
 7. Delete old `index.css` content (or make it a redirect import)

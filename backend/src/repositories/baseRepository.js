@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Base Repository
+ * HeadOfficeOS - Base Repository
  * Foundation for all data access with enforced tenant isolation.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

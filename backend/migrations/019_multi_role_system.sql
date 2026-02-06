@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Multi-Role System Migration
+ * HeadOfficeOS - Multi-Role System Migration
  * Implements tier-based role system (10-100 scale) with additional functional roles.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

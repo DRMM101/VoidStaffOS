@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Probation Outcome Modal
+ * HeadOfficeOS - Probation Outcome Modal
  * Modal to record pass/fail outcome for probation.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - DBS Check Manager
+ * HeadOfficeOS - DBS Check Manager
  * DBS certificate verification management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

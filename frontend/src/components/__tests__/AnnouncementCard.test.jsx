@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AnnouncementCard Tests
+ * HeadOfficeOS — AnnouncementCard Tests
  * Tests for the announcement card: render, badges, priority,
  * pinned, unread dot, content truncation, and click handler.
  */

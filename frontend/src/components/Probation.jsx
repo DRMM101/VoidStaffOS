@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Probation Module
+ * HeadOfficeOS - Probation Module
  * Main probation management interface.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

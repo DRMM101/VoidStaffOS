@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Start Probation Modal
+ * HeadOfficeOS - Start Probation Modal
  * Modal to start a new probation period for an employee.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

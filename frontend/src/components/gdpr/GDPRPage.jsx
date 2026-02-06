@@ -3,9 +3,9 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GDPR Data Export Page (Employee Self-Service)
+ * HeadOfficeOS — GDPR Data Export Page (Employee Self-Service)
  * Allows employees to request a copy of all their personal data
- * held in VoidStaffOS (UK GDPR Article 15 — Right of Access).
+ * held in HeadOfficeOS (UK GDPR Article 15 — Right of Access).
  * Shows request history with download links and status badges.
  */
 

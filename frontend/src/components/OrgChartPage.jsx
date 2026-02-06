@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — OrgChartPage Component
+ * HeadOfficeOS — OrgChartPage Component
  * Page container for the interactive organisational chart.
  * Fetches org chart data, manages search/highlight, and
  * renders OrgChart + EmployeeQuickCard popup.

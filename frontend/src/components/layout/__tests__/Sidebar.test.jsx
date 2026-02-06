@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Sidebar Component Tests
+ * HeadOfficeOS — Sidebar Component Tests
  * Tests for sidebar rendering, navigation, role-based visibility,
  * and prop-driven collapse behaviour.
  * Note: collapsed state is now managed by AppShell and passed via props.
@@ -77,13 +77,13 @@ describe('Sidebar', () => {
 
   it('shows brand text when expanded (collapsed=false)', () => {
     render(<Sidebar {...defaultProps} collapsed={false} />);
-    expect(screen.getByText('StaffOS')).toBeInTheDocument();
+    expect(screen.getByText('HeadOfficeOS')).toBeInTheDocument();
   });
 
   it('hides brand text when collapsed (collapsed=true)', () => {
     render(<Sidebar {...defaultProps} collapsed={true} />);
     /* Brand and labels hidden when collapsed */
-    expect(screen.queryByText('StaffOS')).not.toBeInTheDocument();
+    expect(screen.queryByText('HeadOfficeOS')).not.toBeInTheDocument();
   });
 
   it('calls onToggleCollapsed when toggle button is clicked', () => {

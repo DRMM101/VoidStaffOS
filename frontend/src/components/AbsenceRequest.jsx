@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Absence Request Component
+ * HeadOfficeOS - Absence Request Component
  * Form for requesting statutory and other leave types.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

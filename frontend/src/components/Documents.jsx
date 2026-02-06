@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Documents Page Component
+ * HeadOfficeOS - Documents Page Component
  * Main documents page with role-based views.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

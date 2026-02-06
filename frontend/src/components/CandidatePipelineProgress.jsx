@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Candidate Pipeline Progress Component
+ * HeadOfficeOS - Candidate Pipeline Progress Component
  * Visual progress indicator for candidate stages.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

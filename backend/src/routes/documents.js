@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Document Routes
+ * HeadOfficeOS - Document Routes
  * API routes for secure employee document management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -39,7 +39,7 @@ const { validateIdParam } = require('../middleware/validation');
 
 // Configure multer for document uploads
 const upload = multer({
-  dest: path.join(os.tmpdir(), 'voidstaffos-doc-uploads'),
+  dest: path.join(os.tmpdir(), 'HeadOfficeOS-doc-uploads'),
   limits: {
     fileSize: 20 * 1024 * 1024 // 20MB limit
   },

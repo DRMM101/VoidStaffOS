@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Bonus Scheme Manager
+ * HeadOfficeOS — Bonus Scheme Manager
  * Admin/HR CRUD for bonus scheme templates with calculation engine.
  * Supports percentage-based and fixed bonuses, optionally linked to tiers/bands.
  * Includes assignment management with approve/reject/apply workflow.

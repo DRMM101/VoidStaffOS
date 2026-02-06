@@ -1,8 +1,8 @@
-# CLAUDE.md — VoidStaffOS Project Instructions
+# CLAUDE.md — HeadOfficeOS Project Instructions
 
 ## Progress Logging
 
-After each completed task, append to `PROGRESS.md` (in the project root: `C:\users\derek\documents\voidstaffos\PROGRESS.md`):
+After each completed task, append to `PROGRESS.md` (in the project root: `C:\users\derek\documents\HeadOfficeOS\PROGRESS.md`):
 
 - **Date/time**
 - **Task**: what was requested

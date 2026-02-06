@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Offboarding Routes
+ * HeadOfficeOS - Offboarding Routes
  * API routes for employee offboarding workflow management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

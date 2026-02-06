@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 024: Document Storage
+ * HeadOfficeOS - Migration 024: Document Storage
  * Secure employee document management with expiry tracking and access logging.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Quarterly Feedback Dashboard Component
+ * HeadOfficeOS - Quarterly Feedback Dashboard Component
  * Admin dashboard for managing feedback cycles.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

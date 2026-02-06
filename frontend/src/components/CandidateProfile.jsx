@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Candidate Profile Component
+ * HeadOfficeOS - Candidate Profile Component
  * Displays detailed candidate information.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

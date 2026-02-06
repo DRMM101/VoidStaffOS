@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS -- OpportunityDetailPage
+ * HeadOfficeOS -- OpportunityDetailPage
  * Full detail view for a single internal opportunity.
  * Displays title, metadata, description, requirements, salary (when visible),
  * and either the user's existing application status or an Apply Now action.

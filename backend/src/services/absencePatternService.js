@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Absence Pattern Detection Service
+ * HeadOfficeOS - Absence Pattern Detection Service
  * Analyzes absence data to detect patterns for HR wellbeing review.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

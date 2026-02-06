@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Probation Controller
+ * HeadOfficeOS - Probation Controller
  * Probation period and review management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Medical Info
+ * HeadOfficeOS - Medical Info
  * Employee medical information management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

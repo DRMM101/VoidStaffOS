@@ -1,6 +1,6 @@
 # Intellectual Property Notice
 
-## VoidStaffOS
+## HeadOfficeOS
 
 **Copyright © 2026 D.R.M. Manthorpe. All rights reserved.**
 
@@ -47,7 +47,7 @@ The following components contain trade secrets and proprietary algorithms that a
 
 ## Modules
 
-All modules within VoidStaffOS are proprietary and confidential:
+All modules within HeadOfficeOS are proprietary and confidential:
 
 | Module | Description |
 |--------|-------------|
@@ -79,7 +79,7 @@ This software may only be used and distributed under a valid licence agreement w
 
 ## Trademark Notice
 
-VoidStaffOS and all related names, logos, and module names are trademarks of D.R.M. Manthorpe.
+HeadOfficeOS and all related names, logos, and module names are trademarks of D.R.M. Manthorpe.
 
 ---
 
@@ -87,7 +87,7 @@ VoidStaffOS and all related names, logos, and module names are trademarks of D.R
 
 This software may include third-party open source components, which are licensed under their respective licences. See the `package.json` files for a list of dependencies.
 
-Third-party components are used in accordance with their respective licences and do not affect the proprietary status of VoidStaffOS itself.
+Third-party components are used in accordance with their respective licences and do not affect the proprietary status of HeadOfficeOS itself.
 
 ---
 

@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — EmployeeSalaryView
+ * HeadOfficeOS — EmployeeSalaryView
  * Shows an employee's salary timeline, current band position bar,
  * benefits cards, and pay slip downloads.
  * Used for both self-service (/compensation/me) and HR view (/compensation/employee/:id).

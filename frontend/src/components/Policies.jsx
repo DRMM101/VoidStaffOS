@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Policies Component
+ * HeadOfficeOS - Policies Component
  * Main PolicyOS page managing all policy views.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

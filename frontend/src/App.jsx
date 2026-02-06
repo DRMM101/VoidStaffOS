@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Main Application Component
+ * HeadOfficeOS - Main Application Component
  * Root React component with routing and authentication.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

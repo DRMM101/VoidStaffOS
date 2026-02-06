@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Sick & Statutory Leave Routes
+ * HeadOfficeOS - Sick & Statutory Leave Routes
  * API routes for sick leave, statutory leave, and RTW interviews.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

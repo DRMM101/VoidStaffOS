@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Recruitment Dashboard Component
+ * HeadOfficeOS - Recruitment Dashboard Component
  * Main recruitment pipeline management interface.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

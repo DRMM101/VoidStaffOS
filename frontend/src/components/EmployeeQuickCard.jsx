@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — EmployeeQuickCard Component
+ * HeadOfficeOS — EmployeeQuickCard Component
  * Overlay modal showing employee details from an org chart node click.
  * Allows manager reassignment (Admin/Manager) and profile navigation.
  */

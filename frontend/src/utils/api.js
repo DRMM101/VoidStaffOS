@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - API Client
+ * HeadOfficeOS - API Client
  * Handles authentication cookies and CSRF tokens.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -22,7 +22,7 @@ const API_BASE = '/api';
  * @returns {string|null} CSRF token or null if not found
  */
 const getCSRFToken = () => {
-  const match = document.cookie.match(/staffos_csrf=([^;]+)/);
+  const match = document.cookie.match(/HeadOfficeOS_csrf=([^;]+)/);
   return match ? match[1] : null;
 };
 

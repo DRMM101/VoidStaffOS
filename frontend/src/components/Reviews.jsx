@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Reviews Component
+ * HeadOfficeOS - Reviews Component
  * Performance review list and management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

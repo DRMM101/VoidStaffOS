@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - My Recruitment Requests Component
+ * HeadOfficeOS - My Recruitment Requests Component
  * Displays user's own recruitment requests.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

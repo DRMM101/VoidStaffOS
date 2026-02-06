@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 025b: Compliance Settings & Tasks
+ * HeadOfficeOS - Migration 025b: Compliance Settings & Tasks
  * Additional tables for RTW/DBS compliance management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

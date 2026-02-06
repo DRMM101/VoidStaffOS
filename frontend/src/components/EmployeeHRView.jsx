@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Employee HR View
+ * HeadOfficeOS - Employee HR View
  * Employee-facing view for PIPs (encouraging/goal-focused) and grievance submission.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

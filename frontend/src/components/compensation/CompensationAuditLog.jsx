@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — CompensationAuditLog
+ * HeadOfficeOS — CompensationAuditLog
  * Filterable table showing all compensation data access and changes.
  * HR/Admin only.
  */

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Employee Profile Component
+ * HeadOfficeOS - Employee Profile Component
  * Displays detailed employee information.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

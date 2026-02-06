@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Review Controller
+ * HeadOfficeOS - Review Controller
  * Handles performance review operations with blind review system.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

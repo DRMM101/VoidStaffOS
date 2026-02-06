@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — PayBandManager Tests
+ * HeadOfficeOS — PayBandManager Tests
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

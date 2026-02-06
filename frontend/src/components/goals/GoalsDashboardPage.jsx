@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GoalsDashboardPage Component
+ * HeadOfficeOS — GoalsDashboardPage Component
  * Main goals page showing summary stats, filter tabs, category filter,
  * and a grid of goal cards. Users manage their own goals here.
  */

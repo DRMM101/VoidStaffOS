@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Policy Controller
+ * HeadOfficeOS - Policy Controller
  * Handles policy management with legally compliant acknowledgment tracking.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

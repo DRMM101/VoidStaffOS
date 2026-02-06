@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Offboarding Detail View
+ * HeadOfficeOS - Offboarding Detail View
  * Full workflow detail with checklist, exit interview, and handovers.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

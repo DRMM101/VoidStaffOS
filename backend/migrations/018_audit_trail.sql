@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 018: Comprehensive Audit Trail
+ * HeadOfficeOS - Migration 018: Comprehensive Audit Trail
  * Creates audit_trail table for tracking all system changes.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -143,7 +143,7 @@ FOR EACH ROW EXECUTE FUNCTION prevent_audit_modification();
 
 -- Note: If using a dedicated database role for the application,
 -- you can also revoke permissions at the database level:
--- REVOKE UPDATE, DELETE ON audit_trail FROM staffos_app;
+-- REVOKE UPDATE, DELETE ON audit_trail FROM HeadOfficeOS_app;
 
 COMMENT ON FUNCTION prevent_audit_modification IS 'Security function to ensure audit trail immutability';
 COMMENT ON TRIGGER audit_trail_no_update ON audit_trail IS 'Prevents modification of audit records';

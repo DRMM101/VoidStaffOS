@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — PayReviewWorkflow
+ * HeadOfficeOS — PayReviewWorkflow
  * Displays pay reviews within a review cycle as a status-based kanban/card layout.
  * Manager view: own direct reports only.
  * HR/Finance view: all reviews.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 029: Sick & Statutory Leave
+ * HeadOfficeOS - Migration 029: Sick & Statutory Leave
  * Extends leave system with sick leave, statutory leave types, and RTW interviews.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

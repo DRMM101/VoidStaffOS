@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Manager Leave Approvals Component
+ * HeadOfficeOS - Manager Leave Approvals Component
  * Interface for managers to approve leave requests.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

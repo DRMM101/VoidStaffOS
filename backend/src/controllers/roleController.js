@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Role Controller
+ * HeadOfficeOS - Role Controller
  * Handles tier definitions and additional role management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

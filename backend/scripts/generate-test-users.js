@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Test User Generator
+ * HeadOfficeOS - Test User Generator
  * Generates test users with manager assignments.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

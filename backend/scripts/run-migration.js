@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Single Migration Runner
+ * HeadOfficeOS - Single Migration Runner
  * Executes a specific database migration file.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Emergency Contacts
+ * HeadOfficeOS - Emergency Contacts
  * Employee emergency contact management with priority ordering.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

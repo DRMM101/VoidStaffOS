@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - HR Cases Routes
+ * HeadOfficeOS - HR Cases Routes
  * API routes for PIP, Disciplinary, and Grievance management.
  * ACAS-compliant workflows with full audit trails.
  *

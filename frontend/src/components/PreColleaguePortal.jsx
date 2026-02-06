@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Pre-Colleague Portal Component
+ * HeadOfficeOS - Pre-Colleague Portal Component
  * Self-service portal for pre-colleagues completing onboarding.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

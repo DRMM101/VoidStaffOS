@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Audit Redaction Logic Tests
+ * HeadOfficeOS — Audit Redaction Logic Tests
  * Tests the redactValue function from compensation audit middleware.
  * (Testing the logic as a pure function — no DB dependency)
  */

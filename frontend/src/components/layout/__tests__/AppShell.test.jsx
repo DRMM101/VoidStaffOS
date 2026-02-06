@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AppShell Component Tests
+ * HeadOfficeOS — AppShell Component Tests
  * Tests for the overall layout shell: sidebar, header, and content area.
  */
 

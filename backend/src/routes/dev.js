@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Development Routes
+ * HeadOfficeOS - Development Routes
  * API routes for development utilities (disabled in production).
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

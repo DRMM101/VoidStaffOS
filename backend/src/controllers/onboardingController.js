@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Onboarding Controller
+ * HeadOfficeOS - Onboarding Controller
  * Manages the three-stage onboarding process.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -1089,7 +1089,7 @@ async function promoteToPreColleague(candidateId, candidate, adminId, tenantId =
   await createNotification(
     newUserId,
     'employee_transferred', // Reusing type, could add 'welcome' type
-    'Welcome to VoidStaffOS',
+    'Welcome to HeadOfficeOS',
     'Your account has been created. Please complete your onboarding tasks before your start date.',
     candidateId,
     'candidate',

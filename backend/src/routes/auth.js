@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Authentication Routes
+ * HeadOfficeOS - Authentication Routes
  * API routes for authentication operations.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

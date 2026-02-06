@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Interview Scorecard Component
+ * HeadOfficeOS - Interview Scorecard Component
  * Record interview feedback and scores.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

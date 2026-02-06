@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — OrgChart Component
+ * HeadOfficeOS — OrgChart Component
  * Tree renderer with pan (mousedown+drag) and zoom (scroll wheel).
  * Wraps OrgNode recursion in a pannable/zoomable container.
  */

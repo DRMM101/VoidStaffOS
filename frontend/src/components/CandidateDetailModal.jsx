@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Candidate Detail Modal Component
+ * HeadOfficeOS - Candidate Detail Modal Component
  * Detailed candidate view with pipeline actions.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

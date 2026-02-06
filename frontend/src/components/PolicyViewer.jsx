@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Policy Viewer Component
+ * HeadOfficeOS - Policy Viewer Component
  * Read policy with scroll tracking and acknowledgment form.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

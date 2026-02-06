@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Recruitment Test Data Generator
+ * HeadOfficeOS - Recruitment Test Data Generator
  * Generates test data for recruitment and onboarding.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

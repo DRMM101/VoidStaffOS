@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — StatCard Component
+ * HeadOfficeOS — StatCard Component
  * Reusable stat card for bento grid dashboards.
  * Shows label, value, optional trend arrow, and optional subtitle.
  */

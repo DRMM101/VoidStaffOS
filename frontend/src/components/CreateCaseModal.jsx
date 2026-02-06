@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Create Case Modal
+ * HeadOfficeOS - Create Case Modal
  * Form to create new PIP, Disciplinary, or Grievance cases.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

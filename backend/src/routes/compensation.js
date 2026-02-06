@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Compensation Routes
+ * HeadOfficeOS — Compensation Routes
  * Chunk 11: Pay bands, salary records, benefits, review cycles,
  * pay reviews, pay slips, audit log, and reporting endpoints.
  *

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Comprehensive Audit Trail Utility
+ * HeadOfficeOS - Comprehensive Audit Trail Utility
  * Tracks all system changes with WHO, WHAT, WHEN, WHERE, BEFORE, AFTER.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

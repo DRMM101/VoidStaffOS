@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Security Headers
+ * HeadOfficeOS - Security Headers
  * HTTP security headers configuration.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

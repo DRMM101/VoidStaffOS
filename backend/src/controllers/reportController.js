@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Report Controller
+ * HeadOfficeOS - Report Controller
  * Generates quarterly performance reports and trend analysis.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

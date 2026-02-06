@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Test Data Generator
+ * HeadOfficeOS - Test Data Generator
  * Generates test data for quarterly reports.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - HR Cases Dashboard
+ * HeadOfficeOS - HR Cases Dashboard
  * Main dashboard for PIP, Disciplinary, and Grievance management.
  * ACAS-compliant HR case workflows.
  *

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Candidate Pipeline Card Component
+ * HeadOfficeOS - Candidate Pipeline Card Component
  * Draggable candidate card for pipeline view.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

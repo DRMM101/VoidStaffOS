@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Review Detail Component
+ * HeadOfficeOS - Review Detail Component
  * Displays detailed review information and KPIs.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

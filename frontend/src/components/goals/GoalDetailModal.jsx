@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GoalDetailModal Component
+ * HeadOfficeOS — GoalDetailModal Component
  * Full goal view with all fields, progress indicator, update history
  * timeline, add comment form, and edit/delete/complete actions.
  */

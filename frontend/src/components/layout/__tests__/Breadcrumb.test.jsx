@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Breadcrumb Component Tests
+ * HeadOfficeOS — Breadcrumb Component Tests
  * Tests for breadcrumb trail generation and navigation.
  */
 

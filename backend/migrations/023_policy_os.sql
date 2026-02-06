@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 023: PolicyOS
+ * HeadOfficeOS - Migration 023: PolicyOS
  * Policy management with legally compliant acknowledgment tracking.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

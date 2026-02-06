@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Tenant Context Middleware
+ * HeadOfficeOS - Tenant Context Middleware
  * Sets PostgreSQL session variables for Row Level Security.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

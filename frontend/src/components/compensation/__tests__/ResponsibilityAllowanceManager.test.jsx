@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — ResponsibilityAllowanceManager Tests
+ * HeadOfficeOS — ResponsibilityAllowanceManager Tests
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

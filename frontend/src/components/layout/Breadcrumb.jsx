@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Breadcrumb Component
+ * HeadOfficeOS — Breadcrumb Component
  * Auto-generates breadcrumb trail from the current route/page key.
  * Supports clickable crumbs for navigation.
  */

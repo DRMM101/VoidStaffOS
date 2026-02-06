@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — MyApplicationsPage Tests
+ * HeadOfficeOS — MyApplicationsPage Tests
  * Tests for the employee's application list and withdraw flow.
  */
 

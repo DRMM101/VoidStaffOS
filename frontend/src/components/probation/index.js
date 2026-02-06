@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Probation Components Index
+ * HeadOfficeOS - Probation Components Index
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
  *

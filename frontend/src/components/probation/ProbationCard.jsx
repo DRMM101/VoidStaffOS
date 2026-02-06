@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Probation Card
+ * HeadOfficeOS - Probation Card
  * Summary card showing employee probation status.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

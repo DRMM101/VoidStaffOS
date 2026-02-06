@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Document Manager Component
+ * HeadOfficeOS - Document Manager Component
  * HR view for managing all employee documents.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

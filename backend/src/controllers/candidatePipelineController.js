@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Candidate Pipeline Controller
+ * HeadOfficeOS - Candidate Pipeline Controller
  * Manages the recruitment pipeline workflow.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -335,7 +335,7 @@ async function triggerOnboarding(candidateId, candidate, adminId, tenantId = 1) 
   await createNotification(
     newUserId,
     'employee_transferred',
-    'Welcome to VoidStaffOS',
+    'Welcome to HeadOfficeOS',
     'Your offer has been accepted! Please complete your onboarding tasks before your start date.',
     candidateId,
     'candidate',

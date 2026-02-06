@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - User Model
+ * HeadOfficeOS - User Model
  * User data access and authentication methods.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

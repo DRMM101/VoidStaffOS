@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Absence Insights API Routes
+ * HeadOfficeOS - Absence Insights API Routes
  * Pattern detection and reporting for HR wellbeing review.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

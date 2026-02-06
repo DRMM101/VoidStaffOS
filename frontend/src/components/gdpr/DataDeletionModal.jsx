@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Data Deletion Request Modal
+ * HeadOfficeOS — Data Deletion Request Modal
  * HR/Admin creates a GDPR deletion request on behalf of an employee.
  * Requires employee selection, reason, and confirmation before submission.
  */
@@ -76,7 +76,7 @@ function DataDeletionModal({ user, onClose, onSuccess }) {
             <strong>Permanent data deletion</strong>
             <p>
               This creates a request to permanently delete an employee's personal data
-              from VoidStaffOS. Once approved and executed, this action cannot be undone.
+              from HeadOfficeOS. Once approved and executed, this action cannot be undone.
               Ensure you have complied with all legal retention requirements before proceeding.
             </p>
           </div>

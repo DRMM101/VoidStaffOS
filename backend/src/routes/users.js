@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - User Management Routes
+ * HeadOfficeOS - User Management Routes
  * API routes for user and employee management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

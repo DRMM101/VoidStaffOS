@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Express Server
+ * HeadOfficeOS - Express Server
  * Main entry point for the backend API server.
  * Configures middleware, routes, and security settings.
  *
@@ -121,7 +121,7 @@ const authLimiter = rateLimit({
 // ===========================================
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Void Staff OS API is running' });
+  res.json({ status: 'ok', message: 'Head Office OS API is running' });
 });
 
 app.get('/api/db-test', async (req, res) => {

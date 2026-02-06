@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Admin Settings Page
+ * HeadOfficeOS — Admin Settings Page
  * Hub page linking to all admin settings areas:
  * Role Management, Compensation Settings, and system info.
  */
@@ -79,7 +79,7 @@ function AdminSettingsPage({ user, onNavigate }) {
           </div>
           <div className="settings-page__card-body">
             <h3>System Information</h3>
-            <p>VoidStaffOS v0.1.0</p>
+            <p>HeadOfficeOS v0.1.0</p>
             <p className="settings-page__meta">Tenant: Default &middot; Node.js + PostgreSQL</p>
           </div>
         </div>

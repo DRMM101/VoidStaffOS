@@ -1,4 +1,4 @@
--- VoidStaffOS - Enhanced Audit Log
+-- HeadOfficeOS - Enhanced Audit Log
 -- Migration: 017_audit_log_enhanced.sql
 --
 -- Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

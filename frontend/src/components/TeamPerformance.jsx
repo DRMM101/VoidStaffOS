@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Team Performance Component
+ * HeadOfficeOS - Team Performance Component
  * Displays team performance metrics for managers.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Emergency Quick View
+ * HeadOfficeOS - Emergency Quick View
  * Manager view of team emergency contacts (limited info).
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

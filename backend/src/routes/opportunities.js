@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Internal Opportunities Routes
+ * HeadOfficeOS — Internal Opportunities Routes
  * API routes for internal job postings and employee applications.
  * Employees can browse open roles and apply; HR/Admin manage postings.
  */

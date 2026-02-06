@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Authentication Controller
+ * HeadOfficeOS - Authentication Controller
  * Handles user authentication: login, registration, and session management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -211,8 +211,8 @@ async function logout(req, res) {
     }
 
     // Clear cookies
-    res.clearCookie('staffos_sid');
-    res.clearCookie('staffos_csrf');
+    res.clearCookie('HeadOfficeOS_sid');
+    res.clearCookie('HeadOfficeOS_csrf');
 
     res.json({ success: true, message: 'Logged out successfully' });
   });

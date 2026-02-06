@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — CompensationReports
+ * HeadOfficeOS — CompensationReports
  * Gender pay gap and department cost reports with CSS bar charts.
  * Includes CSV export. HR/Director access.
  */

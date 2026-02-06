@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 025: Compliance Checks (RTW & DBS)
+ * HeadOfficeOS - Migration 025: Compliance Checks (RTW & DBS)
  * CQC-critical Right to Work and DBS verification tracking.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

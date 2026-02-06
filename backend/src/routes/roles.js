@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Roles Routes
+ * HeadOfficeOS - Roles Routes
  * API routes for tier definitions and additional role management.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

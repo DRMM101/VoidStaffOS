@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Absence Dashboard Component
+ * HeadOfficeOS - Absence Dashboard Component
  * Overview of sick leave, statutory leave, and RTW interviews.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

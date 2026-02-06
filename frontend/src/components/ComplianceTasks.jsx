@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Compliance Tasks
+ * HeadOfficeOS - Compliance Tasks
  * Task management for compliance follow-ups.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

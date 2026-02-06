@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Policy Compliance Report Component
+ * HeadOfficeOS - Policy Compliance Report Component
  * HR view of policy acknowledgment statistics.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

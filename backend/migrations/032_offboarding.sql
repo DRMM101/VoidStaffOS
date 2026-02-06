@@ -1,5 +1,5 @@
 -- Migration 032: Offboarding Workflow
--- VoidStaffOS - Structured offboarding with compliance, knowledge transfer, asset recovery
+-- HeadOfficeOS - Structured offboarding with compliance, knowledge transfer, asset recovery
 -- Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
 -- Created: 2026-01-31
 -- PROPRIETARY AND CONFIDENTIAL

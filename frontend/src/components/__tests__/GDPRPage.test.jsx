@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GDPRPage Tests
+ * HeadOfficeOS — GDPRPage Tests
  * Tests for the employee GDPR self-service page: loading, request list,
  * error handling, export button, download, and admin link visibility.
  */

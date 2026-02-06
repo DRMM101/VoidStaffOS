@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Policy Dashboard Component
+ * HeadOfficeOS - Policy Dashboard Component
  * Employee view of pending policies requiring acknowledgment.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

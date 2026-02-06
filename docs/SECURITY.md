@@ -1,15 +1,15 @@
 <!--
-  VoidStaffOS - Security Architecture Documentation
+  HeadOfficeOS - Security Architecture Documentation
   Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
   Created: 25/01/2026
   PROPRIETARY AND CONFIDENTIAL
 -->
 
-# VoidStaffOS Security Architecture
+# HeadOfficeOS Security Architecture
 
 Last Updated: 2026-01-25
 
-This document describes the security architecture implemented in VoidStaffOS.
+This document describes the security architecture implemented in HeadOfficeOS.
 
 ---
 
@@ -17,9 +17,9 @@ This document describes the security architecture implemented in VoidStaffOS.
 
 ### Session-Based Authentication
 
-VoidStaffOS uses **secure HttpOnly session cookies** instead of localStorage tokens. This protects against XSS attacks that could steal authentication credentials.
+HeadOfficeOS uses **secure HttpOnly session cookies** instead of localStorage tokens. This protects against XSS attacks that could steal authentication credentials.
 
-**Session Cookie:** `staffos_sid`
+**Session Cookie:** `HeadOfficeOS_sid`
 - HttpOnly: `true` (not accessible to JavaScript)
 - Secure: `true` in production (HTTPS only)
 - SameSite: `lax` (prevents CSRF from external sites)
@@ -49,8 +49,8 @@ VoidStaffOS uses **secure HttpOnly session cookies** instead of localStorage tok
 1. User submits credentials to `POST /api/auth/login`
 2. Server validates password against bcrypt hash
 3. Session created in PostgreSQL
-4. HttpOnly `staffos_sid` cookie set
-5. Readable `staffos_csrf` cookie set for CSRF protection
+4. HttpOnly `HeadOfficeOS_sid` cookie set
+5. Readable `HeadOfficeOS_csrf` cookie set for CSRF protection
 6. Login logged to `audit_logs` table
 
 ### Logout
@@ -66,9 +66,9 @@ VoidStaffOS uses **secure HttpOnly session cookies** instead of localStorage tok
 
 ### Double-Submit Cookie Pattern
 
-VoidStaffOS uses the double-submit cookie pattern for CSRF protection.
+HeadOfficeOS uses the double-submit cookie pattern for CSRF protection.
 
-**CSRF Cookie:** `staffos_csrf`
+**CSRF Cookie:** `HeadOfficeOS_csrf`
 - HttpOnly: `false` (readable by JavaScript)
 - Contains randomly generated token
 - Must be sent in `X-CSRF-Token` header for state-changing requests
@@ -87,7 +87,7 @@ VoidStaffOS uses the double-submit cookie pattern for CSRF protection.
 ```javascript
 // Read CSRF token from cookie
 const getCsrfToken = () => {
-  const match = document.cookie.match(/staffos_csrf=([^;]+)/);
+  const match = document.cookie.match(/HeadOfficeOS_csrf=([^;]+)/);
   return match ? match[1] : '';
 };
 
@@ -147,7 +147,7 @@ class BaseRepository {
 
 ### Helmet Configuration
 
-VoidStaffOS uses Helmet middleware for security headers.
+HeadOfficeOS uses Helmet middleware for security headers.
 
 **Headers Applied:**
 | Header | Value | Purpose |

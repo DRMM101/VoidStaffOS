@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — Responsibility Allowance Manager
+ * HeadOfficeOS — Responsibility Allowance Manager
  * Admin/HR CRUD for allowance templates with employee assignment.
  * Supports linking allowances to tiers, pay bands, or additional roles.
  */

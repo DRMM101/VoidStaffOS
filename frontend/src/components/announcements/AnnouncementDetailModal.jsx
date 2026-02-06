@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — AnnouncementDetailModal Component
+ * HeadOfficeOS — AnnouncementDetailModal Component
  * Full announcement view modal. Auto-marks as read when opened.
  * Shows title, content, author, date, category, and priority.
  */

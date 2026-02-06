@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Login Component
+ * HeadOfficeOS - Login Component
  * User authentication form.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
@@ -54,7 +54,7 @@ function Login({ onLogin }) {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h1>VoidStaffOS</h1>
+        <h1>HeadOfficeOS</h1>
         <h2>Sign In</h2>
 
         <form onSubmit={handleSubmit}>

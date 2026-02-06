@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GoalProgressUpdate Component
+ * HeadOfficeOS — GoalProgressUpdate Component
  * Quick update modal with a progress slider and comment textarea.
  */
 

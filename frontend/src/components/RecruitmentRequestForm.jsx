@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Recruitment Request Form Component
+ * HeadOfficeOS - Recruitment Request Form Component
  * Form for creating recruitment requests.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

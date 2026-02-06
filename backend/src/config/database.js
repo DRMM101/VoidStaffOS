@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Database Configuration
+ * HeadOfficeOS - Database Configuration
  * PostgreSQL connection pool configuration.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

@@ -1,14 +1,14 @@
 <!--
-  VoidStaffOS - Frontend Documentation
+  HeadOfficeOS - Frontend Documentation
   Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
   Created: 24/01/2026
   Updated: 25/01/2026
   PROPRIETARY AND CONFIDENTIAL
 -->
 
-# VoidStaffOS Frontend
+# HeadOfficeOS Frontend
 
-React application for the VoidStaffOS employee management system.
+React application for the HeadOfficeOS employee management system.
 
 ## Structure
 
@@ -40,12 +40,12 @@ src/
 
 ### Session-Based Authentication
 - **No localStorage tokens** - sessions are HttpOnly cookies
-- Browser automatically sends `staffos_sid` cookie with requests
+- Browser automatically sends `HeadOfficeOS_sid` cookie with requests
 - All fetch calls must include `credentials: 'include'`
 
 ### CSRF Protection
 - State-changing requests (POST, PUT, PATCH, DELETE) require CSRF token
-- Read token from `staffos_csrf` cookie
+- Read token from `HeadOfficeOS_csrf` cookie
 - Include in `X-CSRF-Token` header
 
 ### API Communication Pattern
@@ -53,7 +53,7 @@ src/
 ```javascript
 // Helper to get CSRF token from cookie
 const getCsrfToken = () => {
-  const match = document.cookie.match(/staffos_csrf=([^;]+)/);
+  const match = document.cookie.match(/HeadOfficeOS_csrf=([^;]+)/);
   return match ? match[1] : '';
 };
 

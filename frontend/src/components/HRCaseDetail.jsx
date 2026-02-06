@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - HR Case Detail
+ * HeadOfficeOS - HR Case Detail
  * Full case view with tabs for objectives, meetings, notes, witnesses.
  * ACAS-compliant workflows with guidance prompts.
  *

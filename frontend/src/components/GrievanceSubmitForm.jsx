@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Grievance Submit Form
+ * HeadOfficeOS - Grievance Submit Form
  * Employee self-service form to submit grievances confidentially.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

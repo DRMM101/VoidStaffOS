@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Role Management Component
+ * HeadOfficeOS - Role Management Component
  * Admin interface for managing tier definitions and additional roles.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

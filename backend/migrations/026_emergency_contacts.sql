@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Migration 026: Emergency Contacts & Medical Info
+ * HeadOfficeOS - Migration 026: Emergency Contacts & Medical Info
  * Emergency contact management and medical information for employees.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

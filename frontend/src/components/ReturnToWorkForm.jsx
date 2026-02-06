@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Return to Work Interview Form
+ * HeadOfficeOS - Return to Work Interview Form
  * Wellbeing-focused RTW conversation form for managers.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

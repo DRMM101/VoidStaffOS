@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — GoalForm Component
+ * HeadOfficeOS — GoalForm Component
  * Create or edit a goal. Managers can assign goals to direct reports
  * via an "Assign to" dropdown.
  */

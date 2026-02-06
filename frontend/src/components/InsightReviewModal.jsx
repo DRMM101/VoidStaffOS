@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Insight Review Modal
+ * HeadOfficeOS - Insight Review Modal
  * Modal for reviewing and actioning absence insights.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

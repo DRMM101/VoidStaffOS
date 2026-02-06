@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Leave Management Routes
+ * HeadOfficeOS - Leave Management Routes
  * API routes for leave requests and approvals.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

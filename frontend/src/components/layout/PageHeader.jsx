@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — PageHeader Component
+ * HeadOfficeOS — PageHeader Component
  * Reusable page header with title, subtitle, and optional action buttons.
  * Sits at the top of each page within the content area.
  */

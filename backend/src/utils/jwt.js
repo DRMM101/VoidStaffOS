@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - JWT Utilities
+ * HeadOfficeOS - JWT Utilities
  * Token generation and verification for authentication.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

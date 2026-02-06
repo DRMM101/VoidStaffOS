@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Notification Controller
+ * HeadOfficeOS - Notification Controller
  * Handles notification CRUD and automated system notifications.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.

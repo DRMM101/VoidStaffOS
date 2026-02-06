@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — OrgNode Component
+ * HeadOfficeOS — OrgNode Component
  * Recursive card renderer for org chart tree nodes.
  * Displays employee card with initials avatar, name, role,
  * direct reports count, and CSS connector lines to children.

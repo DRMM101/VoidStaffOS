@@ -3,7 +3,7 @@
 // or distribution is strictly prohibited.
 
 /**
- * VoidStaffOS — BonusSchemeManager Tests
+ * HeadOfficeOS — BonusSchemeManager Tests
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

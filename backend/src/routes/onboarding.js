@@ -1,5 +1,5 @@
 /**
- * VoidStaffOS - Onboarding Routes
+ * HeadOfficeOS - Onboarding Routes
  * API routes for candidate onboarding pipeline.
  *
  * Copyright © 2026 D.R.M. Manthorpe. All rights reserved.
