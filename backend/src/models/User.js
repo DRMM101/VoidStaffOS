@@ -36,7 +36,7 @@ const User = {
     const result = await pool.query(
       `SELECT u.id, u.email, u.full_name, u.role_id, u.employment_status,
               u.start_date, u.end_date, u.created_at, u.manager_id,
-              u.tier, u.employee_number, u.tenant_id,
+              u.tier, u.employee_number, u.tenant_id, u.mfa_enabled,
               r.role_name, r.permissions_json
        FROM users u
        LEFT JOIN roles r ON u.role_id = r.id

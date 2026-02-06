@@ -401,6 +401,20 @@ async function validateMFA(req, res) {
  * @authorization Any authenticated user
  */
 async function getMe(req, res) {
+  // Fetch tenant MFA policy so frontend can enforce MFA setup on session restore
+  let mfaPolicy = 'optional';
+  try {
+    const tenantResult = await pool.query(
+      `SELECT mfa_policy FROM tenants WHERE id = $1`,
+      [req.session?.tenantId || req.user.tenant_id || 1]
+    );
+    if (tenantResult.rows.length > 0) {
+      mfaPolicy = tenantResult.rows[0].mfa_policy || 'optional';
+    }
+  } catch (policyErr) {
+    console.error('Failed to fetch tenant MFA policy in getMe:', policyErr);
+  }
+
   res.json({
     user: {
       id: req.user.id,
@@ -412,7 +426,9 @@ async function getMe(req, res) {
       employee_number: req.user.employee_number,
       employment_status: req.user.employment_status,
       start_date: req.user.start_date
-    }
+    },
+    mfa_policy: mfaPolicy,
+    mfa_enabled: req.user.mfa_enabled || false
   });
 }
 

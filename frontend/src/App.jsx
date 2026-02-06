@@ -90,6 +90,11 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
+
+          // Enforce MFA setup on session restore if tenant policy requires it
+          if (data.mfa_policy === 'required' && !data.mfa_enabled) {
+            setForceMfaSetup(true);
+          }
         }
       } catch (err) {
         // Session invalid or expired

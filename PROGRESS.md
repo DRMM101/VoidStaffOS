@@ -952,3 +952,14 @@ npm run dev
   - Forced MFA setup on login when tenant `mfa_policy = 'required'` and user hasn't enabled MFA
   - Improved MFA wizard/verify modal styling — teal header, cream background, proper border contrast
 - **Status**: Complete — user tested MFA setup, QR scan, TOTP verification, backup codes, forced MFA on login
+
+### Chunk 17 Hotfix: Forced MFA enforcement on login — 2026-02-06 19:00 UTC
+
+- **Task**: Fix forced MFA setup not triggering when tenant `mfa_policy = 'required'` and user hasn't set up MFA
+- **Decisions**: The `/api/auth/me` endpoint (session restore) needed to return `mfa_policy` and `mfa_enabled` so both fresh login and page refresh enforce MFA setup
+- **Changes**:
+  - **Modified**: `backend/src/models/User.js` — added `u.mfa_enabled` to `findById` SELECT query (was missing, so `req.user.mfa_enabled` was always undefined)
+  - **Modified**: `backend/src/controllers/authController.js` — updated `getMe()` to fetch tenant `mfa_policy` from DB and return both `mfa_policy` and `mfa_enabled` in response
+  - **Modified**: `frontend/src/App.jsx` — updated `checkAuth` useEffect to check `mfa_policy`/`mfa_enabled` from `/api/auth/me` response and set `forceMfaSetup` on session restore
+- **Tools/Dependencies**: No new dependencies
+- **Status**: Complete — user tested forced MFA on login, confirmed working
