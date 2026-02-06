@@ -15,7 +15,7 @@
  * Module: Core
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch } from '../utils/api';
 import SelfReflectionForm from './SelfReflectionForm';
 import LeaveRequest from './LeaveRequest';
@@ -181,6 +181,9 @@ function Dashboard({ user, onNavigate }) {
   // Document state
   const [documentStats, setDocumentStats] = useState(null);
 
+  // Internal opportunities — full list for ticker + count for stat card
+  const [openOpportunities, setOpenOpportunities] = useState([]);
+
   const isManager = user.role_name === 'Manager' || user.role_name === 'Admin';
   const isAdmin = user.role_name === 'Admin';
   const isHR = user.role_name === 'HR Manager' || user.role_name === 'Admin';
@@ -194,6 +197,7 @@ function Dashboard({ user, onNavigate }) {
     fetchPendingFeedbackCount();
     fetchPolicyStats();
     fetchDocumentStats();
+    fetchOpenOpportunities();
     if (isManager) {
       fetchTeamStats();
       fetchPendingLeaveCount();
@@ -240,6 +244,21 @@ function Dashboard({ user, onNavigate }) {
       }
     } catch (err) {
       console.error('Failed to fetch document stats');
+    }
+  };
+
+  /* Fetch open internal opportunities (full list for ticker banner) */
+  const fetchOpenOpportunities = async () => {
+    try {
+      const response = await fetch('/api/opportunities', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setOpenOpportunities(Array.isArray(data) ? data : []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch open opportunities');
     }
   };
 
@@ -415,8 +434,95 @@ function Dashboard({ user, onNavigate }) {
   const selfReflection = myReflectionStatus?.self_reflection;
   const managerReview = myReflectionStatus?.manager_review;
 
+  /**
+   * Format a salary value as a compact GBP string.
+   * e.g. 28000 → "£28k", 32500 → "£32.5k"
+   */
+  const formatSalary = (val) => {
+    if (!val) return null;
+    const k = val / 1000;
+    return `£${k % 1 === 0 ? k : k.toFixed(1)}k`;
+  };
+
+  /**
+   * Format an ISO date string into a short date for the ticker.
+   * e.g. "2026-02-01T00:00:00Z" → "1 Feb"
+   */
+  const formatTickerDate = (dateStr) => {
+    if (!dateStr) return null;
+    try {
+      return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    } catch {
+      return null;
+    }
+  };
+
+  /* ---- Ticker scrolling via JS (requestAnimationFrame) ---- */
+  const tickerRef = useRef(null);    // the scrolling track element
+  const rafRef = useRef(null);       // animation frame id
+  const posRef = useRef(0);          // current x offset in pixels
+  const pausedRef = useRef(false);   // true while user hovers
+  const speedPx = 0.8;              // pixels per frame (~48 px/s at 60fps)
+
+  useEffect(() => {
+    const track = tickerRef.current;
+    if (!track || openOpportunities.length === 0) return;
+
+    const step = () => {
+      if (!pausedRef.current) {
+        posRef.current -= speedPx;
+        // When we've scrolled past the first copy, reset seamlessly
+        const halfWidth = track.scrollWidth / 2;
+        if (Math.abs(posRef.current) >= halfWidth) {
+          posRef.current = 0;
+        }
+        track.style.transform = `translateX(${posRef.current}px)`;
+      }
+      rafRef.current = requestAnimationFrame(step);
+    };
+
+    rafRef.current = requestAnimationFrame(step);
+
+    // Cleanup on unmount or when opportunities change
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [openOpportunities]);
+
   return (
     <div className="dashboard-content">
+      {/* Ticker tape banner — scrolling internal job opportunities */}
+      {openOpportunities.length > 0 && (
+        <div
+          className="ticker-banner"
+          role="marquee"
+          aria-label="Internal job opportunities"
+          onClick={() => onNavigate('opportunities')}
+          onMouseEnter={() => { pausedRef.current = true; }}
+          onMouseLeave={() => { pausedRef.current = false; }}
+        >
+          <div className="ticker-banner__track" ref={tickerRef}>
+            {/* Duplicate the items so the loop is seamless */}
+            {[...openOpportunities, ...openOpportunities].map((opp, idx) => (
+              <span className="ticker-banner__item" key={`${opp.id}-${idx}`}>
+                <strong>{opp.title}</strong>
+                {opp.show_salary && opp.salary_range_min && opp.salary_range_max && (
+                  <span className="ticker-salary">
+                    {formatSalary(opp.salary_range_min)}–{formatSalary(opp.salary_range_max)}
+                  </span>
+                )}
+                {opp.posted_at && (
+                  <span className="ticker-date">
+                    Posted {formatTickerDate(opp.posted_at)}
+                  </span>
+                )}
+                <span className="ticker-separator" aria-hidden="true">&#x2022;</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="welcome-card">
         <div className="welcome-header">
           <h2>Welcome, {user.full_name}!</h2>
@@ -837,6 +943,17 @@ function Dashboard({ user, onNavigate }) {
             subtitle={myLeaveBalance ? `${myLeaveBalance.used || 0} used of ${myLeaveBalance.entitlement || '-'}` : undefined}
             onClick={() => setShowMyLeave(true)}
           />
+
+          {/* Internal Opportunities */}
+          {openOpportunities.length > 0 && (
+            <StatCard
+              label="Opportunities"
+              value={openOpportunities.length}
+              subtitle="Open positions"
+              trend="up"
+              onClick={() => onNavigate('opportunities')}
+            />
+          )}
 
           {/* Policy Compliance */}
           {policyStats && (
