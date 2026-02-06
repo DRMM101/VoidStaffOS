@@ -1,6 +1,6 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-02-04 22:00 UTC
+**Last Updated:** 2026-02-06 15:00 UTC
 
 ## Current State
 
@@ -21,6 +21,8 @@ All core modules are **COMPLETE** and production-ready. Theme migration to Heado
 > ✅ **Offboarding** - Complete
 > ✅ **HR Cases (PIP/Disciplinary/Grievance)** - Complete (debugged, ready for browser testing)
 > ✅ **HeadofficeOS Neutral Theme Migration** - Complete
+> ✅ **Internal Opportunities** - Complete
+> ✅ **Org Chart** - Complete
 
 ---
 
@@ -303,6 +305,8 @@ Full sick leave and statutory leave management with Return to Work interviews.
 | Layout Shell | ✅ Complete | — | Collapsible sidebar + header + breadcrumb |
 | Compensation | ✅ Complete | 034-035 | Pay bands, reviews, benefits, bonus schemes, allowances, audit |
 | Theme | ✅ Complete | — | HeadofficeOS neutral design system migration |
+| Opportunities | ✅ Complete | 036 | Internal job board with apply/review |
+| Org Chart | ✅ Complete | — | Interactive hierarchy visualisation |
 
 ---
 
@@ -735,3 +739,34 @@ npm run dev
 - **Status**: Complete — user tested and approved in browser
 - **Tests**: 81 unit tests passing (16 test suites), production build compiles
 - **Git**: Committed `8851d8d`, pushed to `origin/main`
+
+### 2026-02-06 14:45 UTC — Chunk 13: Org Chart
+
+- **Task**: Add interactive organisational chart page visualising company hierarchy from `manager_id` relationships.
+- **Decisions**:
+  - No migration needed — `manager_id` already exists on `users` table (migration 002)
+  - Single flat query + JS tree build: Map lookup → attach children to parents → orphans become roots
+  - Custom CSS flexbox tree with CSS connector lines (no chart library dependency)
+  - Pan via mousedown+drag → CSS transform translate; zoom via scroll wheel → CSS transform scale (clamped 0.3–2.0)
+  - Search finds nodes by name/email/employee number, highlights and scrolls into view
+  - EmployeeQuickCard popup reuses existing modal pattern; manager reassignment calls existing PUT `/api/users/:id/assign-manager`
+  - Replaced `Unfold`/`Fold` icons with `Expand`/`Shrink` (not available in installed lucide-react version)
+  - Org Chart nav item gated to Admin/Manager in both Sidebar filter and App.jsx route
+- **Changes**:
+  - `backend/src/controllers/userController.js` — Added `getOrgChart` controller (flat query + JS tree build)
+  - `backend/src/routes/users.js` — Added `GET /org-chart` route before `/:id` catch-all
+  - `frontend/src/components/OrgChartPage.jsx` — Page container with fetch, search, highlight, quick card state
+  - `frontend/src/components/OrgChart.jsx` — Tree renderer with pan/zoom, expand/collapse all controls
+  - `frontend/src/components/OrgNode.jsx` — Recursive card with initials avatar, CSS connectors, expand/collapse toggle
+  - `frontend/src/components/EmployeeQuickCard.jsx` — Modal with employee details, View Profile, Reassign Manager
+  - `frontend/src/theme/components.css` — ~200 lines of org chart CSS using CSS custom properties
+  - `frontend/src/components/layout/Sidebar.jsx` — Added `Org Chart` nav item with Network icon (Admin/Manager only)
+  - `frontend/src/components/layout/Breadcrumb.jsx` — Added `org-chart` page entry under People section
+  - `frontend/src/App.jsx` — Added OrgChartPage import and route
+  - `frontend/src/components/__tests__/OrgChartPage.test.jsx` — 7 tests (loading, tree render, count, error, search, quick card, empty)
+  - `frontend/src/components/__tests__/OrgNode.test.jsx` — 9 tests (render, expand/collapse, toggle, highlight, click, badge, leaf)
+- **Tools/Dependencies**: No new dependencies (uses existing lucide-react, vitest stack)
+- **Status**: Complete
+- **Tests**: 97 unit tests passing (18 test suites), production build compiles
+
+> ⚠️ No user test performed for this chunk.

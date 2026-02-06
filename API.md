@@ -10,6 +10,23 @@ All endpoints require session-based authentication. The user session is establis
 
 ---
 
+## Org Chart Endpoints
+
+**Base path:** `/api/users`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/org-chart` | Admin, Manager | Returns nested JSON tree of all active employees based on `manager_id` relationships. Response: `{ tree: [...], total_employees: N }`. Each node includes `id`, `full_name`, `email`, `employee_number`, `tier`, `role_name`, `manager_id`, `direct_reports`, `children: [...]`. |
+
+**Related existing endpoints used by Org Chart:**
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/managers` | Any authenticated | List of users with Admin/Manager role (for reassignment dropdown) |
+| PUT | `/:id/assign-manager` | Admin, Manager | Reassign an employee's manager |
+
+---
+
 ## Compensation Endpoints
 
 **Base path:** `/api/compensation`

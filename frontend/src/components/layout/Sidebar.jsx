@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   BarChart3,
   Megaphone,
+  Network,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -34,6 +35,7 @@ const NAV_ITEMS = [
   { key: 'documents', label: 'Documents', icon: FileText },
   { key: 'compensation', label: 'Compensation', icon: PoundSterling },
   { key: 'opportunities', label: 'Opportunities', icon: Megaphone },
+  { key: 'org-chart', label: 'Org Chart', icon: Network },
   { key: 'compliance', label: 'Compliance', icon: ShieldCheck },
   { key: 'reviews', label: 'Reports', icon: BarChart3 },
   { key: 'settings', label: 'Settings', icon: Settings },
@@ -45,6 +47,8 @@ function Sidebar({ currentPage, onNavigate, onLogout, isAdmin, isManager, collap
   const visibleItems = NAV_ITEMS.filter((item) => {
     // Compliance is admin/manager only
     if (item.key === 'compliance' && !isAdmin && !isManager) return false;
+    // Org Chart is admin/manager only
+    if (item.key === 'org-chart' && !isAdmin && !isManager) return false;
     // Settings is admin only
     if (item.key === 'settings' && !isAdmin) return false;
     // Compensation placeholder — show for all (will be gated on backend)

@@ -54,6 +54,7 @@ const PAGE_MAP = {
   'opportunities-admin':    { section: 'Opportunities', label: 'Manage Opportunities' },
   'applications-review':    { section: 'Opportunities', label: 'Review Applications' },
   settings:                 { section: 'Admin', label: 'Settings' },
+  'org-chart':              { section: 'People', label: 'Org Chart' },
 };
 
 function Breadcrumb({ currentPage, onNavigate }) {

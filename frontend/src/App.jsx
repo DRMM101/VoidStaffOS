@@ -47,6 +47,7 @@ import OpportunityDetailPage from './components/opportunities/OpportunityDetailP
 import MyApplicationsPage from './components/opportunities/MyApplicationsPage';
 import OpportunitiesAdminPage from './components/opportunities/OpportunitiesAdminPage';
 import ApplicationsReviewPage from './components/opportunities/ApplicationsReviewPage';
+import OrgChartPage from './components/OrgChartPage';
 import AppShell from './components/layout/AppShell';
 
 function App() {
@@ -149,6 +150,7 @@ function App() {
       {currentPage === 'my-applications' && <MyApplicationsPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'opportunities-admin' && (isAdmin || isManager) && <OpportunitiesAdminPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'applications-review' && (isAdmin || isManager) && <ApplicationsReviewPage user={user} opportunityId={navParams?.opportunityId} onNavigate={handleNavigate} />}
+      {currentPage === 'org-chart' && (isAdmin || isManager) && <OrgChartPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'settings' && isAdmin && <AdminSettingsPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}
     </AppShell>

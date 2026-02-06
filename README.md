@@ -33,6 +33,13 @@ VoidStaffOS is a comprehensive employee management platform featuring blind perf
 - Team performance dashboards
 - Direct report management
 
+### Org Chart
+- Interactive top-down organisational hierarchy visualisation
+- Pan (drag) and zoom (scroll wheel) navigation
+- Search by name, email, or employee number with highlight
+- Expand/collapse individual branches or all at once
+- Quick card popup with employee details and manager reassignment
+
 ### 360 Feedback
 - Quarterly peer feedback
 - Composite KPI aggregation

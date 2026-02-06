@@ -11360,3 +11360,412 @@ button[type="submit"]:disabled {
     align-items: stretch;
   }
 }
+
+/* ============================================
+   ORG CHART
+   ============================================ */
+
+/* Page container */
+.org-chart-page {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.org-chart-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.org-chart-page__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.org-chart-page__title-row h2 {
+  margin: 0;
+  color: var(--color-text-heading);
+}
+
+.org-chart-page__count {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+}
+
+/* Search input */
+.org-chart-page__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 280px;
+}
+
+.org-chart-page__search-icon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.org-chart-page__search-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) + 20px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-body);
+  font-size: var(--font-size-body-sm);
+}
+
+.org-chart-page__search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.org-chart-page__no-results {
+  font-size: var(--font-size-caption);
+  color: var(--color-error);
+  white-space: nowrap;
+}
+
+/* Chart container */
+.org-chart {
+  position: relative;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Toolbar */
+.org-chart__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.org-chart__tool-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-body);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.org-chart__tool-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-bg);
+}
+
+.org-chart__zoom-label {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  min-width: 40px;
+  text-align: center;
+}
+
+.org-chart__separator {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+  margin: 0 var(--space-1);
+}
+
+/* Viewport: pannable/zoomable area */
+.org-chart__viewport {
+  min-height: 500px;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Canvas: the transformed layer inside the viewport */
+.org-chart__canvas {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-8);
+  padding: var(--space-6);
+  transition: none; /* no transition on pan/zoom — immediate */
+  min-width: 100%;
+  justify-content: center;
+}
+
+/* ---- OrgNode card ---- */
+.org-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.org-node__card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-default),
+              box-shadow var(--duration-fast) var(--ease-default);
+  min-width: 200px;
+  text-align: left;
+  font-family: inherit;
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-body);
+}
+
+.org-node__card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.org-node__card--highlighted {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+  background: var(--color-accent-light, rgba(184, 196, 212, 0.15));
+}
+
+/* Initials avatar circle */
+.org-node__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-body-sm);
+  flex-shrink: 0;
+}
+
+/* Name and role text */
+.org-node__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.org-node__name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.org-node__role {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+/* Direct reports count badge */
+.org-node__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+}
+
+/* Expand/collapse toggle */
+.org-node__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+.org-node__toggle:hover {
+  background: var(--color-bg);
+  color: var(--color-text-heading);
+}
+
+/*
+ * Children container — top-down tree layout.
+ * Parent card sits above, a vertical line drops from parent centre,
+ * a horizontal line spans across all children, then vertical lines
+ * drop from the horizontal bar to each child card.
+ */
+.org-node__children {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: var(--space-4);
+  padding-top: var(--space-6);
+  position: relative;
+}
+
+/* Vertical line from parent card down to horizontal bar */
+.org-node__children::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: var(--space-6);
+  background: var(--color-border);
+  transform: translateX(-50%);
+}
+
+/* Each child node: vertical connector line from horizontal bar to card */
+.org-node__children > .org-node {
+  position: relative;
+  padding-top: var(--space-4);
+}
+
+/* Vertical drop line into each child card */
+.org-node__children > .org-node::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: var(--space-4);
+  background: var(--color-border);
+  transform: translateX(-50%);
+}
+
+/*
+ * Horizontal bar connecting siblings.
+ * Each child (except only-children) draws a horizontal connector
+ * to its right using ::after, creating a continuous bar between siblings.
+ * The bar sits at the top of the children row where the vertical
+ * drop lines meet.
+ */
+
+/* Horizontal connector between siblings — drawn by each child except the last */
+.org-node__children > .org-node:not(:only-child)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  height: 2px;
+  background: var(--color-border);
+  /* Span from this child's centre to the next gap */
+  left: 0;
+  right: 0;
+}
+
+/* First child: bar starts at centre, extends right */
+.org-node__children > .org-node:first-child:not(:only-child)::after {
+  left: 50%;
+  right: 0;
+}
+
+/* Last child: bar starts at left edge, ends at centre */
+.org-node__children > .org-node:last-child:not(:only-child)::after {
+  left: 0;
+  right: 50%;
+}
+
+/* Middle children: bar spans full width of their allocated space */
+.org-node__children > .org-node:not(:first-child):not(:last-child)::after {
+  left: 0;
+  right: 0;
+}
+
+/* ---- EmployeeQuickCard ---- */
+.quick-card {
+  max-width: 420px;
+}
+
+.quick-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.quick-card__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.quick-card__label {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.quick-card__value {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-heading);
+  font-weight: var(--font-weight-semibold);
+  text-align: right;
+}
+
+/* Reassign manager panel inside quick card */
+.quick-card__reassign {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+}
+
+.quick-card__reassign select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-body);
+  font-size: var(--font-size-body-sm);
+}
+
+.quick-card__reassign-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Responsive: stack org chart header on mobile */
+@media (max-width: 768px) {
+  .org-chart-page__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .org-chart-page__search {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .org-chart__viewport {
+    min-height: 350px;
+  }
+}

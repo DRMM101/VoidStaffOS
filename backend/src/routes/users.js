@@ -32,7 +32,8 @@ const {
   getTransferTargets,
   getManagers,
   getOrphanedEmployees,
-  getTeamSummary
+  getTeamSummary,
+  getOrgChart
 } = require('../controllers/userController');
 const { authenticate, authorize } = require('../middleware/auth');
 const { validateUser, validateIdParam } = require('../middleware/validation');
@@ -57,6 +58,9 @@ router.get('/team-summary', authorize('Admin', 'Manager'), getTeamSummary);
 
 // GET /api/users/with-review-status - Get users with review status indicators
 router.get('/with-review-status', getUsersWithReviewStatus);
+
+// GET /api/users/org-chart - Get organisational chart tree (Admin/Manager only)
+router.get('/org-chart', authorize('Admin', 'Manager'), getOrgChart);
 
 // GET /api/users - Get all users (filtered by role)
 router.get('/', getUsers);

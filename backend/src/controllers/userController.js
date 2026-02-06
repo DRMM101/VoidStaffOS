@@ -1255,6 +1255,78 @@ async function getTeamSummary(req, res) {
   }
 }
 
+/**
+ * Get organisational chart as a nested tree structure.
+ * Fetches all active users, builds a tree based on manager_id
+ * relationships, and returns the result as nested JSON.
+ *
+ * @async
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON with { tree: [...], total_employees: N }
+ * @authorization Admin, Manager
+ */
+async function getOrgChart(req, res) {
+  try {
+    // Flat query: all active users with their role name
+    const result = await pool.query(`
+      SELECT u.id, u.full_name, u.email, u.employee_number, u.tier,
+             u.manager_id, u.employment_status,
+             r.role_name
+      FROM users u
+      LEFT JOIN roles r ON u.role_id = r.id
+      WHERE u.employment_status = 'active'
+      ORDER BY u.tier NULLS FIRST, u.full_name
+    `);
+
+    const users = result.rows;
+
+    // Build a lookup map: user id → user object with empty children array
+    const nodeMap = new Map();
+    users.forEach(user => {
+      nodeMap.set(user.id, {
+        id: user.id,
+        full_name: user.full_name,
+        email: user.email,
+        employee_number: user.employee_number,
+        tier: user.tier,
+        role_name: user.role_name,
+        manager_id: user.manager_id,
+        children: []
+      });
+    });
+
+    // Attach children to their parent nodes; collect root nodes (no manager or manager not in active set)
+    const roots = [];
+    nodeMap.forEach(node => {
+      if (node.manager_id && nodeMap.has(node.manager_id)) {
+        // Parent exists in the active set — attach as child
+        nodeMap.get(node.manager_id).children.push(node);
+      } else {
+        // No manager or manager not in active set — treat as root
+        roots.push(node);
+      }
+    });
+
+    // Add direct_reports count to each node for display
+    const addReportCounts = (nodes) => {
+      nodes.forEach(node => {
+        node.direct_reports = node.children.length;
+        addReportCounts(node.children);
+      });
+    };
+    addReportCounts(roots);
+
+    res.json({
+      tree: roots,
+      total_employees: users.length
+    });
+  } catch (error) {
+    console.error('Get org chart error:', error);
+    res.status(500).json({ error: 'Failed to fetch organisational chart' });
+  }
+}
+
 module.exports = {
   getUsers,
   getUserById,
@@ -1270,5 +1342,6 @@ module.exports = {
   getTransferTargets,
   getManagers,
   getOrphanedEmployees,
-  getTeamSummary
+  getTeamSummary,
+  getOrgChart
 };
