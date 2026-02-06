@@ -1,6 +1,6 @@
 # VoidStaffOS - Development Progress
 
-**Last Updated:** 2026-02-06 16:20 UTC
+**Last Updated:** 2026-02-06 17:00 UTC
 
 ## Current State
 
@@ -25,6 +25,7 @@ All core modules are **COMPLETE** and production-ready. Theme migration to Heado
 > ✅ **Org Chart** - Complete
 > ✅ **Goals Dashboard** - Complete
 > ✅ **Announcements** - Complete
+> ✅ **GDPR Data Export** - Complete
 
 ---
 
@@ -308,6 +309,7 @@ Full sick leave and statutory leave management with Return to Work interviews.
 | Compensation | ✅ Complete | 034-035 | Pay bands, reviews, benefits, bonus schemes, allowances, audit |
 | Theme | ✅ Complete | — | HeadofficeOS neutral design system migration |
 | Opportunities | ✅ Complete | 036 | Internal job board with apply/review |
+| GDPR Export | ✅ Complete | 039 | Data export, deletion requests, ZIP generation |
 | Org Chart | ✅ Complete | — | Interactive hierarchy visualisation |
 
 ---
@@ -846,5 +848,42 @@ npm run dev
 - **Tools/Dependencies**: No new dependencies
 - **Status**: Complete
 - **Tests**: 136 unit tests passing (22 test suites), production build compiles
+
+> ⚠️ No user test performed for this chunk.
+
+### 2026-02-06 17:00 UTC — Chunk 16: GDPR Data Export
+
+- **Task**: Add GDPR-compliant data export functionality — employees can request a copy of all their personal data (Subject Access Request), HR/Admin can manage deletion requests.
+- **Decisions**:
+  - INTEGER SERIAL PKs and Express middleware auth (not UUID/Supabase RLS as spec suggested)
+  - Migration 039 (data_requests + data_request_logs tables)
+  - Export requests auto-generate immediately (no HR approval needed for exports)
+  - Deletion requests require Admin approval (actual data deletion is future work — currently marks as completed)
+  - ZIP archive generated using `archiver` npm package, stored at `backend/uploads/exports/{tenantId}/`
+  - Queries 28 tables across 8 categories (profile, personal, documents, leave, compliance, performance, compensation, goals, probation, hr_cases, offboarding, opportunities, activity, absence)
+  - Password hash explicitly excluded from user profile export
+  - HR case notes filtered by `visible_to_employee = true` — HR-only notes not included
+  - Rate limit: 3 export requests per 24 hours (in-route check, not middleware)
+  - Download links expire after 30 days; admin cleanup endpoint deletes files from disk
+  - Download uses blob fetch pattern (matching existing document download approach)
+  - Single sidebar nav item "My Data" visible to all users; admin page accessible via button for Admin/HR Manager
+- **Changes**:
+  - `backend/migrations/039_gdpr_data_requests.sql` — data_requests + data_request_logs tables with indexes
+  - `backend/src/routes/gdpr.js` — 8 API endpoints + ZIP generation service (~580 lines)
+  - `backend/src/server.js` — Registered GDPR routes at `/api/gdpr`
+  - `backend/package.json` — Added `archiver` dependency
+  - `frontend/src/components/gdpr/GDPRPage.jsx` — Employee self-service page (request export, download, history table)
+  - `frontend/src/components/gdpr/GDPRAdminPage.jsx` — HR/Admin management (table, filters, detail modal, deletion modal)
+  - `frontend/src/components/gdpr/GDPRRequestDetail.jsx` — Request detail modal with activity timeline and approve/reject
+  - `frontend/src/components/gdpr/DataDeletionModal.jsx` — Deletion request creation with confirmation
+  - `frontend/src/components/layout/Sidebar.jsx` — Added "My Data" nav item with Shield icon
+  - `frontend/src/components/layout/Breadcrumb.jsx` — Added gdpr + gdpr-admin page entries
+  - `frontend/src/App.jsx` — Added GDPRPage and GDPRAdminPage imports and routes
+  - `frontend/src/theme/components.css` — ~300 lines GDPR CSS (page, table, badges, detail modal, timeline, deletion modal, responsive)
+  - `frontend/src/components/__tests__/GDPRPage.test.jsx` — 12 tests
+  - `frontend/src/components/__tests__/GDPRAdminPage.test.jsx` — 8 tests
+- **Tools/Dependencies**: archiver (new backend dependency for ZIP generation)
+- **Status**: Complete
+- **Tests**: 156 unit tests passing (24 test suites), production build compiles
 
 > ⚠️ No user test performed for this chunk.

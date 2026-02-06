@@ -51,6 +51,8 @@ import GoalsDashboardPage from './components/goals/GoalsDashboardPage';
 import TeamGoalsPage from './components/goals/TeamGoalsPage';
 import AnnouncementsPage from './components/announcements/AnnouncementsPage';
 import AnnouncementsAdminPage from './components/announcements/AnnouncementsAdminPage';
+import GDPRPage from './components/gdpr/GDPRPage';
+import GDPRAdminPage from './components/gdpr/GDPRAdminPage';
 import OrgChartPage from './components/OrgChartPage';
 import AppShell from './components/layout/AppShell';
 
@@ -160,6 +162,9 @@ function App() {
       {/* Announcements pages */}
       {currentPage === 'announcements' && <AnnouncementsPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'announcements-admin' && isAdmin && <AnnouncementsAdminPage user={user} onNavigate={handleNavigate} />}
+      {/* GDPR pages */}
+      {currentPage === 'gdpr' && <GDPRPage user={user} onNavigate={handleNavigate} />}
+      {currentPage === 'gdpr-admin' && (isAdmin || user.role_name === 'HR Manager') && <GDPRAdminPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'org-chart' && (isAdmin || isManager) && <OrgChartPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'settings' && isAdmin && <AdminSettingsPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}

@@ -183,6 +183,7 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full details.
 | HR Cases | ✅ Active | ACAS-compliant PIP, Disciplinary, Grievance |
 | GoalsOS | ✅ Active | Goal-setting, tracking, progress updates |
 | AnnouncementsOS | ✅ Active | Company announcements, read tracking, ticker |
+| GDPR Export | ✅ Active | Data export, deletion requests, UK GDPR compliance |
 | LearnOS | 📋 Planned | Learning management |
 | AssetOS | 📋 Planned | Asset tracking |
 | TimeOS | 📋 Planned | Time tracking |

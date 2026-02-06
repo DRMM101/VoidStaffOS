@@ -21,6 +21,7 @@ const SECTION_NAV = {
   'Opportunities': 'opportunities',
   'Goals': 'goals',
   'Announcements': 'announcements',
+  'My Data': 'gdpr',
 };
 
 /* Map page keys to breadcrumb metadata: section and display label */
@@ -60,6 +61,8 @@ const PAGE_MAP = {
   'team-goals':             { section: 'Goals', label: 'Team Goals' },
   announcements:            { section: null, label: 'Announcements' },
   'announcements-admin':    { section: 'Announcements', label: 'Manage Announcements' },
+  gdpr:                     { section: null, label: 'My Data' },
+  'gdpr-admin':             { section: 'My Data', label: 'Data Requests' },
   'org-chart':              { section: 'People', label: 'Org Chart' },
 };
 

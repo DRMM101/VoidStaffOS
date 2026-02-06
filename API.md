@@ -414,3 +414,51 @@ All endpoints require authentication. Base path: `/api/announcements`
 - **Category**: `general`, `urgent`, `policy`, `event`, `celebration`
 - **Priority**: `low`, `normal`, `high`, `urgent`
 - **Status**: `draft`, `published`, `archived`
+
+---
+
+## GDPR Data Export Endpoints
+
+All endpoints require authentication. Base path: `/api/gdpr`
+
+### Employee Self-Service
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/gdpr/my-requests` | Any | List current user's data requests |
+| `POST` | `/api/gdpr/export` | Any | Request export of own data (rate-limited: 3/24h) |
+| `GET` | `/api/gdpr/download/:id` | Owner or Admin/HR | Download completed export ZIP |
+
+### HR/Admin Management
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/gdpr/requests` | Admin, HR Manager | List all data requests (filterable by status, type, search) |
+| `GET` | `/api/gdpr/requests/:id` | Admin, HR Manager | Request detail with activity log |
+| `POST` | `/api/gdpr/requests/:id/process` | Admin | Process (approve) a pending request |
+| `POST` | `/api/gdpr/requests/:id/reject` | Admin, HR Manager | Reject a request (reason required) |
+| `POST` | `/api/gdpr/deletion-request` | Admin, HR Manager | Create deletion request for an employee |
+| `POST` | `/api/gdpr/cleanup-expired` | Admin | Clean up expired export files from disk |
+
+### Export Contents
+
+The ZIP archive contains JSON files organised by category:
+- `profile/` — User profile (password hash excluded)
+- `personal/` — Emergency contacts, medical info
+- `documents/` — Document metadata (not actual files)
+- `leave/` — Leave requests, RTW interviews, SSP periods, statutory entitlements
+- `compliance/` — RTW checks, DBS checks
+- `performance/` — Performance reviews
+- `compensation/` — Compensation records, benefits, pay reviews, pay slips
+- `goals/` — Goals, goal updates
+- `probation/` — Probation periods, probation reviews
+- `hr_cases/` — HR cases, PIP objectives, case notes (visible to employee only)
+- `offboarding/` — Offboarding workflows, exit interviews
+- `opportunities/` — Internal applications
+- `activity/` — Announcement reads
+- `absence/` — Absence insights, absence summaries
+- `manifest.json` — Generation metadata and table list
+
+### Request Values
+- **Request Type**: `export`, `deletion`
+- **Status**: `pending`, `processing`, `completed`, `rejected`, `expired`
