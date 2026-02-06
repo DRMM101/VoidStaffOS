@@ -18,6 +18,7 @@ const SECTION_NAV = {
   'Company': 'policies',
   'Admin': 'dashboard',
   'Cases': 'hr-cases',
+  'Opportunities': 'opportunities',
 };
 
 /* Map page keys to breadcrumb metadata: section and display label */
@@ -47,6 +48,11 @@ const PAGE_MAP = {
   'compensation-bonus-schemes': { section: 'Compensation', label: 'Bonus Schemes' },
   'compensation-allowances':    { section: 'Compensation', label: 'Responsibility Allowances' },
   'compensation-settings':      { section: 'Compensation', label: 'Settings' },
+  opportunities:            { section: null, label: 'Opportunities' },
+  'opportunity-detail':     { section: 'Opportunities', label: 'Opportunity Detail' },
+  'my-applications':        { section: 'Opportunities', label: 'My Applications' },
+  'opportunities-admin':    { section: 'Opportunities', label: 'Manage Opportunities' },
+  'applications-review':    { section: 'Opportunities', label: 'Review Applications' },
   settings:                 { section: 'Admin', label: 'Settings' },
 };
 

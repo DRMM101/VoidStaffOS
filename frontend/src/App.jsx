@@ -42,6 +42,11 @@ import BonusSchemeManager from './components/compensation/BonusSchemeManager';
 import ResponsibilityAllowanceManager from './components/compensation/ResponsibilityAllowanceManager';
 import CompensationSettingsPanel from './components/compensation/CompensationSettingsPanel';
 import AdminSettingsPage from './components/admin/AdminSettingsPage';
+import OpportunitiesPage from './components/opportunities/OpportunitiesPage';
+import OpportunityDetailPage from './components/opportunities/OpportunityDetailPage';
+import MyApplicationsPage from './components/opportunities/MyApplicationsPage';
+import OpportunitiesAdminPage from './components/opportunities/OpportunitiesAdminPage';
+import ApplicationsReviewPage from './components/opportunities/ApplicationsReviewPage';
 import AppShell from './components/layout/AppShell';
 
 function App() {
@@ -138,6 +143,12 @@ function App() {
       {currentPage === 'compensation-bonus-schemes' && <BonusSchemeManager user={user} />}
       {currentPage === 'compensation-allowances' && <ResponsibilityAllowanceManager user={user} />}
       {currentPage === 'compensation-settings' && <CompensationSettingsPanel user={user} />}
+      {/* Internal Opportunities sub-pages */}
+      {currentPage === 'opportunities' && <OpportunitiesPage user={user} onNavigate={handleNavigate} />}
+      {currentPage === 'opportunity-detail' && <OpportunityDetailPage user={user} opportunityId={navParams?.opportunityId} onNavigate={handleNavigate} />}
+      {currentPage === 'my-applications' && <MyApplicationsPage user={user} onNavigate={handleNavigate} />}
+      {currentPage === 'opportunities-admin' && (isAdmin || isManager) && <OpportunitiesAdminPage user={user} onNavigate={handleNavigate} />}
+      {currentPage === 'applications-review' && (isAdmin || isManager) && <ApplicationsReviewPage user={user} opportunityId={navParams?.opportunityId} onNavigate={handleNavigate} />}
       {currentPage === 'settings' && isAdmin && <AdminSettingsPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}
     </AppShell>

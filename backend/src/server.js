@@ -48,6 +48,7 @@ const absenceInsightsRoutes = require('./routes/absenceInsights');
 const offboardingRoutes = require('./routes/offboarding');
 const hrCasesRoutes = require('./routes/hrCases');
 const compensationRoutes = require('./routes/compensation');
+const opportunitiesRoutes = require('./routes/opportunities');
 const devRoutes = require('./routes/dev');
 
 const app = express();
@@ -163,6 +164,7 @@ app.use('/api/absence-insights', absenceInsightsRoutes);
 app.use('/api/offboarding', offboardingRoutes);
 app.use('/api/hr-cases', hrCasesRoutes);
 app.use('/api/compensation', compensationRoutes);
+app.use('/api/opportunities', opportunitiesRoutes);
 
 // Development routes (should be disabled in production)
 if (process.env.NODE_ENV !== 'production') {

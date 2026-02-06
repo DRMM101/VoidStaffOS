@@ -587,3 +587,131 @@ npm run dev
 - **Tools/Dependencies**: No new dependencies
 - **Status**: Complete — user tested and approved
 - **Tests**: 64 unit tests passing (12 test suites), production build compiles
+
+### 2026-02-06 — OpportunitiesPage Component (Internal Opportunities Browse)
+
+- **Task**: Create the employee-facing browse page for internal job opportunities at `frontend/src/components/opportunities/OpportunitiesPage.jsx`.
+- **Decisions**:
+  - Used `apiFetch` (raw Response wrapper) matching existing codebase pattern, with manual `.json()` parsing
+  - Client-side filtering for search (title), department, and employment_type — departments and employment types extracted dynamically from fetched data
+  - Bento-grid layout with clickable card buttons for accessibility
+  - Status badge logic: "No deadline", "Closed", "Closes today", "X days left" with urgency classes at 7 days or fewer
+  - Salary displayed as GBP with en-GB locale formatting, only when `show_salary` is true
+  - Employment type labels mapped from snake_case to human-readable (full_time -> "Full Time")
+  - BEM-style CSS class naming consistent with existing components
+- **Changes**:
+  - `frontend/src/components/opportunities/OpportunitiesPage.jsx` — new file
+- **Tools/Dependencies**: No new dependencies (uses existing React, apiFetch)
+- **Status**: Complete
+
+> No user test performed for this chunk.
+
+### 2026-02-06 — ApplicationForm Component (Opportunity Application Modal)
+
+- **Task**: Create the modal form component for submitting applications to internal opportunities at `frontend/src/components/opportunities/ApplicationForm.jsx`.
+- **Decisions**:
+  - Used `apiFetch` (raw Response wrapper) matching existing codebase pattern — checks `response.status` directly for 201/409
+  - Cover letter is optional — textarea with placeholder but no required validation
+  - 409 Conflict handled specifically with a user-friendly "already applied" message
+  - Click propagation stopped on modal dialog to prevent accidental backdrop close
+  - Submit button disabled while request in-flight to prevent double-submission
+  - ARIA attributes: `role="dialog"`, `aria-modal="true"`, `aria-label` on close button, `role="alert"` on error
+- **Changes**:
+  - `frontend/src/components/opportunities/ApplicationForm.jsx` — new file
+- **Tools/Dependencies**: No new dependencies (uses existing React useState, apiFetch)
+- **Status**: Complete
+
+> No user test performed for this chunk.
+
+### 2026-02-06 — OpportunitiesAdminPage Component (HR/Admin Management)
+
+- **Task**: Create the HR/Admin management page for internal opportunities at `frontend/src/components/opportunities/OpportunitiesAdminPage.jsx`.
+- **Decisions**:
+  - Used `apiFetch` (raw Response wrapper) matching existing codebase pattern, with manual `.json()` parsing
+  - Inline create/edit form (not a modal) toggled by `showCreateForm` state — keeps the admin workflow simple
+  - Status-based action buttons: draft (Edit/Publish/Delete), open (Edit/Close/Mark Filled), closed/filled (View only)
+  - Delete requires `window.confirm` before proceeding
+  - Publish calls POST `/api/opportunities/:id/publish`, Close calls POST `/api/opportunities/:id/close`, Mark Filled sends `{ filled: true }` to the close endpoint
+  - Status filter dropdown filters client-side from the full fetched list
+  - Form handles salary as numbers, converts empty strings to null before sending
+  - BEM-style CSS class naming: `opportunities-admin`, `opportunity-form`, `opportunity-actions` etc.
+  - Status badges use `status-badge status-badge--{status}` class pattern consistent with existing components
+  - ARIA labels on all interactive elements for accessibility
+  - All API errors caught with try/catch and displayed in a dismissible error banner
+- **Changes**:
+  - `frontend/src/components/opportunities/OpportunitiesAdminPage.jsx` — new file
+- **Tools/Dependencies**: No new dependencies (uses existing React, apiFetch)
+- **Status**: Complete
+
+> No user test performed for this chunk.
+
+### 2026-02-06 — MyApplicationsPage Component (User's Submitted Applications)
+
+- **Task**: Create the MyApplicationsPage component at `frontend/src/components/opportunities/MyApplicationsPage.jsx` to display the current user's submitted opportunity applications.
+- **Decisions**:
+  - Used `apiFetch` matching existing codebase pattern for GET `/api/opportunities/applications/mine` and PUT withdraw endpoint
+  - Status badges use `status-badge status-badge--{status}` class pattern for 8 statuses: submitted, reviewing, shortlisted, interview, offered, accepted, rejected, withdrawn
+  - Withdraw button hidden for accepted/withdrawn applications, requires `window.confirm` before proceeding
+  - `withdrawingId` state tracks in-progress withdrawal to disable the button and show "Withdrawing..." text
+  - Dates formatted with `en-GB` locale (e.g. "6 Feb 2026")
+  - Error state shown with retry button; non-blocking error banner shown when withdraw fails but applications are already loaded
+  - ARIA labels on opportunity title links and withdraw buttons for accessibility
+- **Changes**:
+  - `frontend/src/components/opportunities/MyApplicationsPage.jsx` — new file
+- **Tools/Dependencies**: No new dependencies (uses existing React, apiFetch)
+- **Status**: Complete
+
+> No user test performed for this chunk.
+
+### 2026-02-06 — OpportunityDetailPage Component (Single Opportunity View)
+
+- **Task**: Create the full detail view for a single internal opportunity at `frontend/src/components/opportunities/OpportunityDetailPage.jsx`.
+- **Decisions**:
+  - Used `apiFetch` (raw Response wrapper) matching existing codebase pattern, with manual `.json()` parsing
+  - Fetches GET `/api/opportunities/${opportunityId}` on mount; re-fetches after successful application submission to update `my_application`
+  - Description and requirements rendered as paragraphs split by `\n` with empty lines filtered out
+  - Salary displayed as GBP with en-GB locale formatting, only when `show_salary` is true and both min/max exist
+  - Application status: if `my_application` exists, shows "You applied on [date] -- Status: [badge]" instead of Apply button
+  - If opportunity is open and no application exists, shows "Apply Now" button that opens ApplicationForm modal
+  - If opportunity is not open, shows a closed notice message
+  - Employment type labels mapped from snake_case to human-readable via shared label map
+  - BEM-style CSS class naming: `opportunity-detail`, `opportunity-detail__header`, `opportunity-detail__meta`, `opportunity-detail__body`, `opportunity-detail__actions`
+  - ARIA labels on loading state, error alerts, application status, and all buttons
+- **Changes**:
+  - `frontend/src/components/opportunities/OpportunityDetailPage.jsx` — new file
+- **Tools/Dependencies**: No new dependencies (uses existing React, apiFetch, ApplicationForm)
+- **Status**: Complete
+
+> No user test performed for this chunk.
+
+### 2026-02-06 12:15 UTC — Chunk 12: Internal Opportunities (Complete)
+- **Task**: Build internal job board — employees browse and apply, HR manages postings
+- **Decisions**:
+  - Used SERIAL INTEGER PKs (not UUID) to match existing schema conventions
+  - Migration numbered 036 (035 already taken by tier-linked compensation)
+  - Kept opportunities routes under `/api/opportunities` with applications nested as sub-routes
+  - Sidebar nav item "Opportunities" with Megaphone icon, visible to all users
+  - Admin pages gated to Admin/Manager roles in both App.jsx routing and backend authorize middleware
+  - Employee-facing detail page shows "Apply Now" or existing application status
+  - HR notes on applications are never exposed to applicants (excluded from /applications/mine query)
+  - Status workflows: Opportunity: draft→open→closed/filled; Application: submitted→reviewing→shortlisted→interview→offered→accepted (with rejected/withdrawn branches)
+- **Changes**:
+  - `backend/migrations/036_internal_opportunities.sql` — internal_opportunities + internal_applications tables with indexes
+  - `backend/src/routes/opportunities.js` — Full CRUD + publish/close + applications endpoints with auth
+  - `backend/src/server.js` — Registered opportunities routes
+  - `frontend/src/components/opportunities/OpportunitiesPage.jsx` — Employee browse page with filters and card grid
+  - `frontend/src/components/opportunities/OpportunityDetailPage.jsx` — Full opportunity detail with apply
+  - `frontend/src/components/opportunities/ApplicationForm.jsx` — Modal application form
+  - `frontend/src/components/opportunities/MyApplicationsPage.jsx` — Employee's applications list with withdraw
+  - `frontend/src/components/opportunities/OpportunitiesAdminPage.jsx` — HR management (CRUD, publish, close)
+  - `frontend/src/components/opportunities/ApplicationsReviewPage.jsx` — HR application review with status updates
+  - `frontend/src/components/layout/Sidebar.jsx` — Added Opportunities nav item
+  - `frontend/src/components/layout/Breadcrumb.jsx` — Added opportunity page entries
+  - `frontend/src/App.jsx` — Added imports and routes for 5 opportunity pages
+  - `frontend/src/theme/components.css` — ~500 lines of themed CSS for opportunities
+  - `frontend/src/components/opportunities/__tests__/` — 4 test files (OpportunitiesPage, MyApplications, ApplicationForm, AdminPage)
+- **Tools/Dependencies**: No new dependencies (lucide-react Megaphone icon already available)
+- **Status**: Complete
+- **Tests**: 81 unit tests passing (16 test suites), production build compiles
+
+> ⚠️ No user test performed for this chunk.

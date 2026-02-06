@@ -232,3 +232,66 @@ All compensation endpoints are automatically audited via `compensationAudit.js` 
   "benefits": [...]
 }
 ```
+
+---
+
+## Internal Opportunities
+
+### Opportunities
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/opportunities` | All employees | List open opportunities |
+| GET | `/api/opportunities/all` | Admin, Manager | List all opportunities (any status) |
+| GET | `/api/opportunities/:id` | All (open only for non-HR) | Get opportunity detail + user's application |
+| POST | `/api/opportunities` | Admin, Manager | Create opportunity (draft) |
+| PUT | `/api/opportunities/:id` | Admin, Manager | Update opportunity |
+| DELETE | `/api/opportunities/:id` | Admin, Manager | Delete draft opportunity only |
+| POST | `/api/opportunities/:id/publish` | Admin, Manager | Publish draft → open |
+| POST | `/api/opportunities/:id/close` | Admin, Manager | Close open opportunity. Body: `{ filled: true }` to mark as filled |
+
+### Applications
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/opportunities/:id/applications` | Admin, Manager | List applications for opportunity |
+| GET | `/api/opportunities/applications/mine` | All employees | List my applications (no HR notes) |
+| POST | `/api/opportunities/applications` | All employees | Submit application |
+| PUT | `/api/opportunities/applications/:id/status` | Admin, Manager | Update application status + notes |
+| PUT | `/api/opportunities/applications/:id/withdraw` | Applicant only | Withdraw own application |
+
+### Create/Update Opportunity Body
+```json
+{
+  "title": "Senior Carer",
+  "department": "Care",
+  "location": "London",
+  "employment_type": "full_time",
+  "description": "Role description...",
+  "requirements": "Requirements...",
+  "salary_range_min": 28000,
+  "salary_range_max": 35000,
+  "show_salary": true,
+  "closes_at": "2026-03-01T23:59:59Z"
+}
+```
+
+### Submit Application Body
+```json
+{
+  "opportunity_id": 1,
+  "cover_letter": "I am interested in this role because..."
+}
+```
+
+### Update Application Status Body
+```json
+{
+  "status": "shortlisted",
+  "notes": "Strong candidate, schedule interview"
+}
+```
+
+### Status Values
+- **Opportunity**: `draft`, `open`, `closed`, `filled`
+- **Application**: `submitted`, `reviewing`, `shortlisted`, `interview`, `offered`, `accepted`, `rejected`, `withdrawn`
