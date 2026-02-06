@@ -24,6 +24,13 @@ function PayBandManager({ user }) {
   const [saving, setSaving] = useState(false);
   const [tiers, setTiers] = useState([]);
   const [settings, setSettings] = useState({ enable_tier_band_linking: false });
+  /* Assign employees modal state */
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignBand, setAssignBand] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [assignForm, setAssignForm] = useState({ employee_id: '', base_salary: '', effective_date: '' });
+  const [assignError, setAssignError] = useState(null);
+  const [bandEmployees, setBandEmployees] = useState([]);
 
   // Fetch all pay bands, tiers, and settings
   const fetchBands = async () => {
@@ -149,6 +156,73 @@ function PayBandManager({ user }) {
     }
   };
 
+  /* Open assign employees modal for a specific band */
+  const handleAssign = async (band) => {
+    setAssignBand(band);
+    setAssignForm({ employee_id: '', base_salary: '', effective_date: new Date().toISOString().split('T')[0] });
+    setAssignError(null);
+
+    try {
+      // Fetch employees list
+      const empRes = await apiFetch('/api/users');
+      if (empRes.ok) {
+        const empData = await empRes.json();
+        setEmployees(Array.isArray(empData) ? empData : empData.data || []);
+      }
+      // Fetch current employees on this band via compensation records
+      const recRes = await apiFetch(`/api/compensation/pay-bands/${band.id}/employees`);
+      if (recRes.ok) {
+        const recData = await recRes.json();
+        setBandEmployees(recData.data || []);
+      } else {
+        setBandEmployees([]);
+      }
+    } catch (err) {
+      console.error('Fetch employees for assign:', err);
+    }
+    setShowAssignModal(true);
+  };
+
+  /* Submit new employee assignment to this pay band */
+  const handleAssignSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setAssignError(null);
+
+    try {
+      const response = await apiFetch('/api/compensation/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employee_id: parseInt(assignForm.employee_id),
+          pay_band_id: assignBand.id,
+          base_salary: parseFloat(assignForm.base_salary),
+          effective_date: assignForm.effective_date,
+          reason: `Assigned to ${assignBand.band_name} pay band`
+        })
+      });
+
+      if (response.ok) {
+        // Refresh the band employees list
+        const recRes = await apiFetch(`/api/compensation/pay-bands/${assignBand.id}/employees`);
+        if (recRes.ok) {
+          const recData = await recRes.json();
+          setBandEmployees(recData.data || []);
+        }
+        // Reset form for another assignment
+        setAssignForm({ ...assignForm, employee_id: '', base_salary: '' });
+      } else {
+        const errData = await response.json();
+        setAssignError(errData.error || 'Failed to assign employee');
+      }
+    } catch (err) {
+      console.error('Assign employee error:', err);
+      setAssignError('Failed to assign employee');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) return <div className="loading">Loading pay bands...</div>;
 
   return (
@@ -197,6 +271,7 @@ function PayBandManager({ user }) {
                   )}
                   <td>
                     <div className="table-actions">
+                      <button className="btn btn--sm btn--secondary" onClick={() => handleAssign(band)}>Assign</button>
                       <button className="btn btn--sm btn--secondary" onClick={() => handleEdit(band)}>Edit</button>
                       <button className="btn btn--sm btn--danger" onClick={() => handleDelete(band)}>Delete</button>
                     </div>
@@ -288,6 +363,89 @@ function PayBandManager({ user }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Assign Employees Modal */}
+      {showAssignModal && assignBand && (
+        <div className="modal-overlay" onClick={() => setShowAssignModal(false)}>
+          <div className="modal modal--wide" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Assign Employees — {assignBand.band_name}</h2>
+              <button className="modal-close" onClick={() => setShowAssignModal(false)}>&times;</button>
+            </div>
+            <div className="modal-body">
+              {/* Current employees on this band */}
+              <h3 style={{ marginBottom: '8px', fontSize: '0.95rem' }}>Currently Assigned</h3>
+              {bandEmployees.length === 0 ? (
+                <p className="text-muted" style={{ marginBottom: '16px' }}>No employees assigned to this band yet.</p>
+              ) : (
+                <table className="table" style={{ marginBottom: '16px' }}>
+                  <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Salary</th>
+                      <th>Effective Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bandEmployees.map((emp) => (
+                      <tr key={emp.id}>
+                        <td>{emp.full_name || emp.employee_name || `Employee #${emp.employee_id}`}</td>
+                        <td>{formatCurrency(emp.base_salary)}</td>
+                        <td>{new Date(emp.effective_date).toLocaleDateString('en-GB')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              {/* Add new assignment form */}
+              <h3 style={{ marginBottom: '8px', fontSize: '0.95rem' }}>Add Employee</h3>
+              {assignError && <div className="alert alert--error" style={{ marginBottom: '8px' }}>{assignError}</div>}
+              <form onSubmit={handleAssignSubmit}>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="assign_employee">Employee *</label>
+                    <select
+                      id="assign_employee" required
+                      value={assignForm.employee_id}
+                      onChange={(e) => setAssignForm({ ...assignForm, employee_id: e.target.value })}
+                    >
+                      <option value="">Select employee...</option>
+                      {employees.map((emp) => (
+                        <option key={emp.id} value={emp.id}>
+                          {emp.full_name} ({emp.email})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="assign_salary">Base Salary *</label>
+                    <input
+                      id="assign_salary" type="number" required min="0" step="0.01"
+                      value={assignForm.base_salary}
+                      onChange={(e) => setAssignForm({ ...assignForm, base_salary: e.target.value })}
+                      placeholder={`${formatCurrency(assignBand.min_salary)} – ${formatCurrency(assignBand.max_salary)}`}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="assign_date">Effective Date *</label>
+                    <input
+                      id="assign_date" type="date" required
+                      value={assignForm.effective_date}
+                      onChange={(e) => setAssignForm({ ...assignForm, effective_date: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn--secondary" onClick={() => setShowAssignModal(false)}>Close</button>
+                  <button type="submit" className="btn btn--primary" disabled={saving}>
+                    {saving ? 'Assigning...' : 'Assign Employee'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

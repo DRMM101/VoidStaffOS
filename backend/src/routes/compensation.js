@@ -2302,4 +2302,29 @@ router.get('/pay-bands/by-tier/:tierLevel', async (req, res) => {
   }
 });
 
+// GET /api/compensation/pay-bands/:id/employees — Employees currently on a specific pay band
+router.get('/pay-bands/:id/employees', authorize('Admin', 'HR', 'Finance'), async (req, res) => {
+  try {
+    const tenantId = req.session?.tenantId || 1;
+    const bandId = req.params.id;
+
+    // Get the most recent compensation record per employee that references this band
+    const result = await db.query(
+      `SELECT DISTINCT ON (cr.employee_id)
+        cr.id, cr.employee_id, cr.base_salary, cr.effective_date, cr.currency,
+        u.full_name, u.email
+       FROM compensation_records cr
+       JOIN users u ON cr.employee_id = u.id
+       WHERE cr.pay_band_id = $1 AND cr.tenant_id = $2
+       ORDER BY cr.employee_id, cr.effective_date DESC`,
+      [bandId, tenantId]
+    );
+
+    res.json({ data: result.rows });
+  } catch (err) {
+    console.error('Pay band employees error:', err);
+    res.status(500).json({ error: 'Failed to retrieve employees for pay band' });
+  }
+});
+
 module.exports = router;

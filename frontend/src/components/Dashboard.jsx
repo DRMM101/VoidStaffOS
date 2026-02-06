@@ -30,6 +30,7 @@ import RecruitmentRequestForm from './RecruitmentRequestForm';
 import MyRecruitmentRequests from './MyRecruitmentRequests';
 import RecruitmentApprovals from './RecruitmentApprovals';
 import TeamPerformance from './TeamPerformance';
+import StatCard from './layout/StatCard';
 import PendingFeedback from './PendingFeedback';
 import QuarterlyFeedbackDashboard from './QuarterlyFeedbackDashboard';
 import QuarterlyCompositeView from './QuarterlyCompositeView';
@@ -603,6 +604,11 @@ function Dashboard({ user, onNavigate }) {
         )}
       </div>
 
+      {/* Two-column layout: main content left, stat cards right */}
+      <div className="dashboard-layout">
+        {/* Left column — main content cards */}
+        <div className="dashboard-layout__main">
+
       {/* My Weekly Reflection Card */}
       <div className="dashboard-card reflection-card">
         <div className="card-header">
@@ -819,6 +825,72 @@ function Dashboard({ user, onNavigate }) {
           }}
         />
       )}
+
+        </div>{/* end dashboard-layout__main */}
+
+        {/* Right column — key stats sidebar */}
+        <aside className="dashboard-layout__aside">
+          {/* Leave Balance */}
+          <StatCard
+            label="Leave Balance"
+            value={`${myLeaveBalance?.remaining ?? '-'} days`}
+            subtitle={myLeaveBalance ? `${myLeaveBalance.used || 0} used of ${myLeaveBalance.entitlement || '-'}` : undefined}
+            onClick={() => setShowMyLeave(true)}
+          />
+
+          {/* Policy Compliance */}
+          {policyStats && (
+            <StatCard
+              label="Policy Compliance"
+              value={`${policyStats.compliance_rate || 0}%`}
+              subtitle={policyStats.pending > 0 ? `${policyStats.pending} pending` : 'All acknowledged'}
+              trend={policyStats.pending > 0 ? 'down' : 'up'}
+              onClick={() => onNavigate('policies')}
+            />
+          )}
+
+          {/* Documents */}
+          {documentStats && (
+            <StatCard
+              label="Documents"
+              value={documentStats.active || 0}
+              subtitle={documentStats.expiring_soon > 0 ? `${documentStats.expiring_soon} expiring soon` : 'All current'}
+              trend={documentStats.expiring_soon > 0 ? 'down' : 'flat'}
+              onClick={() => onNavigate('documents')}
+            />
+          )}
+
+          {/* Notifications */}
+          {unreadNotificationCount > 0 && (
+            <StatCard
+              label="Notifications"
+              value={unreadNotificationCount}
+              subtitle="Unread"
+              onClick={() => setShowNotifications(true)}
+            />
+          )}
+
+          {/* Manager: Pending Leave Approvals */}
+          {isManager && pendingLeaveCount > 0 && (
+            <StatCard
+              label="Leave Approvals"
+              value={pendingLeaveCount}
+              subtitle="Pending"
+              onClick={() => setShowLeaveApprovals(true)}
+            />
+          )}
+
+          {/* Manager: Pending Feedback */}
+          {pendingFeedbackCount > 0 && (
+            <StatCard
+              label="360 Feedback"
+              value={pendingFeedbackCount}
+              subtitle="Pending requests"
+              onClick={() => setShowPendingFeedback(true)}
+            />
+          )}
+        </aside>
+      </div>{/* end dashboard-layout */}
 
       {/* Self-Reflection Form Modal */}
       {showReflectionForm && (

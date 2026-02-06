@@ -10,6 +10,16 @@
 
 import { ChevronRight, Home } from 'lucide-react';
 
+/* Map section labels to their parent navigation page key */
+const SECTION_NAV = {
+  'Compensation': 'compensation',
+  'People': 'employees',
+  'Leave': 'absence',
+  'Company': 'policies',
+  'Admin': 'dashboard',
+  'Cases': 'hr-cases',
+};
+
 /* Map page keys to breadcrumb metadata: section and display label */
 const PAGE_MAP = {
   dashboard:        { section: null, label: 'Dashboard' },
@@ -50,7 +60,7 @@ function Breadcrumb({ currentPage, onNavigate }) {
 
   // Section crumb if the page belongs to a section group
   if (pageInfo.section) {
-    crumbs.push({ key: null, label: pageInfo.section });
+    crumbs.push({ key: SECTION_NAV[pageInfo.section] || null, label: pageInfo.section });
   }
 
   // Current page crumb (not clickable — it's the active page)

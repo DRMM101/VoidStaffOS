@@ -5,15 +5,15 @@
 /**
  * VoidStaffOS — AppShell Component
  * Top-level layout wrapper: sidebar + header bar + content area.
- * Manages sidebar collapsed state and provides layout structure.
+ * Manages sidebar collapsed state and mobile drawer state.
  */
 
-import { useState } from 'react';
-import { Search, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Plus, Menu } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Breadcrumb from './Breadcrumb';
 
-/* Storage key — shared with Sidebar so both stay in sync */
+/* Storage key for sidebar collapsed preference */
 const STORAGE_KEY = 'voidstaffos-sidebar-collapsed';
 
 /* Context-aware action button labels per page */
@@ -37,8 +37,8 @@ function AppShell({
   onActionClick,
   children
 }) {
-  /* Read initial sidebar state from localStorage */
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+  /* Sidebar collapsed state — single source of truth, persisted to localStorage */
+  const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_KEY) === 'true';
     } catch {
@@ -46,24 +46,61 @@ function AppShell({
     }
   });
 
+  /* Mobile sidebar drawer state */
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  /* Persist collapsed state when it changes */
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, String(collapsed));
+    } catch {
+      // localStorage unavailable
+    }
+  }, [collapsed]);
+
+  /* Toggle sidebar collapsed/expanded */
+  const toggleCollapsed = () => setCollapsed((prev) => !prev);
+
   /* Get context-aware action button for current page */
   const pageAction = PAGE_ACTIONS[currentPage] || null;
 
   return (
-    <div className={`app-shell ${sidebarCollapsed ? 'app-shell--collapsed' : 'app-shell--expanded'}`}>
-      {/* Collapsible sidebar */}
+    <div className={`app-shell ${collapsed ? 'app-shell--collapsed' : 'app-shell--expanded'}`}>
+      {/* Mobile backdrop — closes sidebar when tapped */}
+      {mobileMenuOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Collapsible sidebar — state managed here, passed down */}
       <Sidebar
         currentPage={currentPage}
         onNavigate={onNavigate}
         onLogout={onLogout}
         isAdmin={isAdmin}
         isManager={isManager}
+        collapsed={collapsed}
+        onToggleCollapsed={toggleCollapsed}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
       />
 
       {/* Main area: header bar + content */}
       <div className="app-shell__main">
         {/* Sticky header bar */}
         <header className="header-bar">
+          {/* Mobile hamburger — visible only on small screens */}
+          <button
+            className="header-bar__mobile-toggle"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
+
           {/* Left side: breadcrumb trail */}
           <Breadcrumb currentPage={currentPage} onNavigate={onNavigate} />
 

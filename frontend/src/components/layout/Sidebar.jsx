@@ -5,10 +5,10 @@
 /**
  * VoidStaffOS — Sidebar Component
  * Collapsible sidebar navigation with icons and labels.
- * Stores collapsed/expanded preference in localStorage.
+ * Collapsed state is managed by AppShell (single source of truth)
+ * and passed down via props.
  */
 
-import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -21,8 +21,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  LogOut,
-  Menu
+  LogOut
 } from 'lucide-react';
 
 /* Map page keys to sidebar nav items with icons and labels */
@@ -38,30 +37,7 @@ const NAV_ITEMS = [
   { key: 'settings', label: 'Settings', icon: Settings },
 ];
 
-/* Storage key for sidebar collapsed state */
-const STORAGE_KEY = 'voidstaffos-sidebar-collapsed';
-
-function Sidebar({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
-  /* Read saved preference or default to expanded */
-  const [collapsed, setCollapsed] = useState(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  /* Persist collapsed state to localStorage whenever it changes */
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, String(collapsed));
-    } catch {
-      // localStorage unavailable — silently ignore
-    }
-  }, [collapsed]);
-
-  /* Toggle sidebar collapsed/expanded */
-  const toggleCollapsed = () => setCollapsed((prev) => !prev);
+function Sidebar({ currentPage, onNavigate, onLogout, isAdmin, isManager, collapsed, onToggleCollapsed, mobileOpen, onMobileClose }) {
 
   /* Determine which nav items to show based on user role */
   const visibleItems = NAV_ITEMS.filter((item) => {
@@ -75,18 +51,18 @@ function Sidebar({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
 
   return (
     <aside
-      className={`sidebar ${collapsed ? 'sidebar--collapsed' : 'sidebar--expanded'}`}
+      className={`sidebar ${collapsed ? 'sidebar--collapsed' : 'sidebar--expanded'} ${mobileOpen ? 'sidebar--mobile-open' : ''}`}
       aria-label="Main navigation"
     >
       {/* Logo / hamburger toggle area */}
       <div className="sidebar__header">
         <button
           className="sidebar__toggle"
-          onClick={toggleCollapsed}
+          onClick={onToggleCollapsed}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
+          {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
         {/* Show brand text only when expanded */}
         {!collapsed && <span className="sidebar__brand">StaffOS</span>}
@@ -102,7 +78,7 @@ function Sidebar({ currentPage, onNavigate, onLogout, isAdmin, isManager }) {
             <button
               key={item.key}
               className={`sidebar__item ${isActive ? 'sidebar__item--active' : ''}`}
-              onClick={() => onNavigate(item.key)}
+              onClick={() => { onNavigate(item.key); if (onMobileClose) onMobileClose(); }}
               title={collapsed ? item.label : undefined}
               aria-current={isActive ? 'page' : undefined}
             >

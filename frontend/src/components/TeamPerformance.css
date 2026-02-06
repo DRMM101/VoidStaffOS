@@ -1,15 +1,17 @@
+/* Team Performance — HeadofficeOS theme-compliant styles */
+
 .team-performance {
   background: var(--color-surface);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-md);
 }
 
 .team-performance .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
 
 .team-performance .card-header h3 {
@@ -30,9 +32,9 @@
 /* Team Summary Card */
 .team-summary-card {
   background: var(--color-bg);
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
 }
 
 .summary-kpis {
@@ -45,12 +47,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .summary-kpi .kpi-label {
   font-size: 0.75rem;
-  color: #888;
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -64,16 +66,17 @@
   display: flex;
   gap: 20px;
   padding-top: 15px;
-  border-top: 1px solid #2a2a4e;
+  border-top: 1px solid var(--color-border);
 }
 
 .alert-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   font-size: 0.85rem;
 }
 
+/* Traffic light alert colours — semantic, kept as-is */
 .alert-item.attention {
   color: #f87171;
 }
@@ -90,35 +93,35 @@
   font-size: 1rem;
 }
 
-/* KPI Badge */
+/* KPI Badge — traffic light colours kept semantic */
 .kpi-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
   font-weight: 500;
 }
 
 .kpi-badge.green {
   background: rgba(74, 222, 128, 0.15);
-  color: #4ade80;
+  color: #22c55e;
 }
 
 .kpi-badge.amber {
   background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
+  color: #d97706;
 }
 
 .kpi-badge.red {
   background: rgba(248, 113, 113, 0.15);
-  color: #f87171;
+  color: #ef4444;
 }
 
 .kpi-badge.none {
-  background: rgba(136, 136, 136, 0.15);
-  color: #888;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
 }
 
 /* Staleness Indicator */
@@ -131,22 +134,23 @@
   border-radius: 50%;
   font-size: 0.75rem;
   font-weight: bold;
-  margin-left: 6px;
+  margin-left: var(--space-2);
+  flex-shrink: 0;
 }
 
 .staleness.current {
   background: rgba(74, 222, 128, 0.2);
-  color: #4ade80;
+  color: #22c55e;
 }
 
 .staleness.stale {
   background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
+  color: #d97706;
 }
 
 .staleness.overdue {
   background: rgba(248, 113, 113, 0.2);
-  color: #f87171;
+  color: #ef4444;
 }
 
 /* Team Table */
@@ -164,30 +168,31 @@
 .team-table th {
   text-align: left;
   padding: 12px 10px;
-  color: #888;
+  color: var(--color-text-muted);
   font-weight: 500;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid #2a2a4e;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .team-table td {
   padding: 12px 10px;
-  border-bottom: 1px solid #2a2a4e;
+  border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
 }
 
 .team-table tr:hover {
-  background: rgba(127, 90, 240, 0.05);
+  background: var(--color-bg);
 }
 
+/* Attention rows — semantic red tint */
 .team-table tr.needs-attention {
   background: rgba(248, 113, 113, 0.05);
 }
 
 .team-table tr.overdue {
-  border-left: 3px solid #f87171;
+  border-left: 3px solid #ef4444;
 }
 
 .member-name {
@@ -202,23 +207,28 @@
 }
 
 .member-name .role {
-  color: #666;
+  color: var(--color-text-muted);
   font-size: 0.75rem;
 }
 
+/* Tier badge — uses neutral surface instead of dark purple */
 .tier-badge {
   display: inline-block;
-  background: #2a2a4e;
+  background: var(--color-bg);
   color: var(--color-text-secondary);
   padding: 3px 8px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 600;
+  border: 1px solid var(--color-border);
 }
 
+/* Last Review date + staleness indicator — alignment fix */
 .review-date {
   display: flex;
   align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
 }
 
 .review-date .date {
@@ -234,20 +244,22 @@
 .btn-snapshot {
   padding: 6px 14px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--duration-fast) var(--ease-default);
 }
 
+/* View button — neutral surface tone */
 .btn-view {
-  background: #2a2a4e;
+  background: var(--color-bg);
   color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
 }
 
 .btn-view:hover {
-  background: #3a3a5e;
+  background: var(--color-border);
   color: var(--color-text-heading);
 }
 
@@ -265,7 +277,7 @@
   display: flex;
   gap: 20px;
   padding-top: 12px;
-  border-top: 1px solid #2a2a4e;
+  border-top: 1px solid var(--color-border);
 }
 
 .legend-item {
@@ -273,28 +285,28 @@
   align-items: center;
   gap: 6px;
   font-size: 0.75rem;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 /* No Team Message */
 .no-team-message {
   text-align: center;
   padding: 30px;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
-/* Loading / Error */
+/* Loading / Error states */
 .loading-small {
   text-align: center;
   padding: 30px;
-  color: #888;
+  color: var(--color-text-muted);
 }
 
 .error-message {
   background: rgba(248, 113, 113, 0.1);
-  color: #f87171;
+  color: #ef4444;
   padding: 15px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   text-align: center;
 }
 

@@ -543,3 +543,30 @@ npm run dev
 - **Tests**: 64 unit tests passing (12 test suites), 8/8 integration test steps passing
 
 > ⚠️ No user test performed for this chunk.
+
+### 2026-02-06 — UI Bug Fixes from Browser Testing
+
+- **Task**: Fix 7 issues found during browser testing: team performance table alignment, breadcrumb navigation, pay band assignment, sidebar mobile scaling, empty settings page, dashboard bento tiles.
+- **Decisions**:
+  - Full CSS variable migration of TeamPerformance.css — replaced all dark theme hardcoded colours with HeadofficeOS design tokens
+  - Breadcrumb section crumbs mapped to parent page keys via SECTION_NAV lookup
+  - Sidebar uses slide-in drawer pattern on mobile with backdrop overlay, hamburger button in header bar
+  - AdminSettingsPage created as a hub page linking to Role Management, Compensation Settings, Compliance
+  - Pay band assignment uses existing POST `/api/compensation/records` endpoint with a new GET `/pay-bands/:id/employees` endpoint
+  - Dashboard bento grid uses StatCard components for Leave Balance, Policy Compliance, Documents, Notifications, Leave Approvals, Feedback
+- **Changes**:
+  - `frontend/src/components/TeamPerformance.css` — Full theme migration: all `#2a2a4e`/`#666`/`#888` → CSS variables; `.review-date` alignment fix with gap + nowrap
+  - `frontend/src/components/layout/Breadcrumb.jsx` — Added SECTION_NAV map; section crumbs now clickable with navigation keys
+  - `frontend/src/components/layout/Sidebar.jsx` — Added `mobileOpen`/`onMobileClose` props, mobile-open CSS class
+  - `frontend/src/components/layout/AppShell.jsx` — Added hamburger toggle button, mobile menu state, backdrop overlay
+  - `frontend/src/theme/components.css` — Rewrote mobile responsive rules: sidebar drawer, backdrop, hamburger button; added AdminSettingsPage styles
+  - `frontend/src/components/admin/AdminSettingsPage.jsx` — New settings hub page (admin-only)
+  - `frontend/src/components/compensation/PayBandManager.jsx` — Added Assign Employees modal with employee select, salary input, effective date
+  - `frontend/src/components/Dashboard.jsx` — Added StatCard bento-grid section with key stats
+  - `frontend/src/App.jsx` — Added AdminSettingsPage import and `settings` route handler
+  - `backend/src/routes/compensation.js` — Added GET `/pay-bands/:id/employees` endpoint
+- **Tools/Dependencies**: No new dependencies
+- **Status**: Complete
+- **Tests**: 64 unit tests passing (12 test suites), production build compiles
+
+> ⚠️ No user test performed for this chunk.

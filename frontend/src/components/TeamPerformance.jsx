@@ -213,12 +213,14 @@ export default function TeamPerformance({ user, onCreateSnapshot, onViewMember }
                       status={member.kpis.cohesion.status}
                     />
                   </td>
-                  <td className="review-date">
-                    <span className="date">{formatDate(member.last_review_date)}</span>
-                    <StalenessIndicator
-                      status={member.staleness_status}
-                      daysSince={member.days_since_review}
-                    />
+                  <td>
+                    <div className="review-date">
+                      <span className="date">{formatDate(member.last_review_date)}</span>
+                      <StalenessIndicator
+                        status={member.staleness_status}
+                        daysSince={member.days_since_review}
+                      />
+                    </div>
                   </td>
                   <td className="actions">
                     {member.is_overdue ? (
