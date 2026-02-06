@@ -569,4 +569,21 @@ npm run dev
 - **Status**: Complete
 - **Tests**: 64 unit tests passing (12 test suites), production build compiles
 
-> ⚠️ No user test performed for this chunk.
+### 2026-02-06 11:45 UTC — Browser-tested UI fixes (round 2)
+- **Task**: Fix remaining issues from browser testing — sidebar not resizing, dashboard layout, button theming
+- **Decisions**:
+  - Made AppShell single source of truth for sidebar collapsed state (was duplicated in Sidebar)
+  - Changed Dashboard from full-width bento grid to two-column layout per user request (main content left, stat cards right column)
+  - Widened dashboard max-width from 800px to 1200px
+  - Fixed TeamPerformance table: moved `display: flex` from `<td>` to inner `<div>` for proper alignment
+  - Replaced hardcoded purple on policy-btn and recruitment-btn with theme CSS variables
+- **Changes**:
+  - `frontend/src/components/layout/Sidebar.jsx` — Removed internal collapsed state, uses props from AppShell
+  - `frontend/src/components/layout/AppShell.jsx` — Single source of truth for collapsed state
+  - `frontend/src/components/layout/__tests__/Sidebar.test.jsx` — Updated for prop-driven collapse
+  - `frontend/src/components/Dashboard.jsx` — Two-column layout with stat cards in right aside
+  - `frontend/src/components/TeamPerformance.jsx` — review-date flex moved to inner div
+  - `frontend/src/theme/components.css` — Dashboard layout CSS, policy/recruitment button theme fix
+- **Tools/Dependencies**: No new dependencies
+- **Status**: Complete — user tested and approved
+- **Tests**: 64 unit tests passing (12 test suites), production build compiles
