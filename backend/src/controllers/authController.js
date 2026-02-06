@@ -16,10 +16,16 @@
  */
 
 const bcrypt = require('bcrypt');
+const otplib = require('otplib');
 const User = require('../models/User');
 const pool = require('../config/database');
 const { auditLog } = require('../utils/auditLog');
 const auditTrail = require('../utils/auditTrail');
+const { logSecurityEvent, parseDeviceName, validatePassword } = require('../routes/security');
+
+/* Lockout constants */
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_MINUTES = 15;
 
 /**
  * Register a new user
@@ -95,70 +101,293 @@ async function login(req, res) {
       return res.status(401).json({ error: 'Account is inactive' });
     }
 
+    // --- Account lockout check ---
+    // If user is locked and lockout period hasn't expired, reject immediately
+    if (user.locked_until && new Date(user.locked_until) > new Date()) {
+      await logSecurityEvent(user.tenant_id || 1, user.id, 'login_failed_locked', req, {
+        locked_until: user.locked_until
+      });
+      return res.status(423).json({
+        error: 'Account temporarily locked due to too many failed attempts.',
+        locked_until: user.locked_until
+      });
+    }
+
+    // --- Password verification ---
     const validPassword = await bcrypt.compare(password, user.password_hash);
     if (!validPassword) {
+      // Increment failed attempt counter
+      const newAttempts = (user.failed_login_attempts || 0) + 1;
+
+      if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+        // Lock the account for LOCKOUT_MINUTES
+        const lockedUntil = new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000);
+        await pool.query(
+          `UPDATE users SET failed_login_attempts = $1, locked_until = $2 WHERE id = $3`,
+          [newAttempts, lockedUntil, user.id]
+        );
+
+        // Log lockout event
+        await logSecurityEvent(user.tenant_id || 1, user.id, 'account_locked', req, {
+          attempts: newAttempts, locked_until: lockedUntil.toISOString()
+        });
+
+        // Insert notification for the user about lockout
+        try {
+          await pool.query(
+            `INSERT INTO notifications (tenant_id, user_id, type, title, message)
+             VALUES ($1, $2, 'warning', 'Account Locked',
+               'Your account has been temporarily locked due to multiple failed login attempts. It will unlock automatically in ${LOCKOUT_MINUTES} minutes.')`,
+            [user.tenant_id || 1, user.id]
+          );
+        } catch (notifErr) {
+          console.error('Failed to create lockout notification:', notifErr);
+        }
+      } else {
+        // Just increment the counter
+        await pool.query(
+          `UPDATE users SET failed_login_attempts = $1 WHERE id = $2`,
+          [newAttempts, user.id]
+        );
+      }
+
       // Log failed login attempt
       auditLog.loginFailure(email, req);
+      await logSecurityEvent(user.tenant_id || 1, user.id, 'login_failed', req, {
+        attempts: newAttempts
+      });
+
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Fetch user's additional roles and their permissions
-    const additionalRolesResult = await pool.query(
-      `SELECT ar.role_code, ar.permissions_json
-       FROM user_additional_roles uar
-       JOIN additional_roles ar ON uar.additional_role_id = ar.id
-       WHERE uar.user_id = $1
-         AND ar.is_active = TRUE
-         AND (uar.expires_at IS NULL OR uar.expires_at > CURRENT_TIMESTAMP)`,
+    // --- Password valid — reset lockout counters ---
+    await pool.query(
+      `UPDATE users SET failed_login_attempts = 0, locked_until = NULL, last_login_at = NOW() WHERE id = $1`,
       [user.id]
     );
 
-    // Extract role codes and merge permissions
-    const additionalRoleCodes = additionalRolesResult.rows.map(r => r.role_code);
-    const additionalPermissions = additionalRolesResult.rows
-      .flatMap(r => r.permissions_json || []);
-
-    // Combine base permissions with additional role permissions
-    const basePermissions = Array.isArray(user.permissions_json) ? user.permissions_json : [];
-    const allPermissions = [...new Set([...basePermissions, ...additionalPermissions])];
-
-    // Create session (secure cookie-based auth)
-    req.session.userId = user.id;
-    req.session.tenantId = user.tenant_id || 1; // Default tenant for migration
-    req.session.roles = [user.role_name];
-    req.session.tier = user.tier; // Store tier in session for tier-based auth
-    req.session.permissions = allPermissions;
-    req.session.additionalRoles = additionalRoleCodes;
-    req.session.email = user.email;
-    req.session.fullName = user.full_name;
-
-    // Save session explicitly to ensure cookie is set before response
-    req.session.save((err) => {
-      if (err) {
-        console.error('Session save error:', err);
-        return res.status(500).json({ error: 'Login failed' });
-      }
-
-      // Log successful login
-      auditLog.loginSuccess(user.tenant_id || 1, user.id, req);
-
-      // Return safe user data (no password hash, internal fields)
-      res.json({
-        message: 'Login successful',
-        user: {
-          id: user.id,
-          email: user.email,
-          full_name: user.full_name,
-          role_name: user.role_name,
-          tier: user.tier,
-          employee_number: user.employee_number,
-          additionalRoles: additionalRoleCodes
-        }
+    // --- MFA challenge check ---
+    // If user has MFA enabled, don't create session yet — require TOTP verification
+    if (user.mfa_enabled) {
+      await logSecurityEvent(user.tenant_id || 1, user.id, 'mfa_challenge_sent', req);
+      return res.json({
+        mfa_required: true,
+        user_id: user.id,
+        message: 'MFA verification required'
       });
-    });
+    }
+
+    // --- No MFA — complete login with full session ---
+    await completeLogin(req, res, user);
+
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
+  }
+}
+
+/**
+ * Complete the login process: create session, track device, return user data.
+ * Called after password verification (and MFA verification if enabled).
+ *
+ * @param {Object} req - Express request
+ * @param {Object} res - Express response
+ * @param {Object} user - User record from database
+ */
+async function completeLogin(req, res, user) {
+  // Fetch user's additional roles and their permissions
+  const additionalRolesResult = await pool.query(
+    `SELECT ar.role_code, ar.permissions_json
+     FROM user_additional_roles uar
+     JOIN additional_roles ar ON uar.additional_role_id = ar.id
+     WHERE uar.user_id = $1
+       AND ar.is_active = TRUE
+       AND (uar.expires_at IS NULL OR uar.expires_at > CURRENT_TIMESTAMP)`,
+    [user.id]
+  );
+
+  // Extract role codes and merge permissions
+  const additionalRoleCodes = additionalRolesResult.rows.map(r => r.role_code);
+  const additionalPermissions = additionalRolesResult.rows
+    .flatMap(r => r.permissions_json || []);
+
+  // Combine base permissions with additional role permissions
+  const basePermissions = Array.isArray(user.permissions_json) ? user.permissions_json : [];
+  const allPermissions = [...new Set([...basePermissions, ...additionalPermissions])];
+
+  // Create session (secure cookie-based auth)
+  req.session.userId = user.id;
+  req.session.tenantId = user.tenant_id || 1; // Default tenant for migration
+  req.session.roles = [user.role_name];
+  req.session.tier = user.tier; // Store tier in session for tier-based auth
+  req.session.permissions = allPermissions;
+  req.session.additionalRoles = additionalRoleCodes;
+  req.session.email = user.email;
+  req.session.fullName = user.full_name;
+
+  // Save session explicitly to ensure cookie is set before response
+  req.session.save(async (err) => {
+    if (err) {
+      console.error('Session save error:', err);
+      return res.status(500).json({ error: 'Login failed' });
+    }
+
+    // Track session device (device name, IP, session ID)
+    try {
+      const deviceName = parseDeviceName(req.get('User-Agent') || '');
+      await pool.query(
+        `INSERT INTO session_devices (tenant_id, user_id, session_sid, device_name, ip_address)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [user.tenant_id || 1, user.id, req.sessionID, deviceName, req.ip]
+      );
+    } catch (deviceErr) {
+      // Non-fatal — don't block login if device tracking fails
+      console.error('Failed to track session device:', deviceErr);
+    }
+
+    // Log successful login
+    auditLog.loginSuccess(user.tenant_id || 1, user.id, req);
+    await logSecurityEvent(user.tenant_id || 1, user.id, 'login_success', req);
+
+    // Fetch tenant MFA policy for the frontend to know if MFA setup is required
+    let mfaPolicy = 'optional';
+    let mfaGracePeriodDays = 7;
+    try {
+      const tenantResult = await pool.query(
+        `SELECT mfa_policy, mfa_grace_period_days FROM tenants WHERE id = $1`,
+        [user.tenant_id || 1]
+      );
+      if (tenantResult.rows.length > 0) {
+        mfaPolicy = tenantResult.rows[0].mfa_policy || 'optional';
+        mfaGracePeriodDays = tenantResult.rows[0].mfa_grace_period_days || 7;
+      }
+    } catch (policyErr) {
+      console.error('Failed to fetch tenant MFA policy:', policyErr);
+    }
+
+    // Return safe user data (no password hash, internal fields)
+    res.json({
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name,
+        role_name: user.role_name,
+        tier: user.tier,
+        employee_number: user.employee_number,
+        additionalRoles: additionalRoleCodes
+      },
+      // Include MFA policy so frontend can enforce setup if required
+      mfa_policy: mfaPolicy,
+      mfa_grace_period_days: mfaGracePeriodDays,
+      mfa_enabled: user.mfa_enabled || false
+    });
+  });
+}
+
+/**
+ * Validate MFA code during login — completes the two-step authentication.
+ * Called when login returned mfa_required: true.
+ *
+ * @async
+ * @param {Object} req - Express request
+ * @param {Object} req.body.user_id - User ID from the MFA challenge response
+ * @param {Object} req.body.code - 6-digit TOTP code or 8-char backup code
+ * @param {Object} res - Express response
+ * @returns {Object} Session + user data on success
+ * @authorization Public (but requires prior password verification)
+ */
+async function validateMFA(req, res) {
+  try {
+    const { user_id, code } = req.body;
+
+    if (!user_id || !code) {
+      return res.status(400).json({ error: 'User ID and code are required' });
+    }
+
+    // Fetch the user with MFA secret
+    const userResult = await pool.query(
+      `SELECT u.*, r.role_name, r.permissions_json
+       FROM users u
+       JOIN roles r ON u.role_id = r.id
+       WHERE u.id = $1`,
+      [user_id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const user = userResult.rows[0];
+
+    // User must have MFA enabled
+    if (!user.mfa_enabled || !user.mfa_secret) {
+      return res.status(400).json({ error: 'MFA is not enabled for this account' });
+    }
+
+    const trimmedCode = code.trim();
+
+    // Try TOTP verification first (6-digit code)
+    if (/^\d{6}$/.test(trimmedCode)) {
+      const isValid = otplib.verifySync({ token: trimmedCode, secret: user.mfa_secret, window: 1 }).valid;
+      if (isValid) {
+        // TOTP code accepted — complete login
+        await logSecurityEvent(user.tenant_id || 1, user.id, 'mfa_verified', req, {
+          method: 'totp'
+        });
+        return await completeLogin(req, res, user);
+      }
+
+      // TOTP failed — log and reject
+      await logSecurityEvent(user.tenant_id || 1, user.id, 'mfa_failed', req, {
+        method: 'totp'
+      });
+      return res.status(401).json({ error: 'Invalid verification code' });
+    }
+
+    // Try backup code (8-char alphanumeric, possibly with hyphen XXXX-XXXX)
+    const cleanCode = trimmedCode.replace(/-/g, '').toUpperCase();
+    if (cleanCode.length === 8) {
+      // Fetch unused backup codes for this user
+      const codesResult = await pool.query(
+        `SELECT id, code_hash FROM user_backup_codes
+         WHERE user_id = $1 AND used_at IS NULL`,
+        [user.id]
+      );
+
+      // Check each backup code hash
+      for (const row of codesResult.rows) {
+        const match = await bcrypt.compare(cleanCode, row.code_hash);
+        if (match) {
+          // Mark backup code as used
+          await pool.query(
+            `UPDATE user_backup_codes SET used_at = NOW() WHERE id = $1`,
+            [row.id]
+          );
+
+          // Log backup code usage
+          await logSecurityEvent(user.tenant_id || 1, user.id, 'backup_code_used', req, {
+            code_id: row.id
+          });
+
+          // Complete login
+          return await completeLogin(req, res, user);
+        }
+      }
+
+      // No matching backup code
+      await logSecurityEvent(user.tenant_id || 1, user.id, 'mfa_failed', req, {
+        method: 'backup_code'
+      });
+      return res.status(401).json({ error: 'Invalid backup code' });
+    }
+
+    // Code format not recognised
+    return res.status(400).json({ error: 'Invalid code format. Enter a 6-digit code or 8-character backup code.' });
+
+  } catch (error) {
+    console.error('MFA validation error:', error);
+    res.status(500).json({ error: 'MFA validation failed' });
   }
 }
 
@@ -360,5 +589,7 @@ module.exports = {
   logout,
   getMe,
   verifyPassword,
-  checkAuditAccess
+  checkAuditAccess,
+  validateMFA,
+  completeLogin
 };

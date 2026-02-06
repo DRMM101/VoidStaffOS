@@ -462,3 +462,64 @@ The ZIP archive contains JSON files organised by category:
 ### Request Values
 - **Request Type**: `export`, `deletion`
 - **Status**: `pending`, `processing`, `completed`, `rejected`, `expired`
+
+---
+
+## Security & 2FA (`/api/security`)
+
+### MFA
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/security/mfa/status` | Authenticated | Get MFA status: `{ mfa_enabled, mfa_enabled_at, backup_codes_remaining }` |
+| POST | `/security/mfa/enroll` | Authenticated | Start MFA enrolment: `{ secret, qr_code_url }` (stored in session) |
+| POST | `/security/mfa/verify-setup` | Authenticated | Verify TOTP code to complete setup; returns `{ backup_codes: string[] }` |
+| DELETE | `/security/mfa` | Authenticated | Disable MFA; body: `{ code }` (current TOTP code) |
+| GET | `/security/mfa/backup-codes` | Authenticated | Count unused backup codes: `{ count }` |
+| POST | `/security/mfa/backup-codes/regenerate` | Authenticated | Regenerate 10 codes; body: `{ code }`; returns `{ backup_codes: string[] }` |
+
+### MFA Login Flow
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/auth/mfa/validate` | Public | Verify MFA code after password login; body: `{ user_id, code }`; returns full login response |
+
+**Login flow change:** When `POST /auth/login` succeeds and user has MFA enabled, returns `{ mfa_required: true, user_id }` (HTTP 200, no session). Client must call `/auth/mfa/validate` to complete login.
+
+### Password
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/security/password-policy` | Authenticated | Tenant password rules: `{ policy: { min_length, require_uppercase, require_number, require_special } }` |
+| POST | `/security/change-password` | Authenticated | Change password; body: `{ current_password, new_password }` |
+
+### Sessions
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/security/sessions` | Authenticated | List active sessions: `{ sessions: [{ id, device_name, ip_address, last_active, is_current }] }` |
+| DELETE | `/security/sessions/:id` | Authenticated | Terminate specific session |
+| DELETE | `/security/sessions/other` | Authenticated | Terminate all sessions except current |
+
+### Admin Security (Admin only)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/security/admin/security-policy` | Admin | Tenant security settings (MFA policy, password rules, timeout) |
+| PUT | `/security/admin/security-policy` | Admin | Update tenant security settings |
+| GET | `/security/admin/mfa-stats` | Admin | MFA adoption: `{ total_users, mfa_enabled_count, percentage }` |
+| GET | `/security/admin/security-audit` | Admin | Paginated security audit log; query: `?event_type=...&page=1&limit=50` |
+| GET | `/security/admin/inactive-accounts` | Admin | Users with no login in 90+ days |
+| POST | `/security/admin/bulk-disable` | Admin | Disable selected accounts; body: `{ user_ids: number[] }` |
+
+### Account Lockout
+
+- After 5 failed login attempts, account is locked for 15 minutes
+- `POST /auth/login` returns HTTP 423 with `{ error, locked_until }` for locked accounts
+- Notification created for locked user and tenant admins
+- Counters reset on successful login
+
+### Security Event Types
+
+Events logged to `security_audit_log`:
+`login_success`, `login_failed`, `login_failed_locked`, `account_locked`, `mfa_challenge_sent`, `mfa_verified`, `mfa_failed`, `mfa_enabled`, `mfa_disabled`, `backup_code_used`, `backup_codes_regenerated`, `password_changed`, `session_terminated`, `all_sessions_terminated`, `security_policy_updated`

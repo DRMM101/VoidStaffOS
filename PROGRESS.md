@@ -1,6 +1,6 @@
 # HeadOfficeOS - Development Progress
 
-**Last Updated:** 2026-02-06 17:30 UTC
+**Last Updated:** 2026-02-06 18:15 UTC
 
 ## Current State
 
@@ -905,3 +905,50 @@ npm run dev
 - **Verification**: grep for StaffOS/VoidStaffOS/staffos/voidstaffos returns 0 matches (excluding .claude/settings.local.json folder paths)
 - **Status**: Complete — user tested and confirmed in browser
 - **Git**: Tagged `v0.16.0`
+
+---
+
+### Chunk 17: 2FA + Security Quick Wins — 2026-02-06 17:45 UTC
+
+- **Task**: Implement TOTP-based two-factor authentication, password policies, account lockout, session management, session timeout, inactive account detection, and admin security settings
+- **Decisions**:
+  - Used `otplib` for TOTP secret generation/verification and `qrcode` for QR data URLs (NOT Supabase MFA)
+  - Adapted spec from Supabase/UUID/RLS/TailwindCSS to actual Express/INTEGER/middleware/BEM conventions
+  - Account lockout: 5 failed attempts → 15-minute lock, notifications via existing notifications table (no email service)
+  - Simple User-Agent parsing via regex instead of adding `ua-parser-js` dependency
+  - Session device tracking via separate `session_devices` table alongside existing connect-pg-simple `user_sessions`
+  - Backup codes: 10 codes, 8 chars (XXXX-XXXX format), bcrypt hashed, single-use
+  - MFA login flow: password success + mfa_enabled → return mfa_required (no session) → POST /auth/mfa/validate → complete login
+  - Tenant-level MFA policy (off/optional/required) with grace period for enforcement
+  - Session timeout warning 5 minutes before expiry with "Stay logged in" option
+- **Changes**:
+  - **Created**: `backend/migrations/040_security_features.sql` — tenant security columns, user security columns, user_backup_codes, session_devices, security_audit_log tables
+  - **Created**: `backend/src/routes/security.js` — ~580 lines: MFA setup/verify/disable, backup codes, password change/policy, sessions, admin security policy, MFA stats, audit log, inactive accounts, bulk disable
+  - **Modified**: `backend/src/controllers/authController.js` — account lockout check, failed attempt tracking, MFA challenge step, last_login_at update, session device tracking, completeLogin helper, validateMFA endpoint
+  - **Modified**: `backend/src/routes/auth.js` — added POST /auth/mfa/validate route
+  - **Modified**: `backend/src/server.js` — registered /api/security routes
+  - **Created**: `frontend/src/components/security/SecuritySettingsPage.jsx` — user security hub with MFA status, sessions, password change
+  - **Created**: `frontend/src/components/security/MFASetupWizard.jsx` — 3-step modal: QR code, 6-digit input, backup codes
+  - **Created**: `frontend/src/components/security/MFAVerifyModal.jsx` — login MFA challenge with TOTP/backup code toggle
+  - **Created**: `frontend/src/components/security/BackupCodesModal.jsx` — view/regenerate backup codes
+  - **Created**: `frontend/src/components/security/MFADisableModal.jsx` — disable MFA confirmation
+  - **Created**: `frontend/src/components/security/AdminSecuritySettings.jsx` — admin MFA policy, password rules, session timeout, inactive accounts, audit log
+  - **Created**: `frontend/src/components/security/SessionTimeoutWarning.jsx` — inactivity warning modal with auto-logout
+  - **Modified**: `frontend/src/components/Login.jsx` — MFA verify step after mfa_required response, lockout time display
+  - **Modified**: `frontend/src/App.jsx` — security page imports/routes, SessionTimeoutWarning component
+  - **Modified**: `frontend/src/components/layout/Sidebar.jsx` — "Security" nav item (Lock icon, all users)
+  - **Modified**: `frontend/src/components/layout/Breadcrumb.jsx` — security + admin-security pages
+  - **Modified**: `frontend/src/components/admin/AdminSettingsPage.jsx` — Security card
+  - **Modified**: `frontend/src/theme/components.css` — ~350 lines security BEM styles
+  - **Created**: `frontend/src/components/__tests__/SecuritySettingsPage.test.jsx` — 7 tests
+  - **Created**: `frontend/src/components/__tests__/MFASetupWizard.test.jsx` — 8 tests
+- **Tools/Dependencies**: otplib, qrcode (backend npm packages)
+- **Tests**: 174 unit tests passing (26 test suites), production build compiles
+- **Bugfixes during testing**:
+  - `otplib` v4+ has flat API (no `authenticator` object) — changed to `otplib.generateSecret()`, `otplib.generateURI()`, `otplib.verifySync()`
+  - `logSecurityEvent` calls in authController had extra `pool` arg — removed
+  - `validateMFA` query referenced `r.name` and `r.tier` but roles table uses `role_name` and `tier` is on users — fixed query to `r.role_name, r.permissions_json` with `u.*`
+  - Added `window: 1` to all TOTP verifications for +/- 30s clock drift tolerance
+  - Forced MFA setup on login when tenant `mfa_policy = 'required'` and user hasn't enabled MFA
+  - Improved MFA wizard/verify modal styling — teal header, cream background, proper border contrast
+- **Status**: Complete — user tested MFA setup, QR scan, TOTP verification, backup codes, forced MFA on login

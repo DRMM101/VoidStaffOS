@@ -185,6 +185,7 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full details.
 | GoalsOS | ✅ Active | Goal-setting, tracking, progress updates |
 | AnnouncementsOS | ✅ Active | Company announcements, read tracking, ticker |
 | GDPR Export | ✅ Active | Data export, deletion requests, UK GDPR compliance |
+| Security & 2FA | ✅ Active | TOTP MFA, backup codes, password policy, account lockout, session management, session timeout, admin security settings |
 | LearnOS | 📋 Planned | Learning management |
 | AssetOS | 📋 Planned | Asset tracking |
 | TimeOS | 📋 Planned | Time tracking |
@@ -227,6 +228,9 @@ Full API documentation available at [docs/API_REFERENCE.md](docs/API_REFERENCE.m
 - `GET /api/announcements` - Company announcements
 - `POST /api/gdpr/export` - GDPR data export request
 - `GET /api/opportunities` - Internal job board
+- `GET /api/security/mfa/status` - MFA status
+- `POST /api/security/mfa/enroll` - Start MFA setup
+- `POST /api/auth/mfa/validate` - MFA login verification
 
 ---
 

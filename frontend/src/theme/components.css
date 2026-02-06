@@ -13541,3 +13541,877 @@ button[type="submit"]:disabled {
     width: 100%;
   }
 }
+
+/* =============================================
+   SECURITY SETTINGS PAGE
+   ============================================= */
+
+/* Page layout */
+.security-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+}
+
+.security-page__header {
+  margin-bottom: var(--space-xl);
+}
+
+.security-page__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-xl);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.security-page__subtitle {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Security sections (MFA, Sessions, Password) */
+.security-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg);
+  overflow: hidden;
+}
+
+.security-section__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-md);
+  color: var(--text-primary);
+  padding: var(--space-md) var(--space-lg);
+  margin: 0;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.security-section__content {
+  padding: var(--space-lg);
+}
+
+/* MFA status */
+.security-mfa__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-xxs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-sm);
+  font-weight: 600;
+}
+
+.security-badge--enabled {
+  background: var(--success-bg, #dcfce7);
+  color: var(--success-text, #166534);
+}
+
+.security-badge--disabled {
+  background: var(--warning-bg, #fef3c7);
+  color: var(--warning-text, #92400e);
+}
+
+.security-badge--current {
+  background: var(--info-bg, #dbeafe);
+  color: var(--info-text, #1e40af);
+  font-size: var(--font-xs);
+}
+
+.security-mfa__enabled-date {
+  color: var(--text-tertiary);
+  font-size: var(--font-sm);
+}
+
+.security-mfa__description {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+  line-height: 1.5;
+}
+
+.security-mfa__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.security-mfa__backup-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-raised);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+/* Session device cards */
+.security-sessions__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.security-sessions__terminate-all {
+  align-self: flex-end;
+}
+
+.security-session-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.security-session-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+.security-session-card__device {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.security-session-card__ip,
+.security-session-card__time {
+  font-size: var(--font-sm);
+  color: var(--text-tertiary);
+}
+
+/* Password form */
+.security-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 400px;
+}
+
+.security-password-rules {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-xs) 0 0 0;
+}
+
+.security-password-rules__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-sm);
+  padding: var(--space-xxs) 0;
+}
+
+.security-password-rules__item--fail {
+  color: var(--error-text, #dc2626);
+}
+
+.security-password-rules__item--pass {
+  color: var(--success-text, #166534);
+}
+
+/* =============================================
+   MFA SETUP WIZARD
+   ============================================= */
+
+.mfa-wizard {
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--radius-lg);
+  width: 480px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border, #e8e2d9);
+}
+
+.mfa-wizard__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm, 8px);
+  padding: var(--space-4, 16px) var(--space-6, 24px);
+  border-bottom: 1px solid var(--color-border, #e8e2d9);
+  background: var(--color-primary, #134e4a);
+  color: var(--color-text-inverse, #ffffff);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.mfa-wizard__title {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-md, 1rem);
+  color: inherit;
+}
+
+/* Step indicators */
+.mfa-wizard__steps {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.mfa-wizard__step {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption, 0.75rem);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.mfa-wizard__step--active {
+  background: var(--color-text-inverse, #ffffff);
+  color: var(--color-primary, #134e4a);
+  border-color: var(--color-text-inverse, #ffffff);
+}
+
+.mfa-wizard__step--done {
+  background: var(--color-sage, #b5ccc4);
+  color: var(--color-success-text, #2d6a4f);
+  border-color: var(--color-sage, #b5ccc4);
+}
+
+.mfa-wizard__body {
+  padding: var(--space-6, 24px);
+  background: var(--color-bg, #f9f6f2);
+}
+
+.mfa-wizard__instruction {
+  color: var(--color-text, #5c6b63);
+  margin-bottom: var(--space-4, 16px);
+  line-height: 1.5;
+}
+
+/* QR code display */
+.mfa-wizard__qr {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-md);
+}
+
+.mfa-wizard__qr-image {
+  width: 220px;
+  height: 220px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  background: white;
+}
+
+/* Manual secret */
+.mfa-wizard__manual {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.mfa-wizard__manual-label {
+  color: var(--text-tertiary);
+  font-size: var(--font-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.mfa-wizard__secret {
+  display: inline-block;
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border-strong, #d4cec5);
+  border-radius: var(--radius-md);
+  font-family: monospace;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  color: var(--color-text-heading, #134e4a);
+  user-select: all;
+}
+
+/* 6-digit code input */
+.mfa-wizard__digits {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.mfa-wizard__digit-input {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border: 2px solid var(--color-border-strong, #d4cec5);
+  border-radius: var(--radius-md);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-heading, #134e4a);
+  outline: none;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.mfa-wizard__digit-input:focus {
+  border-color: var(--color-primary, #134e4a);
+  box-shadow: var(--shadow-focus);
+}
+
+.mfa-wizard__verifying {
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--font-sm);
+}
+
+/* Backup codes grid */
+.mfa-wizard__codes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.mfa-wizard__code {
+  display: block;
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border-strong, #d4cec5);
+  border-radius: var(--radius-sm);
+  font-family: monospace;
+  font-size: 1rem;
+  text-align: center;
+  color: var(--color-text-heading, #134e4a);
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.mfa-wizard__code-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  margin-bottom: var(--space-md);
+}
+
+/* Confirm saved checkbox */
+.mfa-wizard__confirm-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+  cursor: pointer;
+}
+
+/* Wizard action buttons */
+.mfa-wizard__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3, 12px);
+  padding-top: var(--space-4, 16px);
+  border-top: 1px solid var(--color-border, #e8e2d9);
+}
+
+/* =============================================
+   MFA VERIFY MODAL (Login Challenge)
+   ============================================= */
+
+.mfa-verify {
+  background: var(--color-surface, #ffffff);
+  border-radius: var(--radius-lg);
+  width: 420px;
+  max-width: 95vw;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border, #e8e2d9);
+}
+
+.mfa-verify__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  padding: var(--space-4, 16px) var(--space-6, 24px);
+  background: var(--color-primary, #134e4a);
+  color: var(--color-text-inverse, #ffffff);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.mfa-verify__title {
+  margin: 0;
+  font-size: var(--font-md, 1rem);
+  color: inherit;
+}
+
+.mfa-verify__body {
+  padding: var(--space-6, 24px);
+  background: var(--color-bg, #f9f6f2);
+}
+
+.mfa-verify__instruction {
+  color: var(--color-text, #5c6b63);
+  margin-bottom: var(--space-4, 16px);
+  line-height: 1.5;
+}
+
+.mfa-verify__verifying {
+  text-align: center;
+  color: var(--color-text-muted, #8a9490);
+  font-size: var(--text-body-sm, 0.875rem);
+}
+
+.mfa-verify__backup-input {
+  width: 100%;
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  font-size: 1rem;
+  font-family: monospace;
+  letter-spacing: 2px;
+  text-align: center;
+  border: 2px solid var(--color-border-strong, #d4cec5);
+  border-radius: var(--radius-md);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-heading, #134e4a);
+  margin-bottom: var(--space-4, 16px);
+}
+
+.mfa-verify__backup-input:focus {
+  border-color: var(--color-primary, #134e4a);
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+
+.mfa-verify__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4, 16px) var(--space-6, 24px);
+  border-top: 1px solid var(--color-border, #e8e2d9);
+  background: var(--color-surface, #ffffff);
+}
+
+/* =============================================
+   MFA DISABLE MODAL
+   ============================================= */
+
+.mfa-disable-modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: 440px;
+  max-width: 95vw;
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-lg);
+}
+
+.mfa-disable-modal__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0 0 var(--space-md) 0;
+  font-size: var(--font-md);
+  color: var(--text-primary);
+}
+
+.mfa-disable-modal__warning {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--error-bg, #fef2f2);
+  border: 1px solid var(--error-border, #fecaca);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  color: var(--error-text, #dc2626);
+}
+
+.mfa-disable-modal__warning p {
+  margin: 0;
+  font-size: var(--font-sm);
+  line-height: 1.5;
+}
+
+.mfa-disable-modal__text {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+  font-size: var(--font-sm);
+}
+
+.mfa-disable-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+/* =============================================
+   BACKUP CODES MODAL
+   ============================================= */
+
+.backup-codes-modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: 480px;
+  max-width: 95vw;
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-lg);
+}
+
+.backup-codes-modal__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0 0 var(--space-md) 0;
+  font-size: var(--font-md);
+  color: var(--text-primary);
+}
+
+.backup-codes-modal__text {
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  margin-bottom: var(--space-md);
+  line-height: 1.5;
+}
+
+.backup-codes-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+/* =============================================
+   ADMIN SECURITY SETTINGS
+   ============================================= */
+
+.admin-security {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+}
+
+.admin-security__header {
+  margin-bottom: var(--space-xl);
+}
+
+.admin-security__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-xl);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.admin-security__subtitle {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.admin-security__section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-lg);
+}
+
+.admin-security__section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-md);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-md) 0;
+}
+
+.admin-security__description {
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  margin-bottom: var(--space-md);
+}
+
+.admin-security__field {
+  margin-bottom: var(--space-md);
+}
+
+.admin-security__toggles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.admin-security__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.admin-security__save {
+  margin-bottom: var(--space-lg);
+}
+
+/* MFA adoption stats bar */
+.admin-security__stats {
+  margin-top: var(--space-md);
+  padding: var(--space-md);
+  background: var(--surface-raised);
+  border-radius: var(--radius-md);
+}
+
+.admin-security__stats-title {
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.admin-security__stats-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-xs);
+}
+
+.admin-security__stats-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.admin-security__stats-label {
+  font-size: var(--font-xs);
+  color: var(--text-tertiary);
+}
+
+/* Admin security tables (inactive accounts, audit log) */
+.admin-security__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-md);
+  font-size: var(--font-sm);
+}
+
+.admin-security__table th,
+.admin-security__table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-security__table th {
+  background: var(--surface-raised);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.admin-security__table td {
+  color: var(--text-secondary);
+}
+
+/* Audit log controls */
+.admin-security__audit-controls {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* Security event badge */
+.security-event-badge {
+  display: inline-block;
+  padding: var(--space-xxs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  text-transform: capitalize;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+}
+
+.security-event-badge--login_success {
+  background: var(--success-bg, #dcfce7);
+  color: var(--success-text, #166534);
+}
+
+.security-event-badge--login_failed,
+.security-event-badge--mfa_failed,
+.security-event-badge--account_locked {
+  background: var(--error-bg, #fef2f2);
+  color: var(--error-text, #dc2626);
+}
+
+.security-event-badge--mfa_enabled,
+.security-event-badge--mfa_verified {
+  background: var(--info-bg, #dbeafe);
+  color: var(--info-text, #1e40af);
+}
+
+/* =============================================
+   SESSION TIMEOUT WARNING
+   ============================================= */
+
+.session-timeout-backdrop {
+  z-index: 9999;
+}
+
+.session-timeout-modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: 420px;
+  max-width: 95vw;
+  box-shadow: var(--shadow-xl);
+  border: 2px solid var(--warning-border, #fbbf24);
+}
+
+.session-timeout-modal__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--warning-bg, #fef3c7);
+  border-bottom: 1px solid var(--warning-border, #fbbf24);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  color: var(--warning-text, #92400e);
+}
+
+.session-timeout-modal__title {
+  margin: 0;
+  font-size: var(--font-md);
+}
+
+.session-timeout-modal__body {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.session-timeout-modal__body p {
+  margin: 0;
+}
+
+.session-timeout-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--border);
+}
+
+/* =============================================
+   BUTTON VARIANTS (shared security additions)
+   ============================================= */
+
+/* Danger button variant for destructive actions */
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--error-text, #dc2626);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-danger:hover {
+  background: var(--error-hover, #b91c1c);
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-danger--sm {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-xs);
+}
+
+/* Link-style button */
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: var(--font-sm);
+  cursor: pointer;
+  padding: var(--space-xs);
+  text-decoration: underline;
+}
+
+.btn-link:hover {
+  color: var(--primary-dark, #1d4ed8);
+}
+
+/* Success banner */
+.success-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--success-bg, #dcfce7);
+  color: var(--success-text, #166534);
+  border: 1px solid var(--success-border, #86efac);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  font-size: var(--font-sm);
+}
+
+/* Form range slider */
+.form-range {
+  width: 100%;
+  accent-color: var(--primary);
+}
+
+/* Form select small variant */
+.form-select--sm {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-sm);
+}
+
+/* =============================================
+   FORCED MFA SETUP SCREEN
+   ============================================= */
+
+.mfa-force-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--bg-primary, #f8fafc);
+  padding: var(--space-lg);
+}
+
+.mfa-force-setup__banner {
+  max-width: 480px;
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-lg);
+  background: var(--warning-bg, #fef3c7);
+  border: 1px solid var(--warning-border, #fbbf24);
+  border-radius: var(--radius-md);
+  color: var(--warning-text, #92400e);
+  font-weight: 600;
+  text-align: center;
+}

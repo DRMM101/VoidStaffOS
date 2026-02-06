@@ -8,7 +8,7 @@
  * Role Management, Compensation Settings, and system info.
  */
 
-import { Users, PoundSterling, Shield, Info } from 'lucide-react';
+import { Users, PoundSterling, Shield, Lock, Info } from 'lucide-react';
 
 /* Settings card definitions — each links to a sub-page */
 const SETTINGS_CARDS = [
@@ -29,6 +29,12 @@ const SETTINGS_CARDS = [
     label: 'Compliance',
     description: 'Right to Work, DBS checks, and document verification.',
     icon: Shield,
+  },
+  {
+    key: 'admin-security',
+    label: 'Security',
+    description: 'MFA policy, password rules, session timeout, and inactive accounts.',
+    icon: Lock,
   },
 ];
 

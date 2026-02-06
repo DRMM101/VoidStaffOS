@@ -54,6 +54,10 @@ import AnnouncementsAdminPage from './components/announcements/AnnouncementsAdmi
 import GDPRPage from './components/gdpr/GDPRPage';
 import GDPRAdminPage from './components/gdpr/GDPRAdminPage';
 import OrgChartPage from './components/OrgChartPage';
+import SecuritySettingsPage from './components/security/SecuritySettingsPage';
+import AdminSecuritySettings from './components/security/AdminSecuritySettings';
+import SessionTimeoutWarning from './components/security/SessionTimeoutWarning';
+import MFASetupWizard from './components/security/MFASetupWizard';
 import AppShell from './components/layout/AppShell';
 
 function App() {
@@ -61,6 +65,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [navParams, setNavParams] = useState(null);
+
+  // Session timeout in minutes (default 480 = 8hrs, updated from tenant policy on login)
+  const [sessionTimeoutMinutes, setSessionTimeoutMinutes] = useState(480);
+
+  // MFA enforcement — when tenant policy is 'required' and user hasn't set up MFA
+  const [forceMfaSetup, setForceMfaSetup] = useState(false);
 
   // Enhanced navigation that supports parameters
   const handleNavigate = (page, params = null) => {
@@ -108,13 +118,39 @@ function App() {
     return <div className="loading">Loading...</div>;
   }
 
+  /**
+   * Handle login — set user and check if MFA setup must be forced
+   */
+  const handleLogin = (userData, securityInfo = {}) => {
+    setUser(userData);
+    // If tenant MFA policy is 'required' and user hasn't enabled MFA, force setup
+    if (securityInfo.mfa_policy === 'required' && !securityInfo.mfa_enabled) {
+      setForceMfaSetup(true);
+    }
+  };
+
   if (!user) {
-    return <Login onLogin={setUser} />;
+    return <Login onLogin={handleLogin} />;
   }
 
   const isAdmin = user.role_name === 'Admin';
   const isManager = user.role_name === 'Manager';
   const canCreateReviews = isAdmin || isManager;
+
+  // Block access to the app until MFA is set up (tenant policy = required)
+  if (forceMfaSetup) {
+    return (
+      <div className="mfa-force-setup">
+        <div className="mfa-force-setup__banner" role="alert">
+          Your organisation requires two-factor authentication. Please set up 2FA to continue.
+        </div>
+        <MFASetupWizard
+          onComplete={() => setForceMfaSetup(false)}
+          onCancel={handleLogout}
+        />
+      </div>
+    );
+  }
 
   return (
     <AppShell
@@ -166,8 +202,17 @@ function App() {
       {currentPage === 'gdpr' && <GDPRPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'gdpr-admin' && (isAdmin || user.role_name === 'HR Manager') && <GDPRAdminPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'org-chart' && (isAdmin || isManager) && <OrgChartPage user={user} onNavigate={handleNavigate} />}
+      {/* Security pages — accessible to all users */}
+      {currentPage === 'security' && <SecuritySettingsPage user={user} onNavigate={handleNavigate} />}
+      {currentPage === 'admin-security' && isAdmin && <AdminSecuritySettings user={user} onNavigate={handleNavigate} />}
       {currentPage === 'settings' && isAdmin && <AdminSettingsPage user={user} onNavigate={handleNavigate} />}
       {currentPage === 'role-management' && isAdmin && <RoleManagement user={user} />}
+
+      {/* Session timeout warning — rendered globally, auto-logs out on expiry */}
+      <SessionTimeoutWarning
+        timeoutMinutes={sessionTimeoutMinutes}
+        onLogout={handleLogout}
+      />
     </AppShell>
   );
 }

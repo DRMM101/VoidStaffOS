@@ -52,6 +52,7 @@ const opportunitiesRoutes = require('./routes/opportunities');
 const goalsRoutes = require('./routes/goals');
 const announcementsRoutes = require('./routes/announcements');
 const gdprRoutes = require('./routes/gdpr');
+const securityRoutes = require('./routes/security');
 const devRoutes = require('./routes/dev');
 
 const app = express();
@@ -171,6 +172,7 @@ app.use('/api/opportunities', opportunitiesRoutes);
 app.use('/api/goals', goalsRoutes);
 app.use('/api/announcements', announcementsRoutes);
 app.use('/api/gdpr', gdprRoutes);
+app.use('/api/security', securityRoutes);
 
 // Development routes (should be disabled in production)
 if (process.env.NODE_ENV !== 'production') {
