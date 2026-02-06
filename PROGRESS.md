@@ -715,3 +715,23 @@ npm run dev
 - **Tests**: 81 unit tests passing (16 test suites), production build compiles
 
 > ⚠️ No user test performed for this chunk.
+
+---
+
+### 2026-02-06 14:20 UTC — Opportunities Dashboard Integration
+
+- **Task**: Add seed data for internal opportunities, dashboard stat card, and scrolling ticker tape banner
+- **Decisions**:
+  - Seeded 5 realistic care-sector job opportunities directly into the database (Senior Care Assistant, Kitchen Team Leader, Activities Coordinator, Night Care Assistant, HR Administrator)
+  - Added an "Opportunities" StatCard to the dashboard right-side aside column showing count of open positions
+  - Built a ticker tape banner at the top of the dashboard displaying scrolling job postings with title, salary range, and posted date
+  - Used `requestAnimationFrame` for the ticker animation instead of CSS `@keyframes` — CSS approach failed to scroll due to browser width calculation issues with `translateX(-50%)`
+  - Ticker pauses on hover, clicks through to the Opportunities page, and uses edge-fade masking for smooth visual appearance
+  - Changed `openOpportunities` state from a count (number) to the full array of opportunity objects to support both the stat card and ticker
+- **Changes**:
+  - `frontend/src/components/Dashboard.jsx` — Added `useRef`/`useCallback` imports, `openOpportunities` now stores full array, added `formatSalary`/`formatTickerDate` helpers, added `requestAnimationFrame` scroll loop with hover pause, added ticker banner JSX
+  - `frontend/src/theme/components.css` — Added ~60 lines of ticker banner CSS (`.ticker-banner`, `__track`, `__item`, `.ticker-salary`, `.ticker-date`, `.ticker-separator`, edge-fade mask)
+- **Tools/Dependencies**: No new dependencies
+- **Status**: Complete — user tested and approved in browser
+- **Tests**: 81 unit tests passing (16 test suites), production build compiles
+- **Git**: Committed `8851d8d`, pushed to `origin/main`
